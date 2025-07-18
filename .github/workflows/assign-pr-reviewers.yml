@@ -1,5 +1,8 @@
 name: Assign 2 Random Reviewers on PR
 
+permissions:
+  pull-requests: write
+
 on:
   pull_request:
     types: [opened]
