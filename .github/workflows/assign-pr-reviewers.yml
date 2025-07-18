@@ -55,8 +55,10 @@ jobs:
             exit 0
           fi
 
-          # 5. 리뷰어 등록
-          gh pr edit "$PR_NUMBER" --repo "$REPO" --add-reviewer $REVIEWERS
+          # 5. 리뷰어 등록 (각각 추가)
+          for REVIEWER in $REVIEWERS; do
+            gh pr edit "$PR_NUMBER" --repo "$REPO" --add-reviewer "$REVIEWER"
+          done
 
           # 6. 팀 멘션 PR 댓글 추가
           echo "🔔 @${ORG_NAME}/${AUTHOR_TEAM} 팀\nPR이 생성되었습니다. 확인 부탁드립니다 🙌\n\n작성자: @$PR_AUTHOR" > pr-comment.md
