@@ -1,0 +1,41 @@
+name: Mention Team on Issue Creation
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  mention-team:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install yq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y yq
+
+      - name: Comment with team mention
+        env:
+          ISSUE_CREATOR: ${{ github.actor }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_NAME: bangguseok-lab
+        run: |
+          TEAM=$(yq ".\"$ISSUE_CREATOR\"" user-team-map.yml)
+
+          if [ "$TEAM" = "null" ] || [ -z "$TEAM" ]; then
+            echo "❌ 팀 정보를 찾을 수 없습니다."
+            exit 0
+          fi
+
+          echo "🔔 @${ORG_NAME}/${TEAM} 팀\n이슈가 생성되었습니다. 확인 부탁드립니다 🙌\n\n작성자: @$ISSUE_CREATOR" > comment.md
+
+          echo "$GITHUB_TOKEN" | gh auth login --with-token
+
+          gh api repos/$REPO/issues/$ISSUE_NUMBER/comments \
+            --method POST \
+            --field body="$(cat comment.md)"
