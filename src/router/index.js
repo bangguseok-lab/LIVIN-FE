@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import landingPage from '../pages/landing/landingPage.vue'
+import landingPage from '../pages/landing/Landing.vue'
 import authRoutes from './auth'
 import checklistRoutes from './checklist'
 import contentRoutes from './content'

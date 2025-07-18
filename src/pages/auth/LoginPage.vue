@@ -1,5 +1,10 @@
 <script setup></script>
 
 <template>
-  <h1>Login Page</h1>
+  <div class="LoginPage"></div>
 </template>
+
+<style scoped>
+.LoginPage {
+}
+</style>
