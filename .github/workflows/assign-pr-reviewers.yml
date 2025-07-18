@@ -55,8 +55,6 @@ jobs:
             exit 0
           fi
 
-          echo "$GITHUB_TOKEN" | gh auth login --with-token
-
           # 5. 리뷰어 등록
           gh pr edit "$PR_NUMBER" --repo "$REPO" --add-reviewer $REVIEWERS
 
