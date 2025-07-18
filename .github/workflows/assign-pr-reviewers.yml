@@ -28,7 +28,7 @@ jobs:
           echo "📌 PR 작성자: $PR_AUTHOR"
 
           # 1. 작성자 소속 팀
-          AUTHOR_TEAM=$(yq ".\"$PR_AUTHOR\"" user-team-map.yml)
+          AUTHOR_TEAM=$(yq -r ".\"$PR_AUTHOR\"" user-team-map.yml)
           if [ "$AUTHOR_TEAM" = "null" ] || [ -z "$AUTHOR_TEAM" ]; then
             echo "❌ 작성자의 팀 정보를 찾을 수 없습니다."
             exit 0
@@ -36,12 +36,12 @@ jobs:
           echo "👥 작성자 팀: $AUTHOR_TEAM"
 
           # 2. 페어 팀
-          PAIR_TEAM=$(yq ".\"$AUTHOR_TEAM\"" team-pairs.yml)
+          PAIR_TEAM=$(yq -r ".\"$AUTHOR_TEAM\"" team-pairs.yml)
           echo "🤝 페어 팀: $PAIR_TEAM"
 
           # 3. 팀원 목록 추출 (작성자 제외)
-          TEAM_MEMBERS=$(yq 'to_entries | map(select(.value == "'"$AUTHOR_TEAM"'")) | map(.key) | .[]' user-team-map.yml)
-          PAIR_MEMBERS=$(yq 'to_entries | map(select(.value == "'"$PAIR_TEAM"'")) | map(.key) | .[]' user-team-map.yml)
+          TEAM_MEMBERS=$(yq -r 'to_entries | map(select(.value == "'"$AUTHOR_TEAM"'")) | map(.key) | .[]' user-team-map.yml)
+          PAIR_MEMBERS=$(yq -r 'to_entries | map(select(.value == "'"$PAIR_TEAM"'")) | map(.key) | .[]' user-team-map.yml)
 
           ALL_REVIEWERS=$(echo -e "$TEAM_MEMBERS\n$PAIR_MEMBERS" | grep -v "$PR_AUTHOR" | sort -u)
 
