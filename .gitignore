@@ -65,3 +65,9 @@ coverage
 # TypeScript 빌드 정보
 # ======================
 *.tsbuildinfo
+
+# ======================
+# act 테스트용
+# ======================
+.secrets
+.github/event-payloads/
