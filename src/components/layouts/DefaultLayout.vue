@@ -4,6 +4,10 @@ import { useRoute } from 'vue-router'
 import Header from './Header.vue'
 import Navbar from './Navbar.vue'
 const route = useRoute()
+
+//경로 관련한 것들은 추후에 변경 예정
+//아직 확실히 모든경로에 대한 설정이 정해지지 않아 임의로 설정
+
 //랜딩페이지, 로그인페이지에서는 헤더가 보이지 않도록
 const pathHide = ['landing', 'login']
 
