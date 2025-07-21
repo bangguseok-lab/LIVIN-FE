@@ -19,4 +19,11 @@ export default defineConfig({
       },
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "@/assets/styles/utils/_pxToRem.scss" as *;`,
+      },
+    },
+  },
 })
