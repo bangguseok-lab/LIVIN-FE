@@ -15,12 +15,12 @@ const home = () => {
 <template>
   <div class="logo-button-wrap" @click.prevent="home">
     <img
-      src="../../../assets/icons/header/LogoBlue.svg"
+      src="../../../assets/icons/header/logo-blue.svg"
       alt="로고 파란색"
       v-if="props.icon === 'blue'"
     />
     <img
-      src="../../../assets/icons/header/LogoWhite.svg"
+      src="../../../assets/icons/header/logo-white.svg"
       alt="로고 하얀색"
       v-else-if="props.icon === 'white'"
     />

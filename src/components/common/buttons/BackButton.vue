@@ -15,12 +15,12 @@ const back = () => {
 <template>
   <div class="back-button-wrap" @click.prevent="back">
     <img
-      src="../../../assets/icons/header/BackIconBlue.svg"
+      src="../../../assets/icons/header/back-icon-blue.svg"
       alt="뒤로가기 파란색"
       v-if="props.icon === 'blue'"
     />
     <img
-      src="../../../assets/icons/header/BackIconWhite.svg"
+      src="../../../assets/icons/header/back-icon-white.svg"
       alt="뒤로가기 하얀색"
       v-else-if="props.icon === 'white'"
     />
