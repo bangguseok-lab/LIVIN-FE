@@ -39,11 +39,13 @@ const background = computed(() => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@use '@/assets/styles/utils/_pxToRem.scss' as *;
+
 .Header,
 .Header-alone {
   width: 100%;
-  height: 3rem;
+  height: rem(48px);
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
