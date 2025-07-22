@@ -74,15 +74,6 @@ const isActive = computed(() => menu => {
 <style lang="scss" scoped>
 @use '@/assets/styles/utils/_pxToRem.scss' as *;
 
-// .nav-wrap {
-//   position: fixed;
-//   bottom: 0;
-//   left: 0;
-//   z-index: 100;
-//   width: 100%;
-//   display: flex;
-//   justify-content: center;
-// }
 .nav-wrap {
   position: fixed;
   bottom: 0;
@@ -91,7 +82,6 @@ const isActive = computed(() => menu => {
   width: 100%;
   display: flex;
   justify-content: center;
-  // background-color: #ffffff;
 }
 
 .Navbar {
