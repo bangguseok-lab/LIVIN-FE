@@ -111,6 +111,7 @@ const isActive = computed(() => menu => {
   justify-content: space-between;
   align-items: center;
 }
+
 .icon-box {
   width: rem(40px);
   height: rem(40px);
@@ -118,6 +119,7 @@ const isActive = computed(() => menu => {
   justify-content: center;
   align-items: center;
   text-decoration: none;
+
   &.active {
     background-color: rgba(23, 125, 250, 0.1);
     border-radius: rem(8px);

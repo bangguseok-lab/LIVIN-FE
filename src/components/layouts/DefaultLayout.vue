@@ -58,20 +58,33 @@ const checkHeaderType = computed(() => {
 </script>
 
 <template>
-  <div class="DefaultLayout"></div>
   <div class="layout-wrapper">
-    <!-- 예: 공통 헤더 -->
+    <!-- 공통 헤더 -->
     <Header v-if="showHeader" v-bind="checkHeaderType" />
-    <!-- 라우트 페이지가 들어갈 자리 -->
-    <slot />
 
-    <!-- 예: 공통 푸터 -->
-    <!-- <Footer /> -->
+    <!-- 라우트 페이지가 들어갈 자리 -->
+    <div class="slot-container">
+      <slot />
+    </div>
+
+    <!-- 공통 푸터 -->
     <Navbar v-if="showNav" />
   </div>
 </template>
 
-<style scoped>
-.DefaultLayout {
+<style scoped lang="scss">
+.layout-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.slot-container {
+  position: absolute;
+  top: rem(48px);
+  display: flex;
+  max-width: rem(600px);
+  height: calc(100% - 7rem);
+  justify-content: center;
 }
 </style>
