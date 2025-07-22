@@ -8,31 +8,42 @@ import ChecklistIcon from '@/assets/icons/navbar/checklist-icon.svg'
 import FavoriteIcon from '@/assets/icons/navbar/favorite-icon.svg'
 import MypageIcon from '@/assets/icons/navbar/mypage-icon.svg'
 
+import HomeIconActive from '@/assets/icons/navbar/home-icon-active.svg'
+import SearchPropertyIconActive from '@/assets/icons/navbar/search-property-icon-active.svg'
+import ChecklistIconActive from '@/assets/icons/navbar/checklist-icon-active.svg'
+import FavoriteIconActive from '@/assets/icons/navbar/favorite-icon-active.svg'
+import MypageIconActive from '@/assets/icons/navbar/mypage-icon-active.svg'
+
 const route = useRoute()
 const navMenus = [
   {
     path: '/',
     icon: HomeIcon,
+    activeIcon: HomeIconActive,
     alt: '홈 아이콘',
   },
   {
     path: '/search',
     icon: SearchPropertyIcon,
+    activeIcon: SearchPropertyIconActive,
     alt: '매물보기 아이콘',
   },
   {
     path: '/checklist',
     icon: ChecklistIcon,
+    activeIcon: ChecklistIconActive,
     alt: '체크리스트 아이콘',
   },
   {
     path: '/favorite',
     icon: FavoriteIcon,
+    activeIcon: FavoriteIconActive,
     alt: '찜 아이콘',
   },
   {
     path: '/mypage',
     icon: MypageIcon,
+    activeIcon: MypageIconActive,
     alt: '마이페이지 아이콘',
   },
 ]
@@ -57,7 +68,11 @@ const isActive = computed(() => menu => {
         class="icon-box"
         :class="{ active: isActive(menu) }"
       >
-        <img :src="menu.icon" :alt="menu.alt" class="mt-2" />
+        <img
+          :src="isActive(menu) ? menu.activeIcon : menu.icon"
+          :alt="menu.alt"
+          class="mt-2"
+        />
       </router-link>
     </div>
   </div>
