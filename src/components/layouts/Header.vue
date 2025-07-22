@@ -2,7 +2,6 @@
 <script setup>
 import BackButton from '@/components/common/buttons/BackButton.vue'
 import LogoButton from '@/components/common/buttons/LogoButton.vue'
-import { computed } from 'vue'
 
 const props = defineProps({
   icon: {
