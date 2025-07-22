@@ -2,9 +2,14 @@
 <script setup>
 import { computed, defineProps, defineEmits } from 'vue';
 import { useRouter } from 'vue-router'
+
+// 아이콘
 import IconBlue from '@/assets/togo-btn-blue.svg';
 import IconWhite from '@/assets/togo-btn-white.svg';
 import CloseIcon from '@/assets/close-btn.svg';
+
+// API
+// import { deleteMyChecklistItem } from '@/api/checklist';
 
 const router = useRouter()
 
@@ -54,7 +59,19 @@ const handleClick = () => {
 }
 
 // Click 시 항목 삭제 API 호출 ==================================================> API 개발 후 수정 필요
-const handelClose = () => {
+const handelClose = async () => {
+  // const confirmed = confirm('삭제하시겠습니까?');
+  // if (!confirmed) return;
+
+  // try {
+  //   await deleteMyChecklistItem(id, item_id);   // id: checklist id, item_id: my-checklist-id
+  //   alert('삭제되었습니다.');
+
+  //   // 삭제 후 나만의 항목 다시 조회
+  // } catch (error) {
+  //   console.error('삭제 실패:', error);
+  //   alert('삭제 중 오류가 발생했습니다.');
+  // }
   alert('삭제하시겠습니까?')
 }
 
