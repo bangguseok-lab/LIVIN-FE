@@ -70,16 +70,14 @@ function handleManageClick() {
 
 <template>
   <div class="MyPage">
-    <header class="header">
-      <button class="back">←</button>
-    </header>
-
     <section class="greeting-section">
       <div class="greeting-inner">
         <div class="profile-img">프로필 이미지</div>
         <div class="text-block">
           <p class="hello">안녕하세요,</p>
-          <p class="nickname">{{ user.nickname }}님!</p>
+          <p class="nickname">
+            {{ user.nickname }}<span class="nim">님!</span>
+          </p>
         </div>
       </div>
     </section>
@@ -177,49 +175,24 @@ function handleManageClick() {
         <div class="bottom-text">{{ manageButton.title }}</div>
       </Buttons>
     </section>
-    <Navbar />
   </div>
+  <Navbar />
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .MyPage {
-  max-width: 600px;
-  min-width: 450px;
-  min-height: 100vh;
-  background-color: var(--white);
+  width: 100%;
   margin: 0 auto;
-  color: #333;
-  padding-bottom: 63px;
-}
-
-/* 헤더 */
-.header {
-  height: 35px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 12px;
-  font-weight: 700;
-  font-size: 12px;
-  position: relative;
-  background: var(--primary-color);
-  color: var(--white);
-}
-.header .back {
-  position: absolute;
-  left: 12px;
-  background: none;
-  border: none;
-  font-size: 10px;
-  color: var(--white);
-  cursor: pointer;
+  padding-bottom: 20px;
+  background-color: var(--white);
+  overflow-y: auto;
 }
 
 /* 인삿말 */
 .greeting-section {
   background: var(--primary-color);
   color: var(--white);
-  padding: 90px 20px 40px;
+  padding: 40px 30px 46px;
   position: relative;
   z-index: 1;
 }
@@ -241,12 +214,19 @@ function handleManageClick() {
   font-weight: 700;
 }
 .text-block .hello {
-  font-size: 13px;
-  margin-bottom: 2px;
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.6;
 }
-.text-block .nickname {
+.nickname {
   font-size: 16px;
   font-weight: 800;
+  margin: 0;
+}
+
+.nim {
+  font-weight: 400;
+  opacity: 0.6;
 }
 
 /* 회원 정보 */
@@ -254,7 +234,7 @@ function handleManageClick() {
   background: var(--white);
   border-radius: 28px 28px 0 0;
   margin: -20px 0 0 0;
-  padding: 40px;
+  padding: 30px 50px;
   width: 100%;
   box-shadow: 0 2px 6px rgb(0 0 0 / 0.05);
   font-size: 13px;
@@ -321,8 +301,8 @@ function handleManageClick() {
 }
 .value {
   flex: 2;
-  color: #222;
-  font-weight: 600;
+  color: var(--black);
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -356,13 +336,13 @@ function handleManageClick() {
 
 /* 관리 버튼 섹션 */
 .manage-section {
-  padding: 0 16px;
+  padding: 0 50px;
   margin-bottom: 20px;
 }
 .manage-title {
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
   padding-top: 16px;
 }
 </style>
