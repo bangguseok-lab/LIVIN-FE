@@ -9,6 +9,7 @@ import myPageRoutes from './myPage'
 import propertyAddRoutes from './propertyAdd'
 import propertyFavRoutes from './propertyFav'
 import propertySearchRoutes from './propertySearch'
+import componentsRoutes from './components'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,7 @@ const router = createRouter({
     ...propertyAddRoutes,
     ...propertyFavRoutes,
     ...propertySearchRoutes,
+    ...componentsRoutes,
   ],
 })
 
