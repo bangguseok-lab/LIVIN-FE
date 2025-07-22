@@ -2,6 +2,7 @@
 <script setup>
 import BackButton from '@/components/common/buttons/BackButton.vue'
 import LogoButton from '@/components/common/buttons/LogoButton.vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   icon: {
@@ -13,16 +14,25 @@ const props = defineProps({
     required: true,
   },
 })
+
+
+const background = computed(() => {
+  if (props.icon === 'blue') {
+    return 'background-white'
+  } else {
+    return 'background-blue'
+  }
+})
 </script>
 
 <template>
   <div class="header-wrap">
-    <div v-if="props.type === 'together'" class="Header">
+    <div v-if="props.type === 'together'" class="Header" :class="background">
       <BackButton :icon="props.icon" />
       <LogoButton :icon="props.icon" />
       <div class="header-right"></div>
     </div>
-    <div v-else-if="props.type === 'alone-logo'" class="Header-alone">
+    <div v-else-if="props.type === 'alone-logo'" class="Header-alone" :class="background">
       <LogoButton :icon="props.icon" />
     </div>
   </div>
@@ -30,6 +40,7 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 @use '@/assets/styles/utils/_pxToRem.scss' as *;
+
 .header-wrap {
   position: fixed;
   top: 0;
@@ -53,14 +64,25 @@ const props = defineProps({
   position: relative;
   background-color: transparent;
 }
+
 .Header {
   justify-content: space-between;
 }
+
 .Header-alone {
   justify-content: flex-start;
 }
+
 .header-right {
   width: 10%;
   height: 100%;
+}
+
+.background-blue {
+  background-color: #177dfa;
+}
+
+.background-white {
+  background-color: #ffffff;
 }
 </style>

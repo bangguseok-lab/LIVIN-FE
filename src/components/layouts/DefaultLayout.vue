@@ -73,18 +73,43 @@ const checkHeaderType = computed(() => {
 </template>
 
 <style scoped lang="scss">
+// .layout-wrapper {
+//   display: flex;
+//   justify-content: center;
+//   width: 100%;
+// }
+
+// .slot-container {
+//   position: absolute;
+//   // top: rem(48px);
+//   display: flex;
+//   max-width: rem(600px);
+//   width: 100%;
+//   // height: calc(100% - 7rem);
+//   justify-content: center;
+// }
 .layout-wrapper {
-  display: flex;
-  justify-content: center;
+  margin: 0 auto;
+  max-width: rem(600px);
   width: 100%;
+  min-height: 100vh;
+  height: 100%;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
+// .slot-container {
+//   position: absolute;
+//   display: flex;
+//   max-width: rem(600px);
+//   height: 1000vh;
+//   justify-content: center;
+//   width: 100%;
+// }
 .slot-container {
-  position: absolute;
-  top: rem(48px);
   display: flex;
   max-width: rem(600px);
-  height: calc(100% - 7rem);
+  height: 1000vh;
   justify-content: center;
+  width: 100%;
 }
 </style>
