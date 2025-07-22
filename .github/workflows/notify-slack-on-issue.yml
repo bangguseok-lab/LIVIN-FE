@@ -69,5 +69,5 @@ jobs:
           --data "{
             \"username\": \"GitHub Bot\",
             \"icon_emoji\": \":star:\",
-            \"text\": \"⭐️ *이슈 생성 알림 (로컬 테스트)*\n\n📌 *제목:* $ISSUE_TITLE\n👤 *작성자:* $FORMATTED_CREATOR\n🏷️ *라벨:* $LABELS\n🔗 <$ISSUE_URL>\n\n🔔 *멘션:* $SLACK_MENTIONS\"
+            \"text\": \"⭐️ *이슈 생성 알림 *\n\n📌 *제목:* $ISSUE_TITLE\n👤 *작성자:* $FORMATTED_CREATOR\n🏷️ *라벨:* $LABELS\n🔗 <$ISSUE_URL>\n\n🔔 *멘션:* $SLACK_MENTIONS\"
           }" "$SLACK_WEBHOOK_URL"
