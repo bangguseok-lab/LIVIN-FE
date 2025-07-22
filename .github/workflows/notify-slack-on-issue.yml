@@ -24,7 +24,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_URL: ${{ github.event.issue.html_url }}
-          ISSUE_CREATOR: 'Youngbae1126'
+          PR_CREATOR: ${{ github.actor }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           REPO_NAME: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
