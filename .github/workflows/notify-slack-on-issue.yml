@@ -24,7 +24,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_URL: ${{ github.event.issue.html_url }}
-          PR_CREATOR: ${{ github.actor }}
+          ISSUE_CREATOR: ${{ github.actor }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           REPO_NAME: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
@@ -69,5 +69,5 @@ jobs:
           --data "{
             \"username\": \"GitHub Bot\",
             \"icon_emoji\": \":star:\",
-            \"text\": \"⭐️ *이슈 생성 알림 *\n\n📌 *제목:* $ISSUE_TITLE\n👤 *작성자:* $FORMATTED_CREATOR\n🏷️ *라벨:* $LABELS\n🔗 <$ISSUE_URL>\n\n🔔 *멘션:* $SLACK_MENTIONS\"
+            \"text\": \"⭐️ *이슈 생성 알림 *\n\n📌 *제목:* $ISSUE_TITLE\n👤 *작성자:* $FORMATTED_CREATOR\n🏷️ *라벨:* $LABELS\n🔗 <$ISSUE_URL>\n\n🔔 *멘션:* <!here>\"
           }" "$SLACK_WEBHOOK_URL"

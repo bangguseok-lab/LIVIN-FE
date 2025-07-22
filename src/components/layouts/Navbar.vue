@@ -59,12 +59,23 @@ const isActive = computed(() => menu => {
 </script>
 
 <template>
-  <div class="Navbar">
-    <div class="nav-wrap">
-      <router-link v-for="menu in navMenus" :key="menu.path" :to="menu.path" class="icon-box"
-        :class="{ active: isActive(menu) }">
-        <img :src="isActive(menu) ? menu.activeIcon : menu.icon" :alt="menu.alt" class="mt-2" />
-      </router-link>
+  <div class="nav-wrap">
+    <div class="Navbar">
+      <div class="nav-box">
+        <router-link
+          v-for="menu in navMenus"
+          :key="menu.path"
+          :to="menu.path"
+          class="icon-box"
+          :class="{ active: isActive(menu) }"
+        >
+          <img
+            :src="isActive(menu) ? menu.activeIcon : menu.icon"
+            :alt="menu.alt"
+            class="mt-2"
+          />
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -72,20 +83,28 @@ const isActive = computed(() => menu => {
 <style lang="scss" scoped>
 @use '@/assets/styles/utils/_pxToRem.scss' as *;
 
+.nav-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .Navbar {
   width: 100%;
   height: rem(63px);
   display: flex;
   justify-content: center;
-  align-items: center;
-  position: fixed;
-  bottom: 0;
-  left: 0;
   z-index: 100;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  max-width: rem(600px);
+  min-width: rem(100px);
 }
 
-.nav-wrap {
+.nav-box {
   width: 90%;
   height: 100%;
   display: flex;
