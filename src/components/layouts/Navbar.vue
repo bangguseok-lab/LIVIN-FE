@@ -61,18 +61,9 @@ const isActive = computed(() => menu => {
 <template>
   <div class="Navbar">
     <div class="nav-wrap">
-      <router-link
-        v-for="menu in navMenus"
-        :key="menu.path"
-        :to="menu.path"
-        class="icon-box"
-        :class="{ active: isActive(menu) }"
-      >
-        <img
-          :src="isActive(menu) ? menu.activeIcon : menu.icon"
-          :alt="menu.alt"
-          class="mt-2"
-        />
+      <router-link v-for="menu in navMenus" :key="menu.path" :to="menu.path" class="icon-box"
+        :class="{ active: isActive(menu) }">
+        <img :src="isActive(menu) ? menu.activeIcon : menu.icon" :alt="menu.alt" class="mt-2" />
       </router-link>
     </div>
   </div>
@@ -93,6 +84,7 @@ const isActive = computed(() => menu => {
   z-index: 100;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
+
 .nav-wrap {
   width: 90%;
   height: 100%;
@@ -100,6 +92,7 @@ const isActive = computed(() => menu => {
   justify-content: space-between;
   align-items: center;
 }
+
 .icon-box {
   width: rem(40px);
   height: rem(40px);
@@ -107,6 +100,7 @@ const isActive = computed(() => menu => {
   justify-content: center;
   align-items: center;
   text-decoration: none;
+
   &.active {
     background-color: rgba(23, 125, 250, 0.1);
     border-radius: rem(8px);
