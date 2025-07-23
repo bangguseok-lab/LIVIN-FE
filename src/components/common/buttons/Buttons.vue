@@ -2,8 +2,14 @@
 <script setup>
 import { computed, defineProps, defineEmits } from 'vue';
 import { useRouter } from 'vue-router'
+
+// 아이콘
 import IconBlue from '@/assets/togo-btn-blue.svg';
 import IconWhite from '@/assets/togo-btn-white.svg';
+import CloseIcon from '@/assets/close-btn.svg';
+
+// API
+// import { deleteMyChecklistItem } from '@/api/checklist';
 
 const router = useRouter()
 
@@ -22,7 +28,7 @@ const props = defineProps({
     type: String,
     default: 'default',
     validator: (val) => [
-      'default', 'xl', 'md', 'sm', 'xs', 'ok', 'go', 'property', 'start-option', 'start-lg', 'start-photo', 'start-direction', 'start-floor'
+      'default', 'xl', 'md', 'sm', 'xs', 'ok', 'go', 'property', 'start-option', 'start-lg', 'start-photo', 'start-direction', 'start-floor', 'my-option'
     ].includes(val),
   },
   togo: {
@@ -52,10 +58,27 @@ const handleClick = () => {
   }
 }
 
+// Click 시 항목 삭제 API 호출 ==================================================> API 개발 후 수정 필요
+const handelClose = async () => {
+  // const confirmed = confirm('삭제하시겠습니까?');
+  // if (!confirmed) return;
+
+  // try {
+  //   await deleteMyChecklistItem(id, item_id);   // id: checklist id, item_id: my-checklist-id
+  //   alert('삭제되었습니다.');
+
+  //   // 삭제 후 나만의 항목 다시 조회
+  // } catch (error) {
+  //   console.error('삭제 실패:', error);
+  //   alert('삭제 중 오류가 발생했습니다.');
+  // }
+  alert('삭제하시겠습니까?')
+}
+
 // class 계산
 const typeClass = computed(() => `btn-${props.type}`)
 const activeClass = computed(() => {
-  const activeTypes = ['default', 'md', 'sm', 'ok', 'go', 'go-lg']  // props.type이 이 중에 있으면, 버튼 전체를 채우는 fill-active 스타일이 적용
+  const activeTypes = ['default', 'md', 'sm', 'ok', 'go', 'go-lg', 'my-option']  // props.type이 이 중에 있으면, 버튼 전체를 채우는 fill-active 스타일이 적용
   return props.isActive ? (activeTypes.includes(props.type) ? 'fill-active' : 'border-active') : '';
 })
 
@@ -80,6 +103,8 @@ const iconComponent = computed(() => {
       <!-- label이 지정한 값일 때만 아이콘 표시 -->
       <img v-if="label === '적용된 매물 보러가기' || label === '체크리스트 확인하기'" :src="iconComponent" alt="icon" />
     </button>
+    <!-- 버튼이 my-option 타입일 때만 close icon 보여줌 -->
+    <img v-if="type === 'my-option'" :src=CloseIcon alt="항목 삭제하기" class="close-icon" @click="handelClose">
   </div>
 </template>
 
@@ -145,22 +170,22 @@ const iconComponent = computed(() => {
 
 // btn-sm, 체크리스트 항목에 많이 사용되는 버튼
 .btn-sm {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background-color: var(--grey);
   color: white;
   min-width: rem(85px);
   max-width: rem(150px); // 최대 너비 설정
   width: fit-content;
   min-height: rem(35px);
-  padding: rem(2px) rem(4px);
+  padding: rem(4px) rem(10px);
   border-radius: rem(6px);
 
   white-space: normal; // 텍스트 줄바꿈 허용
   word-wrap: break-word; // 긴 단어도 줄바꿈
   text-align: center; // 텍스트 가운데 정렬
   line-height: 1.4; // 줄 간격
+
+  font-size: rem(12px);
+  font-weight: var(--font-weight-lg);
 }
 
 .btn-sm :deep(.option-text) {
@@ -194,16 +219,16 @@ const iconComponent = computed(() => {
 
 // btn-go, ~보러가기 버튼 (페이지 이동 O)
 .btn-go {
-  width: rem(104px);
-  height: rem(26px);
+  width: rem(150px);
+  height: rem(36px);
   color: var(--primary-color);
   border: rem(1px) solid var(--primary-color);
-  border-radius: rem(6px);
-  font-size: rem(8px);
+  border-radius: rem(12px);
+  font-size: rem(12px);
 }
 
 .btn-go img {
-  margin-left: rem(4px);
+  margin-left: rem(8px);
 }
 
 // btn-property, 매물 관련 필터링 버튼
@@ -224,18 +249,21 @@ const iconComponent = computed(() => {
 }
 
 .btn-role :deep(.role-text) {
-  font-size: rem(12px);
+  font-size: rem(16px);
   font-weight: var(--font-weight-lg);
   margin-bottom: rem(4px);
   color: black;
 }
 
 .btn-role :deep(.role-description-text) {
-  font-size: rem(8px);
+  font-size: rem(12px);
   font-weight: var(--font-weight-sm);
   color: var(--grey);
 }
 
+.btn-role.border-active :deep(.role-description-text) {
+  color: var(--primary-color)
+}
 
 // btn-go-lg, 등록한 매물 보러가기 버튼
 .btn-go-lg {
@@ -300,6 +328,32 @@ const iconComponent = computed(() => {
   font-weight: var(--font-weight-sm);
 }
 
+
+// btn-my-option, 나의 항목 삭제하기 버튼
+.btn-my-option {
+  background-color: var(--grey);
+  color: white;
+  min-width: rem(85px);
+  max-width: rem(150px); // 최대 너비 설정
+  width: fit-content;
+  min-height: rem(35px);
+  padding: rem(4px) rem(10px);
+  border-radius: rem(6px);
+
+  white-space: normal; // 텍스트 줄바꿈 허용
+  word-wrap: break-word; // 긴 단어도 줄바꿈
+  text-align: center; // 텍스트 가운데 정렬
+  line-height: 1.4; // 줄 간격
+
+  font-size: rem(12px);
+  font-weight: var(--font-weight-lg);
+}
+
+.close-icon {
+  position: relative;
+  top: rem(-15px);
+  right: rem(12px);
+}
 
 
 
