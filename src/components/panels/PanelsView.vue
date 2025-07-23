@@ -9,7 +9,7 @@ const toggleCheckPanel = () => {
 }
 
 // PricePanel
-import PricePanel from '@/components/panels/BasePanel.vue'
+import PricePanel from '@/components/panels/PricePanel.vue'
 const isPriceOpen = ref(false) // 가격 필터 열림 상태
 const togglePricePanel = () => {
   isPriceOpen.value = !isPriceOpen.value
