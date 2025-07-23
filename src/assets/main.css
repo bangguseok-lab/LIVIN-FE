@@ -39,3 +39,8 @@
 li {
   list-style: none;
 }
+
+#app {
+  display: flex;
+  justify-content: center;
+}

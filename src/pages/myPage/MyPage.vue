@@ -381,4 +381,8 @@ function handleManageClick() {
   background-color: #ddd;
   margin-top: 8px;
 }
+
+.test-box {
+  height: 1400px;
+}
 </style>
