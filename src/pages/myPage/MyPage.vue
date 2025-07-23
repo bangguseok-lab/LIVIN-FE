@@ -175,6 +175,12 @@ function handleManageClick() {
         <div class="bottom-text">{{ manageButton.title }}</div>
       </Buttons>
     </section>
+    <!-- 로그아웃 / 회원탈퇴 -->
+    <section class="account-section">
+      <button class="account-btn logout">로그아웃</button>
+      <div class="vertical-divider"></div>
+      <button class="account-btn leave">회원탈퇴</button>
+    </section>
   </div>
   <Navbar />
 </template>
@@ -342,7 +348,35 @@ function handleManageClick() {
 .manage-title {
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   padding-top: 16px;
+}
+
+.account-section {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 24px;
+  padding: 0 50px;
+}
+
+.account-btn {
+  font-size: 10px;
+  color: var(--grey);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.account-btn.logout:hover,
+.account-btn.leave:hover {
+  color: var(--black);
+}
+
+.vertical-divider {
+  width: 1px;
+  height: 12px;
+  background-color: #ddd;
+  margin-top: 8px;
 }
 </style>
