@@ -132,6 +132,11 @@ const iconComponent = computed(() => {
   border-radius: rem(10px);
 }
 
+.btn-default:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
 // btn-xl, 메인페이지에 사용되는 큰 버튼
 .btn-xl {
   display: flex;
@@ -242,22 +247,27 @@ const iconComponent = computed(() => {
 
 // btn-role, 임대인, 임차인 역할 관련 버튼
 .btn-role {
-  width: rem(150px);
-  height: rem(194px);
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  padding-top: 4rem;
+
+  width: rem(240px);
+  height: rem(300px);
   border: rem(1px) solid var(--grey);
   border-radius: rem(13px);
 }
 
 .btn-role :deep(.role-text) {
-  font-size: rem(16px);
-  font-weight: var(--font-weight-lg);
+  font-size: rem(18px);
+  font-weight: var(--font-weight-bold);
   margin-bottom: rem(4px);
-  color: black;
+  color: var(--title-text);
 }
 
 .btn-role :deep(.role-description-text) {
   font-size: rem(12px);
-  font-weight: var(--font-weight-sm);
+  font-weight: var(--font-weight-regular);
   color: var(--grey);
 }
 

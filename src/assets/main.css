@@ -25,6 +25,8 @@
   --purple: #9dbbff;
   --grey: #c6c6c8;
   --whitish: #f7f7f7;
+  --title-text: #444444;
+  --sub-title-text: #b3b3b3;
 
   /* font */
   --font-family: 'Pretendard', sans-serif;
@@ -38,6 +40,8 @@
   --font-weight-extra-bold: 800;
 
   --font-size: 16px;
+  --title-size: 20px;
+  --sub-title-size: 13px;
 }
 
 * {
