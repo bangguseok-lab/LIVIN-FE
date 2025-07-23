@@ -200,7 +200,7 @@ function handleManageClick() {
 .greeting-section {
   background: var(--primary-color);
   color: var(--white);
-  padding: 40px 30px 46px;
+  padding: 80px 30px 46px;
   position: relative;
   z-index: 1;
 }
