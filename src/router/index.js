@@ -26,6 +26,13 @@ const router = createRouter({
     ...propertySearchRoutes,
     ...componentsRoutes,
   ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0, left: 0, behavior: 'smooth' }
+    }
+  },
 })
 
 export default router
