@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Navbar from '@/components/layouts/Navbar.vue'
 import Buttons from '@/components/common/buttons/Buttons.vue'
+import ProfileImageModal from '@/components/modals/ProfileImageModal.vue'
 
 const router = useRouter()
 
@@ -19,6 +20,11 @@ const tempValue = ref('')
 
 const nicknameRef = ref(null)
 const phoneRef = ref(null)
+
+const showProfileModal = ref(false)
+const profileImage = ref(
+  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?&w=100&q=80',
+) // 기본 프로필 이미지
 
 function startEdit(field) {
   editingField.value = field
@@ -61,13 +67,25 @@ function handleManageClick() {
     router.push('/propertyManage')
   }
 }
+
+function openProfileModal() {
+  showProfileModal.value = true
+}
+
+function onProfileImageChange(newImage) {
+  profileImage.value = newImage
+  showProfileModal.value = false
+  // 여기서 API 호출해서 DB 저장 처리 가능
+}
 </script>
 
 <template>
   <div class="MyPage">
     <section class="greeting-section">
       <div class="greeting-inner">
-        <div class="profile-img">프로필 이미지</div>
+        <div class="profile-img" @click="openProfileModal">
+          <img :src="profileImage" alt="프로필 이미지" />
+        </div>
         <div class="text-block">
           <p class="hello">안녕하세요,</p>
           <p class="nickname">
@@ -170,12 +188,20 @@ function handleManageClick() {
         <div class="bottom-text">{{ manageButton.title }}</div>
       </Buttons>
     </section>
+
     <section class="account-section">
       <button class="account-btn logout">로그아웃</button>
       <div class="vertical-divider"></div>
       <button class="account-btn leave">회원탈퇴</button>
     </section>
+
+    <!-- 프로필 이미지 변경 모달 -->
+    <ProfileImageModal
+      v-model="showProfileModal"
+      @change="onProfileImageChange"
+    />
   </div>
+
   <Navbar />
 </template>
 
@@ -202,16 +228,17 @@ function handleManageClick() {
   gap: rem(12px);
 }
 .profile-img {
-  background: #aac7ff;
-  color: var(--white);
-  border-radius: 50%;
   width: rem(56px);
   height: rem(56px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: rem(10px);
-  font-weight: 700;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 }
 .text-block .hello {
   font-size: rem(12px);
