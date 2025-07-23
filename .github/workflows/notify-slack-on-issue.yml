@@ -42,11 +42,7 @@ jobs:
             LABELS="없음"
           fi
 
-
-
-          FORMATTED_NAME="@${SLACK_NAME}"
-
-          # Slack 멘션 구성
+          # 3. Slack 멘션 구성
           TEAM_MEMBERS=$(yq 'to_entries | map(select(.value == "'"$AUTHOR_TEAM"'")) | .[].key' user-team-map.yml)
           SLACK_MENTIONS=""
           for MEMBER_ID in $TEAM_MEMBERS; do
@@ -64,7 +60,7 @@ jobs:
             FORMATTED_CREATOR="$ISSUE_CREATOR"
           fi
 
-          # 6. 슬랙 메시지 전송
+          # 5. 슬랙 메시지 전송
           curl -X POST -H 'Content-type: application/json' \
           --data "{
             \"username\": \"GitHub Bot\",
