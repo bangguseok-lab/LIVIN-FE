@@ -1,12 +1,11 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import Navbar from '@/components/layouts/Navbar.vue' // 네비게이션 컴포넌트 임포트
+import Navbar from '@/components/layouts/Navbar.vue'
 import Buttons from '@/components/common/buttons/Buttons.vue'
 
 const router = useRouter()
 
-// 사용자 데이터
 const user = ref({
   name: '전영태',
   nickname: '영태는 핑크가 제일 좋아',
@@ -15,21 +14,17 @@ const user = ref({
   type: '임대인',
 })
 
-// 수정 상태
 const editingField = ref(null)
 const tempValue = ref('')
 
-// contenteditable 요소 ref
 const nicknameRef = ref(null)
 const phoneRef = ref(null)
 
-// 수정 시작
 function startEdit(field) {
   editingField.value = field
   tempValue.value = user.value[field]
 }
 
-// 수정 저장
 function saveEdit(field) {
   if (field === 'nickname' && nicknameRef.value) {
     tempValue.value = nicknameRef.value.innerText
@@ -43,12 +38,10 @@ function saveEdit(field) {
   editingField.value = null
 }
 
-// 사용자 타입 토글
 function setUserType(type) {
   user.value.type = type
 }
 
-// 버튼 텍스트
 const manageButton = computed(() => {
   return user.value.type === '임대인'
     ? {
@@ -63,7 +56,7 @@ const manageButton = computed(() => {
 
 function handleManageClick() {
   if (user.value.type === '임차인') {
-    router.push('/checklist') // 임차인 체크리스트 페이지 (임의 경로)
+    router.push('/checklist')
   } else {
     router.push('/propertyManage')
   }
@@ -177,7 +170,6 @@ function handleManageClick() {
         <div class="bottom-text">{{ manageButton.title }}</div>
       </Buttons>
     </section>
-    <!-- 로그아웃 / 회원탈퇴 -->
     <section class="account-section">
       <button class="account-btn logout">로그아웃</button>
       <div class="vertical-divider"></div>
@@ -188,45 +180,46 @@ function handleManageClick() {
 </template>
 
 <style scoped lang="scss">
+@import '@/assets/styles/utils/_pxToRem.scss';
+
 .MyPage {
   width: 100%;
   margin: 0 auto;
-  padding-bottom: 70px;
+  padding-bottom: rem(70px);
   background-color: var(--white);
 }
 
-/* 인삿말 */
 .greeting-section {
   background: var(--primary-color);
   color: var(--white);
-  padding: 150px 30px 46px;
+  padding: rem(150px) rem(30px) rem(46px);
   position: relative;
   z-index: 1;
 }
 .greeting-inner {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: rem(12px);
 }
 .profile-img {
   background: #aac7ff;
   color: var(--white);
   border-radius: 50%;
-  width: 56px;
-  height: 56px;
+  width: rem(56px);
+  height: rem(56px);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: rem(10px);
   font-weight: 700;
 }
 .text-block .hello {
-  font-size: 12px;
+  font-size: rem(12px);
   margin: 0;
   opacity: 0.6;
 }
 .nickname {
-  font-size: 16px;
+  font-size: rem(16px);
   font-weight: 800;
   margin: 0;
 }
@@ -236,15 +229,14 @@ function handleManageClick() {
   opacity: 0.6;
 }
 
-/* 회원 정보 */
 .info-section {
   background: var(--white);
-  border-radius: 28px 28px 0 0;
-  margin: -20px 0 0 0;
-  padding: 30px 50px;
+  border-radius: rem(28px) rem(28px) 0 0;
+  margin: rem(-20px) 0 0 0;
+  padding: rem(30px) rem(50px);
   width: 100%;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 0.05);
-  font-size: 13px;
+  box-shadow: 0 rem(2px) rem(6px) rgb(0 0 0 / 0.05);
+  font-size: rem(13px);
   position: relative;
   z-index: 2;
 }
@@ -252,28 +244,28 @@ function handleManageClick() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: rem(16px);
 }
 .info-header h2 {
-  font-size: 16px;
+  font-size: rem(16px);
   font-weight: 800;
 }
 .user-type-toggle {
   background: var(--grey);
-  border-radius: 24px;
+  border-radius: rem(24px);
   display: flex;
-  padding: 0px;
-  width: 100px;
+  padding: 0;
+  width: rem(100px);
   font-weight: 700;
-  font-size: 10px;
+  font-size: rem(10px);
   overflow: hidden;
 }
 .user-type-toggle button {
   flex: 1;
   background: transparent;
   border: none;
-  border-radius: 16px;
-  padding: 6px 0;
+  border-radius: rem(16px);
+  padding: rem(6px) 0;
   color: var(--white);
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -281,7 +273,7 @@ function handleManageClick() {
 .user-type-toggle button.active {
   background: var(--primary-color);
   color: var(--white);
-  box-shadow: 0 3px 6px rgb(23 125 250 / 0.4);
+  box-shadow: 0 rem(3px) rem(6px) rgb(23 125 250 / 0.4);
   font-weight: 500;
 }
 
@@ -295,16 +287,16 @@ function handleManageClick() {
 }
 .info-list li {
   display: grid;
-  grid-template-columns: 1.2fr 2fr 40px;
+  grid-template-columns: 1.2fr 2fr rem(40px);
   align-items: center;
-  border-bottom: 1px solid #eee;
-  padding: 12px 0;
+  border-bottom: rem(1px) solid #eee;
+  padding: rem(12px) 0;
 }
 .label {
   flex: 1;
   color: #777;
   font-weight: 500;
-  font-size: 13px;
+  font-size: rem(13px);
 }
 .value {
   flex: 2;
@@ -312,21 +304,21 @@ function handleManageClick() {
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: rem(6px);
   word-break: break-word;
-  font-size: 13px;
+  font-size: rem(13px);
 }
 .editable-text {
   outline: none;
-  min-width: 50px;
+  min-width: rem(50px);
   display: inline-block;
   cursor: text;
 }
 .edit-btn {
-  width: 40px;
+  width: rem(40px);
   background: none;
   border: none;
-  font-size: 10px;
+  font-size: rem(10px);
   color: var(--grey);
   cursor: pointer;
 }
@@ -334,39 +326,37 @@ function handleManageClick() {
   visibility: hidden;
 }
 
-/* 회색 구분선 */
 .divider {
-  height: 12px;
+  height: rem(12px);
   background: #f1f3f5;
-  margin: 0px 0 8px;
+  margin: 0 0 rem(8px);
 }
 
-/* 관리 버튼 섹션 */
 .manage-section {
-  padding: 0 50px;
-  margin-bottom: 20px;
+  padding: 0 rem(50px);
+  margin-bottom: rem(20px);
 }
 .manage-title {
-  font-size: 16px;
+  font-size: rem(16px);
   font-weight: 600;
-  margin-bottom: 24px;
-  padding-top: 16px;
+  margin-bottom: rem(24px);
+  padding-top: rem(16px);
 }
 
 .account-section {
   display: flex;
   justify-content: space-around;
-  margin-top: 24px;
-  padding: 0 50px;
+  margin-top: rem(24px);
+  padding: 0 rem(50px);
 }
 
 .account-btn {
-  font-size: 10px;
+  font-size: rem(10px);
   color: var(--grey);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  padding: rem(8px);
 }
 
 .account-btn.logout:hover,
@@ -375,9 +365,9 @@ function handleManageClick() {
 }
 
 .vertical-divider {
-  width: 1px;
-  height: 12px;
+  width: rem(1px);
+  height: rem(12px);
   background-color: #ddd;
-  margin-top: 8px;
+  margin-top: rem(8px);
 }
 </style>
