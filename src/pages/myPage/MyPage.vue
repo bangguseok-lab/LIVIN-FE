@@ -64,6 +64,8 @@ const manageButton = computed(() => {
 function handleManageClick() {
   if (user.value.type === '임차인') {
     router.push('/checklist') // 임차인 체크리스트 페이지 (임의 경로)
+  } else {
+    router.push('/propertyManage')
   }
 }
 </script>
