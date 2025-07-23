@@ -57,5 +57,5 @@ jobs:
           --data "{
             \"username\": \"GitHub Bot\",
             \"icon_emoji\": \":rocket:\",
-            \"text\": \"🚀 *PR 생성 알림 *\n\n📌 *제목:* $PR_TITLE\n👤 *작성자:* $FORMATTED_CREATOR\n🔗 <$PR_URL>\n\n🔔 *멘션:* $SLACK_MENTIONS\"
+            \"text\": \"🚀 *PR 생성 알림 *\n\n📌 *제목:* $PR_TITLE\n👤 *작성자:* $FORMATTED_CREATOR\n🔗 <$PR_URL>\n\n🔔 *멘션:* <!here>\"
           }" "$SLACK_WEBHOOK_URL"

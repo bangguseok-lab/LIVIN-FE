@@ -24,7 +24,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_URL: ${{ github.event.issue.html_url }}
-          PR_CREATOR: ${{ github.actor }}
+          ISSUE_CREATOR: ${{ github.actor }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           REPO_NAME: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
@@ -42,11 +42,7 @@ jobs:
             LABELS="없음"
           fi
 
-
-
-          FORMATTED_NAME="@${SLACK_NAME}"
-
-          # Slack 멘션 구성
+          # 3. Slack 멘션 구성
           TEAM_MEMBERS=$(yq 'to_entries | map(select(.value == "'"$AUTHOR_TEAM"'")) | .[].key' user-team-map.yml)
           SLACK_MENTIONS=""
           for MEMBER_ID in $TEAM_MEMBERS; do
@@ -64,10 +60,10 @@ jobs:
             FORMATTED_CREATOR="$ISSUE_CREATOR"
           fi
 
-          # 6. 슬랙 메시지 전송
+          # 5. 슬랙 메시지 전송
           curl -X POST -H 'Content-type: application/json' \
           --data "{
             \"username\": \"GitHub Bot\",
             \"icon_emoji\": \":star:\",
-            \"text\": \"⭐️ *이슈 생성 알림 *\n\n📌 *제목:* $ISSUE_TITLE\n👤 *작성자:* $FORMATTED_CREATOR\n🏷️ *라벨:* $LABELS\n🔗 <$ISSUE_URL>\n\n🔔 *멘션:* $SLACK_MENTIONS\"
+            \"text\": \"⭐️ *이슈 생성 알림 *\n\n📌 *제목:* $ISSUE_TITLE\n👤 *작성자:* $FORMATTED_CREATOR\n🏷️ *라벨:* $LABELS\n🔗 <$ISSUE_URL>\n\n🔔 *멘션:* <!here>\"
           }" "$SLACK_WEBHOOK_URL"

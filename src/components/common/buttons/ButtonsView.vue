@@ -29,6 +29,8 @@ const directionBtn2 = ref(false)
 const dateBtn1 = ref(false)
 const photoBtn1 = ref(true)
 const floorBtn1 = ref(true)
+const myBtn1 = ref(true)
+const myBtn2 = ref(true)
 
 
 
@@ -44,7 +46,7 @@ const floorBtn1 = ref(true)
       <div class="btn-left-side">
         <div class="btn-box">
           <p>btn-xl</p>
-          <Buttons type="xl">
+          <Buttons type="xl" togo="/checklist">
             <div class="top-text">나만의 공간을 위한 모든 준비, 지금 여기서 시작하세요</div>
             <div class="bottom-text">나만의 체크리스트 만들기</div>
           </Buttons>
@@ -188,6 +190,16 @@ const floorBtn1 = ref(true)
           <div class="btn-box">
             <p>btn-floor (상태: {{ floorBtn1 ? '활성' : '비활성' }})</p>
             <Buttons v-model:is-active="floorBtn1" type="floor" label="복층입니다" />
+          </div>
+        </div>
+        <div class="btn-my-option-box">
+          <div class="btn-box">
+            <p>btn-my-option (상태: {{ myBtn1 ? '활성' : '비활성' }})</p>
+            <Buttons v-model:is-active="myBtn1" type="my-option" label="쿠팡 새벽배송" />
+          </div>
+          <div class="btn-box">
+            <p>btn-my-option (상태: {{ myBtn2 ? '활성' : '비활성' }})</p>
+            <Buttons v-model:is-active="myBtn2" type="my-option" label="버스정류장 가까움" />
           </div>
         </div>
       </div>
