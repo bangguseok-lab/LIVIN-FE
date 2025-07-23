@@ -191,16 +191,15 @@ function handleManageClick() {
 .MyPage {
   width: 100%;
   margin: 0 auto;
-  padding-bottom: 20px;
+  padding-bottom: 70px;
   background-color: var(--white);
-  overflow-y: auto;
 }
 
 /* 인삿말 */
 .greeting-section {
   background: var(--primary-color);
   color: var(--white);
-  padding: 80px 30px 46px;
+  padding: 150px 30px 46px;
   position: relative;
   z-index: 1;
 }
@@ -380,9 +379,5 @@ function handleManageClick() {
   height: 12px;
   background-color: #ddd;
   margin-top: 8px;
-}
-
-.test-box {
-  height: 1400px;
 }
 </style>
