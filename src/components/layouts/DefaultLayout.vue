@@ -74,17 +74,18 @@ const checkHeaderType = computed(() => {
 
 <style scoped lang="scss">
 .layout-wrapper {
-  display: flex;
-  justify-content: center;
+  margin: 0 auto;
+  max-width: rem(600px);
   width: 100%;
+  height: 100%;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .slot-container {
-  position: absolute;
-  top: rem(48px);
   display: flex;
   max-width: rem(600px);
-  height: calc(100% - 7rem);
+  min-height: 100vh;
   justify-content: center;
+  width: 100%;
 }
 </style>
