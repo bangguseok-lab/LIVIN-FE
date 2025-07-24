@@ -110,25 +110,6 @@ p {
   margin-bottom: rem(40px);
 }
 
-.image-item {
-  width: rem(132px);
-  height: rem(165px);
-  border-radius: 14%;
-  overflow: hidden;
-  border: rem(4px) solid transparent;
-  cursor: pointer;
-}
-
-.image-item.selected {
-  border-color: var(--primary-color);
-}
-
-.image-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .modal-actions {
   display: flex;
   justify-content: center;
