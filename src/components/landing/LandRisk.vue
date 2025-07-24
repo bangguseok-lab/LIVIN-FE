@@ -64,14 +64,21 @@ const goToRiskInfo = () => {
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
+
+  @media (max-width: 600px) {
+    flex-direction: column-reverse;
+  }
 }
 
 /* 텍스트 영역 */
 .landrisk-description {
-  width: 50%;
+  /* width: 50%; */
   flex: 1;
   text-align: right;
   margin: 0.5rem;
+  @media (max-width: 600px) {
+    text-align: center;
+  }
 }
 .description-title {
   font-weight: var(--font-weight-lg);
@@ -87,11 +94,13 @@ const goToRiskInfo = () => {
 
 /* 이미지 영역 */
 .landrisk-image-wrapper {
-  flex-shrink: 0;
+  /* flex-shrink: 0; */
   cursor: pointer;
   transition: transform 0.2s;
-  width: 45%;
+  /* width: 45%; */
   margin: 1rem;
+  display: flex;
+  justify-content: center;
 }
 .landrisk-image-wrapper:hover {
   transform: scale(1.02);
