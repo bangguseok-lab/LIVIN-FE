@@ -1,7 +1,7 @@
 <script setup>
 import { ref, defineProps, watch } from 'vue'
 
-// props로 title과 description을 받음 --> 사용 시 title, description 입력 가능
+// props 정의
 const props = defineProps({
   title: {
     type: String,
@@ -14,38 +14,36 @@ const props = defineProps({
   numberList: {
     type: Array,
     required: true,
-    default: () => Array.from({ length: 15 }, (_, i) => i + 1), //사용시 numberList 입력하지 않으면 보이는 디폴트 값입니다
+    default: () => Array.from({ length: 15 }, (_, i) => i + 1),
   },
+  initialMin: Number,
+  initialMax: Number,
 })
 
 // emit 정의
 const emit = defineEmits(['updateRange'])
 
 // 내부 상태
-const min = ref(null)
-const max = ref(null)
+const min = ref(props.initialMin ?? null)
+const max = ref(props.initialMax ?? null)
 
-// 숫자 → 문자열 변환 (예) 1000 → "1,000만원")
+// 숫자 포맷 함수
 function formatNumber(num, index) {
   const isLast = index === props.numberList.length - 1
-  let formatted = ''
-
   if (num >= 10000) {
-    formatted =
-      num % 10000 === 0 ? `${num / 10000}억` : `${(num / 10000).toFixed(1)}억`
-  } else if (num % 1000 === 0 && num >= 1000 && num < 10000) {
-    formatted = `${num / 1000}천`
+    return num % 10000 === 0
+      ? `${num / 10000}억`
+      : `${(num / 10000).toFixed(1)}억`
+  } else if (num >= 1000 && num % 1000 === 0) {
+    return `${num / 1000}천`
   } else {
-    formatted = `${num.toLocaleString()}만원`
+    return `${num.toLocaleString()}만원`
   }
-
-  return isLast ? `${formatted}+` : formatted
 }
 
-// 클릭 이벤트 핸들러
+// 버튼 클릭 핸들러
 function handleClick(num) {
   if (num === min.value || num === max.value) return
-
   if (min.value === null) {
     min.value = num
   } else if (max.value === null) {
@@ -61,44 +59,51 @@ function handleClick(num) {
   }
 }
 
-// min 또는 max 값 변경 시 부모에게 전달
+// min/max 변경 시 부모에 emit
 watch([min, max], () => {
-  emit('updateRange', {
-    min: min.value,
-    max: max.value,
-  })
-  // 로그 추가
+  emit('updateRange', { min: min.value, max: max.value })
   console.log(
     `[RangeSelector] 선택된 범위: min = ${min.value}, max = ${max.value}`,
   )
 })
 
+// props 변경 시 내부 상태 반영
+watch(
+  () => [props.initialMin, props.initialMax],
+  ([newMin, newMax]) => {
+    min.value = newMin
+    max.value = newMax
+    console.log('[RangeSelector] initial 값으로 갱신됨:', newMin, newMax)
+  },
+  { immediate: true },
+)
+
+// 버튼 스타일 반환
 function getButtonClass(num) {
-  if (num === min.value || num === max.value) {
-    return 'btn selected'
-  }
+  if (num === min.value || num === max.value) return 'btn selected'
   if (
     min.value !== null &&
     max.value !== null &&
     num > min.value &&
     num < max.value
-  ) {
+  )
     return 'btn in-range'
-  }
   return 'btn'
 }
 </script>
 
 <template>
   <div class="range-selector">
+    <!-- 제목 및 설명 영역 -->
     <div class="header-section">
-      <p class="title">{{ props.title }}</p>
-      <p class="description">{{ props.description }}</p>
+      <p class="title">{{ title }}</p>
+      <p class="description">{{ description }}</p>
     </div>
 
+    <!-- 숫자 버튼 그리드 영역 -->
     <div class="grid">
       <button
-        v-for="(num, idx) in props.numberList"
+        v-for="(num, idx) in numberList"
         :key="num"
         :class="getButtonClass(num)"
         @click="handleClick(num)"
@@ -107,29 +112,20 @@ function getButtonClass(num) {
       </button>
     </div>
 
+    <!-- 선택된 최소/최대 값 표시 영역 -->
     <div class="result">
       <button :disabled="!min" class="display-btn">
-        <!-- {{ min ? formatNumber(min) : 'min' }} -->
-        {{
-          min !== null
-            ? formatNumber(min, props.numberList.indexOf(min))
-            : '최소'
-        }}
+        {{ min !== null ? formatNumber(min, numberList.indexOf(min)) : '최소' }}
       </button>
       <span>~</span>
       <button :disabled="!max" class="display-btn">
-        <!-- {{ max ? formatNumber(max) : 'max' }} -->
-        {{
-          max !== null
-            ? formatNumber(max, props.numberList.indexOf(max))
-            : '최대'
-        }}
+        {{ max !== null ? formatNumber(max, numberList.indexOf(max)) : '최대' }}
       </button>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .header-section {
   padding: 0rem 0 1rem 0;
 }
@@ -162,6 +158,13 @@ function getButtonClass(num) {
   border-radius: 0px;
   cursor: pointer;
   font-size: 0.7rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+  min-width: 65px; // 또는 80px 정도로 넉넉하게
+  white-space: nowrap;
 }
 
 .btn.selected {
