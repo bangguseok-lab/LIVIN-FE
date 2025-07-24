@@ -101,9 +101,10 @@ const prevSlide = () => {
       </div>
       <!-- 텍스트 영역 -->
       <div class="landfav-text">
-        <p class="description-title">내가 정한 기준,<br />내가 고르는 매물</p>
+        <p class="description-title">내가 정한 기준, 내가 고르는 매물</p>
         <p class="description-subtitle">
-          조건 설정, 찜, 비교까지 한 번에 찾는 내 기준 매물
+          원하는 조건 설정, 찜하기, 비교 기능까지<br />
+          한 번에 찾는 나만의 매물
         </p>
       </div>
     </div>
@@ -131,7 +132,7 @@ const prevSlide = () => {
   font-weight: var(--font-weight-lg);
 }
 
-/* ✅ 카드 컨테이너 */
+/* 카드 컨테이너 */
 .landfav-card {
   display: flex;
   gap: 2rem;
@@ -145,7 +146,7 @@ const prevSlide = () => {
   }
 }
 
-/* ✅ 텍스트 */
+/* 텍스트 */
 .landfav-text {
   flex: 1;
   text-align: left;
@@ -159,6 +160,7 @@ const prevSlide = () => {
   font-weight: var(--font-weight-lg);
   font-size: 1rem;
   margin-bottom: 0.5rem;
+  margin-top: 1.5rem;
   -webkit-text-stroke: 0.6px var(--black);
   color: var(--black);
 }

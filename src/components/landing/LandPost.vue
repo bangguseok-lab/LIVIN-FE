@@ -87,10 +87,9 @@ const prevSlide = () => {
   <section class="landpost-section">
     <!-- 상단 제목 -->
     <div class="landpost-heading">
-      <h2>그렇다면, 임대인은요?</h2>
-      <p>이제는 매물이 아니라, 신뢰를 등록하세요.</p>
+      <h2>그렇다면, <span class="post-highlight">임대인</span>은요?</h2>
+      <p>이제는 단순한 집이 아닌, 신뢰를 등록하세요</p>
     </div>
-
     <!-- 등록 카드 -->
     <transition name="slide-fade" mode="out-in">
       <div
@@ -103,6 +102,7 @@ const prevSlide = () => {
         @mouseleave="isDragging && onMouseUp($event)"
         @click="goToRegister"
       >
+        <!-- <div class="point-label">POINT 4</div>
         <div class="landpost-text">
           <h3>{{ cardData[currentIndex].title }}</h3>
           <p v-html="cardData[currentIndex].subtitle" />
@@ -113,6 +113,23 @@ const prevSlide = () => {
             alt="등록 카드"
             draggable="false"
           />
+        </div> -->
+        <!-- 항상 상단 중앙에 고정될 라벨 -->
+        <div class="point-label">POINT 4</div>
+
+        <!-- 텍스트와 이미지만 유연하게 정렬될 영역 -->
+        <div class="landpost-content">
+          <div class="landpost-text">
+            <h3>{{ cardData[currentIndex].title }}</h3>
+            <p v-html="cardData[currentIndex].subtitle" />
+          </div>
+          <div class="landpost-image">
+            <img
+              :src="cardData[currentIndex].image"
+              alt="등록 카드"
+              draggable="false"
+            />
+          </div>
         </div>
       </div>
     </transition>
@@ -128,29 +145,35 @@ const prevSlide = () => {
 
 <style scoped lang="scss">
 .landpost-section {
-  background-color: var(--whitish);
+  background-color: var(--white);
   max-width: rem(600px);
   margin: 0 auto;
   padding: 3rem 2rem;
   text-align: center;
-  border-radius: 3rem;
+  font-weight: var(--font-weight-lg);
+  color: var(--grey);
 }
-
+.post-highlight {
+  color: var(--blue);
+  -webkit-text-stroke: 1px var(--blue);
+  font-weight: var(--font-weight-lg);
+}
 .landpost-heading h2 {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-lg);
+  -webkit-text-stroke: 0.7px var(--black);
+  margin: 0.5rem 0 0.5rem 0;
 }
 
 .landpost-heading p {
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .landpost-card {
-  background-color: var(--primary-color);
+  background-color: var(--white);
   border-radius: 1rem;
   padding: 2rem 1rem;
-  margin-top: 2rem;
+  margin-top: 4rem;
   /* min-height: 300px; */
   touch-action: pan-y;
   aspect-ratio: 3 / 2;
@@ -164,20 +187,53 @@ const prevSlide = () => {
     transform 0.2s,
     box-shadow 0.2s;
 }
+
 .landpost-card:hover {
   transform: scale(1.01);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.point-label {
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-lg);
+  margin-bottom: 1rem;
+}
+
+.landpost-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .landpost-content {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 481px) {
+  .landpost-content {
+    flex-direction: row;
+  }
+}
 .landpost-text {
-  color: white;
-  max-width: 200px;
-  text-align: left;
+  color: var(--black);
+  font-weight: var(--font-weight-lg);
+  max-width: rem(200px);
+  text-align: center;
 }
 
 .landpost-text h3 {
   font-size: 1rem;
-  font-weight: bold;
+  -webkit-text-stroke: 0.6px var(--black);
+  font-weight: var(--font-weight-lg);
   margin-bottom: 0.5rem;
 }
 

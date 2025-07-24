@@ -300,11 +300,25 @@ const goToLogin = () => {
 }
 
 /* 플로팅 버튼 부분 */
+// .floating-start-btn {
+//   position: absolute;
+//   bottom: rem(20px);
+//   left: 0;
+//   right: 0;
+//   z-index: 1000;
+//   pointer-events: none;
+//   display: flex;
+//   justify-content: center;
+//   width: 100%;
+//   max-width: rem(600px);
+//   padding: 0;
+//   box-sizing: border-box;
+// }
 .floating-start-btn {
-  position: absolute;
+  position: fixed;
   bottom: rem(20px);
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
   pointer-events: none;
   display: flex;
@@ -325,7 +339,7 @@ const goToLogin = () => {
   min-width: rem(200px);
   border: none;
   border-radius: rem(50px);
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   display: flex;
   align-items: center;
