@@ -14,18 +14,18 @@ const images = [
 
 const selectedImage = ref(null)
 
-function selectImage(img) {
+const selectImage = img => {
   selectedImage.value = img
 }
 
-function confirmChange() {
+const confirmChange = () => {
   if (selectedImage.value) {
     emit('change', selectedImage.value)
   }
   emit('update:modelValue', false)
 }
 
-function closeModal() {
+const closeModal = () => {
   emit('update:modelValue', false)
 }
 
