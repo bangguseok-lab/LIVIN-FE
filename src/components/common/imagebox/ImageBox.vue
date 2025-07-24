@@ -59,8 +59,8 @@ const handleClick = () => {
 }
 
 .imagebox-profile {
-  width: rem(132px);
-  height: rem(165px);
+  width: rem(142px);
+  height: rem(142px);
   border-radius: 14%;
 }
 </style>
