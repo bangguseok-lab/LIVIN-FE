@@ -18,6 +18,7 @@ export default [
           subTitle: '원활한 리빈 사용을 위해 실명이 필요해요',
           placeholder: '이름을 입력하세요',
           page: 1,
+          type: 'text',
         },
       },
       {
@@ -28,16 +29,18 @@ export default [
           subTitle: '리빈에서 사용될 이름이에요',
           placeholder: '닉네임을 입력하세요',
           page: 2,
+          type: 'text',
         },
       },
       {
-        path: 'phone-number',
+        path: 'phone',
         component: () => import('../components/layouts/SignupLayout.vue'),
         props: {
           title: '연락처를 알려주세요',
           subTitle: '계약 연결을 위해 실제로 연락 가능한 번호가 필요해요',
           placeholder: '연락처를 입력하세요',
           page: 3,
+          type: 'tel',
         },
       },
       {
@@ -48,6 +51,7 @@ export default [
           subTitle: '날짜를 선택해주세요',
           placeholder: '날짜를 선택하세요',
           page: 4,
+          type: 'date',
         },
       },
       {
@@ -58,6 +62,7 @@ export default [
           subTitle: '어떤 목적으로 리빈을 사용하는지 알려주세요',
           placeholder: '',
           page: 5,
+          type: 'role',
         },
       },
       {
@@ -68,6 +73,7 @@ export default [
           subTitle: '프로필에 사용될 이미지에요',
           placeholder: '',
           page: 6,
+          type: 'profile',
         },
       },
     ],

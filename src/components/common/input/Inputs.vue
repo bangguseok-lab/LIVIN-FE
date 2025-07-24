@@ -24,7 +24,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'input'])
 const inputRef = ref(null)
 
-// 전화번호 입력 시 자동 하이픈(-) 추가
+// 전화번호 입력 시 자동 하이픈(-) 처리
 const formatPhoneNumber = (value) => {
   const numbers = value.replace(/\D/g, '')
   if (numbers.length < 4) return numbers
@@ -41,14 +41,14 @@ const onInput = (e) => {
   }
 
   emit('update:modelValue', value);
-  emit('input', { name: props.name, value: value })
+  emit('input', { value: value })
 }
 
 // 커서를 맨 뒤로 이동
 watch(() => props.modelValue, async () => {
   await nextTick()
   const el = inputRef.value
-  if (el) {
+  if (el && (props.type === 'text' || props.type === 'tel')) {
     el.setSelectionRange(el.value.length, el.value.length)
   }
 })
@@ -56,14 +56,14 @@ watch(() => props.modelValue, async () => {
 
 <template>
   <input :type="type" :placeholder="placeholder" :value="modelValue" @input="onInput" class="custom-input"
-    ref="inputRef">
+    ref="inputRef" required>
 </template>
 
 <style scoped lang="scss">
 .custom-input {
   outline: none;
   border: rem(2px) solid #e1e1e1;
-  width: rem(350px);
+  width: 100%;
   height: rem(50px);
   padding: 1rem;
   border-radius: rem(15px);
