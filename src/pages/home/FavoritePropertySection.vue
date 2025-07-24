@@ -4,35 +4,16 @@ import { FreeMode, Pagination } from 'swiper/modules'
 import { RouterLink } from 'vue-router'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
-import 'swiper/css' // 기본 Swiper 스타일
-import Sample from '@/assets/images/home/sample-img.png'
+import 'swiper/css'
+import { defineProps } from 'vue'
 
-const favoriteProperties = [
-  {
-    id: 1,
-    img: Sample,
-    title: '매물 이름',
-    addr: '매물 주소',
-    description:
-      '매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명',
+const props = defineProps({
+  favorite: {
+    type: Array,
+    required: true,
+    default: () => [],
   },
-  {
-    id: 2,
-    img: Sample,
-    title: '매물 이름',
-    addr: '매물 주소',
-    description:
-      '매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명',
-  },
-  {
-    id: 3,
-    img: Sample,
-    title: '매물 이름',
-    addr: '매물 주소',
-    description:
-      '매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명 매물 설명',
-  },
-]
+})
 
 const modules = [FreeMode, Pagination]
 </script>
@@ -53,18 +34,18 @@ const modules = [FreeMode, Pagination]
         :loop="true"
         class="mySwiper"
       >
-        <swiper-slide v-for="fp in favoriteProperties" :key="index">
+        <swiper-slide v-for="fp in props.favorite" :key="fp.id">
           <router-link :to="`/favorite/${fp.id}`" class="router-text">
             <div class="card fp-box">
               <img
-                :src="fp.img"
+                :src="fp.image_url"
                 class="card-img-top fp-img"
                 alt="건물 이미지"
               />
               <div class="card-body">
                 <p class="card-text board-text-box">
-                  {{ fp.title }} <br />
-                  <small class="fp-addr">{{ fp.addr }}</small>
+                  {{ fp.name }} <br />
+                  <small class="fp-addr">{{ fp.filteringDistrictName }}</small>
                 </p>
                 <p class="card-text fp-description">
                   {{ fp.description }}
