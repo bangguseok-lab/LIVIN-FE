@@ -2,6 +2,22 @@
 import Buttons from '@/components/common/buttons/Buttons.vue'
 import FavoritePropertySection from './FavoritePropertySection.vue'
 import PropertySection from './PropertySection.vue'
+import { usePropertyStore } from '@/stores/property'
+import { onMounted } from 'vue'
+
+const property = usePropertyStore()
+onMounted(() => {
+  const favoriteParams = {
+    limit: 3,
+    desc: 'date',
+  }
+  const propertiesPrams = {
+    limit: 4,
+    desc: 'date',
+  }
+  property.fetchFavoriteProperties(favoriteParams)
+  property.fetchProperties(propertiesPrams)
+})
 
 const nickname = localStorage.getItem('nickname')
 </script>
@@ -18,8 +34,8 @@ const nickname = localStorage.getItem('nickname')
     </div>
     <div class="content-wrap">
       <div class="content-box">
-        <favorite-property-section />
-        <property-section />
+        <favorite-property-section :favorite="property.getFavorite" />
+        <property-section :properties="property.getPropertiesList" />
       </div>
       <div class="checklist-router-box">
         <Buttons type="xl" togo="/checklist">

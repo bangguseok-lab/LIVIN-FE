@@ -1,24 +1,14 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import { defineProps } from 'vue'
 
-const Properties = [
-  {
-    id: 1,
-    title: '매물 이름',
+const props = defineProps({
+  properties: {
+    type: Array,
+    required: true,
+    default: () => [],
   },
-  {
-    id: 2,
-    title: '매물 이름',
-  },
-  {
-    id: 3,
-    title: '매물 이름',
-  },
-  {
-    id: 4,
-    title: '매물 이름',
-  },
-]
+})
 </script>
 <template>
   <div class="property-box">
@@ -29,10 +19,13 @@ const Properties = [
       </small>
     </div>
     <div class="property-table-box mt-2">
-      <div class="row-box" v-for="p in Properties">
-        <div class="row-title board-text-box">{{ p.title }}</div>
+      <div class="row-box" v-for="p in props.properties">
+        <div class="row-title board-text-box">{{ p.name }}</div>
         <small class="sm-text-box">
-          <router-link :to="`/search/detail/${p.id}`" class="router-text">
+          <router-link
+            :to="`/search/detail/${p.propertiesId}`"
+            class="router-text"
+          >
             자세히 보기
           </router-link>
         </small>
