@@ -1,25 +1,40 @@
 <script setup>
 import RegionSelector from './RegionSelector.vue'
+import { defineProps, defineEmits } from 'vue'
 
-import { ref } from 'vue'
-
-// 선택된 지역 정보 저장
-const selectedRegion = ref({
-  city: null,
-  district: null,
-  neighborhood: null,
+// 지역 리스트는 props로 받고, 선택된 결과만 emit
+const props = defineProps({
+  cities: {
+    type: Array,
+    required: true,
+  },
+  districts: {
+    type: Array,
+    required: true,
+  },
+  parishes: {
+    type: Array,
+    required: true,
+  },
 })
 
-// 선택된 지역 정보가 변경되었을 때 호출됨
-const onRegionUpdate = region => {
-  selectedRegion.value = region
-  console.log('선택된 지역:', region)
+// 선택 결과를 부모로 전달
+const emit = defineEmits(['updateRegion'])
+
+const handleRegionUpdate = region => {
+  emit('updateRegion', region)
 }
 </script>
 
 <template>
   <div class="region-panel">
-    <RegionSelector class="element1" @updateRegion="onRegionUpdate" />
+    <RegionSelector
+      class="element1"
+      :cities="cities"
+      :districts="districts"
+      :parishes="parishes"
+      @updateRegion="handleRegionUpdate"
+    />
   </div>
 </template>
 
