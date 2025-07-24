@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import LandCheck from '@/components/landing/LandCheck.vue'
-// import LandRisk from '@/components/landing/LandRisk.vue'
-// import LandFav from '@/components/landing/LandFav.vue'
+import LandRisk from '@/components/landing/LandRisk.vue'
+import LandFav from '@/components/landing/LandFav.vue'
 // import LandPost from '@/components/landing/LandPost.vue'
 import Footer from '@/components/layouts/Footer.vue'
 </script>
@@ -11,17 +11,19 @@ import Footer from '@/components/layouts/Footer.vue'
   <div class="landing-container">
     <!-- Hero Section -->
     <section class="hero-section">
-      <p class="hero-title">나만의 공간을 위한 모든 준비</p>
+      <p class="hero-title">
+        나만의 공간을 위한 <span class="hero-highlight">모든 준비</span>
+      </p>
       <div class="hero-logo-wrapper">
         <img
-          src="@/assets/images/landing/LogoBlue.png"
+          src="@/assets/images/landing/LogoWhite.png"
           alt="Livin Logo"
           class="hero-logo"
         />
       </div>
       <p class="hero-description">
         매물 비교부터 위험 진단, 체크리스트까지<br />
-        복잡한 부동산, 이제 한 번에 해결하세요.
+        복잡한 부동산, 이제 한 번에 해결하세요
       </p>
       <div class="hero-image-wrapper">
         <img
@@ -36,7 +38,7 @@ import Footer from '@/components/layouts/Footer.vue'
     <section class="problem-section">
       <p class="problem-title">
         집을 구할 때,<br />
-        이런 적 있으시죠?
+        <span class="problem-highlight">이런 적</span> 있으시죠?
       </p>
       <div class="problem-badge-wrapper">
         <div class="top-badge">
@@ -49,7 +51,7 @@ import Footer from '@/components/layouts/Footer.vue'
       </div>
       <div class="problem-image-wrapper">
         <img
-          src="@/assets/images/landing/TestImage.png"
+          src="@/assets/images/landing/ProblemImage.png"
           alt="생각하는 캐릭터"
           class="problem-image"
         />
@@ -65,7 +67,7 @@ import Footer from '@/components/layouts/Footer.vue'
             src="@/assets/images/landing/LogoBlue.png"
             alt="Livin Logo"
             class="solution-logo" /></span
-        >은 세가지로 해결합니다
+        >은 <span class="solution-highlight">세 가지</span>로 해결합니다
       </p>
     </section>
 
@@ -87,11 +89,11 @@ import Footer from '@/components/layouts/Footer.vue'
         >은 당신의 <span class="highlight-primary">기준과 안전</span>을 지킵니다
       </p>
       <p class="cta-description">
-        우리는 더 많은 정보보다, 더 나은 판단을 돕는 도구가 필요하다고
+        우리는 더 많은 정보보다는 더 나은 판단을 돕는 도구가 필요하다고
         믿습니다.<br />
-        불안한 선택 대신, 내가 원하는 조건과 안심할 수 있는 기준으로 주거 결정을
-        내릴 수 있게,<br />
         리빈은 믿을 수 있는 정보와 당신의 기준을 연결합니다.<br />
+        불안한 선택 대신, 적절한 기준으로 안심할 수 있는 주거 결정을 내릴 수
+        있게,<br />
         당신의 주거 결정이 지금보다 더 단단해지도록.
       </p>
     </section>
@@ -106,7 +108,7 @@ import Footer from '@/components/layouts/Footer.vue'
   width: 100%;
   min-height: 100vh;
   font-size: 1rem;
-  background-color: var(--white);
+  background-color: var(--primary-color);
   color: var(--black);
 }
 
@@ -117,22 +119,30 @@ import Footer from '@/components/layouts/Footer.vue'
 }
 .hero-title {
   margin-top: 3rem;
-  color: var(--primary-color);
-  font-weight: var(--font-weight-lg); /* 조금더 굵은 게 있어야 할 듯*/
+  color: var(--white);
+  font-weight: var(--font-weight-lg);
   font-size: 1.25rem;
+  -webkit-text-stroke: 0.4px var(--white);
+}
+.hero-highlight {
+  color: var(--pinl);
+  font-weight: var(--font-weight-lg);
+  -webkit-text-stroke: 0.7px var(--pink);
 }
 .hero-logo {
   height: 20px;
   margin-top: -1rem;
 }
 .hero-description {
+  color: var(--white);
   font-size: 1rem;
   margin-top: 2rem;
   font-weight: var(--font-weight-sm);
   line-height: 1.5;
 }
 .hero-image-wrapper {
-  margin-top: 1rem;
+  margin-top: 3.5rem;
+  margin-bottom: 4rem;
 }
 .hero-image {
   width: 200px;
@@ -140,10 +150,10 @@ import Footer from '@/components/layouts/Footer.vue'
 
 /* Problem Section */
 .problem-section {
-  background-color: var(--whitish);
+  background-color: var(--white);
   padding: 3rem 3rem 0rem 3rem;
   text-align: center;
-  border-radius: 3.5rem 3.5rem 0 0;
+  border-radius: 2rem 2rem 0 0;
 }
 .problem-title {
   font-weight: var(--font-weight-lg);
@@ -151,9 +161,15 @@ import Footer from '@/components/layouts/Footer.vue'
   font-size: 1.25rem;
   line-height: 1.5;
   padding-top: 0.5rem;
+  -webkit-text-stroke: 0.4px var(--black);
+}
+.problem-highlight {
+  color: var(--blue);
+  font-weight: var(--font-weight-lg);
+  -webkit-text-stroke: 0.8px var(--blue);
 }
 .problem-badge-wrapper {
-  margin-top: 1.5rem;
+  margin-top: 3rem;
   display: flex;
   flex-direction: column;
 }
@@ -164,7 +180,7 @@ import Footer from '@/components/layouts/Footer.vue'
 }
 .problem-badge1 {
   display: inline-block;
-  background-color: var(--primary-color);
+  background-color: var(--green);
   color: var(--white);
   font-size: 0.9rem;
   padding: 0.75rem 1.25rem;
@@ -175,7 +191,7 @@ import Footer from '@/components/layouts/Footer.vue'
 .problem-badge2,
 .problem-badge3 {
   display: inline-block;
-  background-color: var(--primary-color);
+  background-color: var(--green);
   color: var(--white);
   font-size: 0.9rem;
   padding: 0.75rem 1.25rem;
@@ -184,21 +200,47 @@ import Footer from '@/components/layouts/Footer.vue'
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 .problem-image-wrapper {
+  position: relative;
   margin-top: 2rem;
-}
-.problem-image {
-  width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0px; /* 이미지보다 약간 아래 */
+    width: 300px;
+    height: 180px;
+    background-color: var(--whitish);
+    border-top-left-radius: 250px;
+    border-top-right-radius: 250px;
+    z-index: 0;
+  }
+
+  .problem-image {
+    position: relative;
+    z-index: 1;
+    width: 200px;
+  }
 }
 
 /* Solution Section */
 .solution-section {
+  background-color: var(--white);
   text-align: center;
-  padding: 4rem 1rem;
+  padding: 8rem 0rem 1rem 0;
 }
 .solution-title {
   font-size: 1.25rem;
   font-weight: var(--font-weight-lg);
   line-height: 1.5;
+  -webkit-text-stroke: 0.4px var(--black);
+}
+.solution-highlight {
+  color: var(--purple);
+  font-weight: var(--font-weight-lg);
+  -webkit-text-stroke: 0.8px var(--purple);
 }
 .solution-logo-wrapper {
   display: inline-block;
@@ -211,6 +253,7 @@ import Footer from '@/components/layouts/Footer.vue'
 
 /* CTA Section */
 .cta-section {
+  background-color: var(--white);
   text-align: center;
   padding: 4rem 1rem;
   /* background-color: var(--whitish); */
@@ -236,7 +279,8 @@ import Footer from '@/components/layouts/Footer.vue'
   color: var(--grey);
 }
 .highlight-primary {
-  color: var(--primary-color);
+  color: var(--skyblue);
+  -webkit-text-stroke: 0.7px var(--skyblue);
   font-weight: var(--font-weight-lg);
 }
 </style>
