@@ -44,6 +44,7 @@ watch(
           v-for="(img, idx) in images"
           :key="idx"
           :image="img"
+          :type="profile"
           :selected="selectedIndex === idx"
           @select="() => selectImage(idx)"
         />

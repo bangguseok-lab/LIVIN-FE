@@ -1,40 +1,66 @@
 <script setup>
+import { computed } from 'vue'
+
 const props = defineProps({
-  image: String, // 이미지 URL 또는 import 경로
-  selected: Boolean, // 선택 상태
+  image: String,
+  selected: Boolean,
   alt: {
     type: String,
     default: '이미지',
   },
+  type: {
+    type: String,
+    default: 'profile',
+    validator: val => ['profile', 'listing', 'register'].includes(val),
+  },
 })
 
 const emit = defineEmits(['select'])
+
+const typeClass = computed(() => `imagebox-${props.type}`)
+
+const isSelectedClass = computed(() =>
+  props.type === 'profile' && props.selected ? 'selected' : '',
+)
+
+const handleClick = () => {
+  if (props.type === 'profile') {
+    emit('select', props.image)
+  }
+}
 </script>
 
 <template>
-  <div class="ImageBox" :class="{ selected }" @click="$emit('select', image)">
+  <div
+    class="ImageBox"
+    :class="[typeClass, isSelectedClass]"
+    @click="handleClick"
+  >
     <img :src="image" :alt="alt" />
   </div>
 </template>
 
 <style scoped lang="scss">
 .ImageBox {
+  border: rem(4px) solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+
+  &.selected {
+    border-color: var(--primary-color);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.imagebox-profile {
   width: rem(132px);
   height: rem(165px);
   border-radius: 14%;
-  overflow: hidden;
-  border: rem(4px) solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.ImageBox.selected {
-  border-color: var(--primary-color);
-}
-
-.ImageBox img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 </style>
