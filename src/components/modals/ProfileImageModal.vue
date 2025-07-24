@@ -61,7 +61,7 @@ watch(
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .ProfileImageModal {
   position: fixed;
   top: 0;
@@ -73,6 +73,7 @@ watch(
   align-items: center;
   z-index: 999;
 }
+
 .modal-overlay {
   position: absolute;
   top: 0;
@@ -81,67 +82,78 @@ watch(
   bottom: 0;
   background: rgba(0, 0, 0, 0.4);
 }
+
 .modal-content {
   position: relative;
-  background: #fff;
-  border-radius: 24px;
-  padding: 24px;
-  width: 500px;
+  background: var(--white);
+  border-radius: rem(24px);
+  padding: rem(24px);
+  width: rem(500px);
   z-index: 1000;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 rem(4px) rem(16px) rgba(0, 0, 0, 0.25);
 }
+
 h2 {
-  font-size: 18px;
+  font-size: rem(18px);
   font-weight: 800;
-  padding-left: 20px;
-  margin-bottom: 3px;
-  margin-top: 20px;
+  padding-left: rem(20px);
+  margin-bottom: rem(3px);
+  margin-top: rem(20px);
 }
+
 p {
-  padding-left: 20px;
-  font-size: 12px;
-  margin-bottom: 34px;
+  padding-left: rem(20px);
+  font-size: rem(12px);
+  margin-bottom: rem(34px);
   color: var(--grey);
 }
+
 .image-list {
   display: flex;
   justify-content: center;
-  gap: 18px;
-  margin-bottom: 40px;
+  gap: rem(18px);
+  margin-bottom: rem(40px);
 }
+
 .image-item {
-  width: 132px;
-  height: 165px;
+  width: rem(132px);
+  height: rem(165px);
   border-radius: 14%;
   overflow: hidden;
-  border: 4px solid transparent;
+  border: rem(4px) solid transparent;
   cursor: pointer;
 }
+
 .image-item.selected {
   border-color: var(--primary-color);
 }
+
 .image-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .modal-actions {
   display: flex;
   justify-content: center;
-  font-size: 14px;
+  font-size: rem(14px);
 }
+
 button {
-  padding: 16px 200px;
+  padding: rem(16px) rem(200px);
   border: none;
-  border-radius: 18px;
+  border-radius: rem(18px);
   cursor: pointer;
-  margin-bottom: 8px;
+  margin-bottom: rem(4px);
 }
+
 button:first-child {
   background: #eee;
 }
+
 button:last-child {
   background: var(--primary-color);
-  color: #fff;
+  color: var(--white);
 }
 </style>
