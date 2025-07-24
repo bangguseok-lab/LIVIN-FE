@@ -1,15 +1,6 @@
 // src/stores/checklist.js
 import { defineStore } from 'pinia'
-import {
-  fetchChecklists,
-  fetchChecklistById,
-  createChecklist,
-  editChecklist,
-  deleteChecklist,
-  createMyChecklistItem,
-  deleteMyChecklistItem,
-  editMyChecklistItem,
-} from '@/api/checklist'
+import checklistAPI from '@/api/checklist'
 
 export const useChecklistStore = defineStore('checklist', {
   state: () => ({
@@ -20,10 +11,11 @@ export const useChecklistStore = defineStore('checklist', {
   }),
 
   actions: {
+    // 전체 체크리스트 조회
     async loadChecklists() {
       this.loading = true
       try {
-        this.checklists = await fetchChecklists()
+        this.checklists = await checklistAPI.fetchChecklists()
       } catch (err) {
         this.error = err
       } finally {
@@ -31,10 +23,11 @@ export const useChecklistStore = defineStore('checklist', {
       }
     },
 
+    // 특정 체크리스트 조회
     async loadChecklist(id) {
       this.loading = true
       try {
-        this.currentChecklist = await fetchChecklistById(id)
+        this.currentChecklist = await checklistAPI.fetchChecklistById(id)
       } catch (err) {
         this.error = err
       } finally {
@@ -42,18 +35,20 @@ export const useChecklistStore = defineStore('checklist', {
       }
     },
 
-    async addChecklist(data) {
+    // 체크리스트 생성
+    async addChecklist(payload) {
       try {
-        const newChecklist = await createChecklist(data)
+        const newChecklist = await checklistAPI.createChecklist(payload)
         this.checklists.push(newChecklist)
       } catch (err) {
         this.error = err
       }
     },
 
-    async updateChecklist(id, data) {
+    // 체크리스트 수정
+    async updateChecklist(id, payload) {
       try {
-        const updated = await editChecklist(id, data)
+        const updated = await checklistAPI.editChecklist(id, payload)
         const index = this.checklists.findIndex(c => c.id === id)
         if (index !== -1) this.checklists[index] = updated
       } catch (err) {
@@ -61,36 +56,44 @@ export const useChecklistStore = defineStore('checklist', {
       }
     },
 
+    // 체크리스트 삭제
     async removeChecklist(id) {
       try {
-        await deleteChecklist(id)
+        await checklistAPI.deleteChecklist(id)
         this.checklists = this.checklists.filter(c => c.id !== id)
       } catch (err) {
         this.error = err
       }
     },
 
-    async addItemToChecklist(id, itemData) {
+    // 체크리스트 항목 추가
+    async addItemToChecklist(id, payload) {
       try {
-        const updated = await createMyChecklistItem(id, itemData)
+        const updated = await checklistAPI.createMyChecklistItem(id, payload)
         this.currentChecklist = updated
       } catch (err) {
         this.error = err
       }
     },
 
+    // 체크리스트 항목 삭제
     async removeItemFromChecklist(id, itemId) {
       try {
-        const updated = await deleteMyChecklistItem(id, itemId)
+        const updated = await checklistAPI.deleteMyChecklistItem(id, itemId)
         this.currentChecklist = updated
       } catch (err) {
         this.error = err
       }
     },
 
-    async updateChecklistItem(id, itemId, itemData) {
+    // 체크리스트 항목 수정
+    async updateChecklistItem(id, itemId, payload) {
       try {
-        const updated = await editMyChecklistItem(id, itemId, itemData)
+        const updated = await checklistAPI.editMyChecklistItem(
+          id,
+          itemId,
+          payload,
+        )
         this.currentChecklist = updated
       } catch (err) {
         this.error = err
