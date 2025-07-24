@@ -1,10 +1,17 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import LandCheck from '@/components/landing/LandCheck.vue'
-// import LandRisk from '@/components/landing/LandRisk.vue'
-// import LandFav from '@/components/landing/LandFav.vue'
-// import LandPost from '@/components/landing/LandPost.vue'
+import LandRisk from '@/components/landing/LandRisk.vue'
+import LandFav from '@/components/landing/LandFav.vue'
+import LandPost from '@/components/landing/LandPost.vue'
 import Footer from '@/components/layouts/Footer.vue'
+
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+const goToLogin = () => {
+  router.push('/auth/login')
+}
 </script>
 
 <template>
@@ -95,6 +102,12 @@ import Footer from '@/components/layouts/Footer.vue'
         당신의 주거 결정이 지금보다 더 단단해지도록.
       </p>
     </section>
+    <!-- Floating Button -->
+    <div class="floating-start-btn">
+      <button class="start-btn" @click="goToLogin">LIVIN 시작하기</button>
+    </div>
+
+    <!-- Footer -->
     <Footer />
   </div>
 </template>
@@ -108,6 +121,8 @@ import Footer from '@/components/layouts/Footer.vue'
   font-size: 1rem;
   background-color: var(--white);
   color: var(--black);
+  position: relative;
+  margin: 0 auto;
 }
 
 /* Hero */
@@ -238,5 +253,39 @@ import Footer from '@/components/layouts/Footer.vue'
 .highlight-primary {
   color: var(--primary-color);
   font-weight: var(--font-weight-lg);
+}
+
+/* 플로팅 버튼 부분 */
+.floating-start-btn {
+  position: absolute;
+  bottom: rem(20px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: rem(600px);
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.floating-start-btn .start-btn {
+  pointer-events: auto;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: rem(14px);
+  height: rem(50px);
+  width: 80%;
+  min-width: rem(200px);
+  border: none;
+  border-radius: rem(50px);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 rem(16px);
 }
 </style>
