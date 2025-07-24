@@ -121,13 +121,13 @@ const iconComponent = computed(() => {
   font-weight: 600;
   cursor: pointer;
   border: none;
+  width: 100%;
+  height: 100%;
 }
 
 // btn-default, 제일 기본 버튼
 .btn-default {
   background-color: var(--grey);
-  width: rem(294px);
-  height: rem(42px);
   color: var(--white);
   border-radius: rem(10px);
 }
@@ -144,8 +144,6 @@ const iconComponent = computed(() => {
   align-items: flex-start;
   justify-content: center;
   background-color: var(--primary-color);
-  width: rem(358px);
-  height: rem(108px);
   padding: rem(8px) rem(30px);
   border-radius: rem(10px);
   color: white;
@@ -167,8 +165,6 @@ const iconComponent = computed(() => {
 .btn-md {
   background-color: var(--grey);
   color: white;
-  width: rem(130px);
-  height: rem(42px);
   border-radius: rem(8px);
 }
 
