@@ -1,15 +1,14 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useChecklistStore } from '@/stores/checklist'
 
 const router = useRouter()
 const user = ref({ nickname: '영태는 핑크가 제일 싫어' })
 const showScrollTop = ref(false)
-const checklists = ref([])
 const checklistStore = useChecklistStore()
-// const checklists = computed(() => checklistStore.checklists)
+const checklists = computed(() => checklistStore.checklists)
 
 function handleScroll() {
   showScrollTop.value = window.scrollY > 100
@@ -21,7 +20,7 @@ function scrollToTop() {
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
-  // checklistStore.loadChecklists()
+  checklistStore.loadChecklists()
 })
 
 onUnmounted(() => {
@@ -31,23 +30,6 @@ onUnmounted(() => {
 function goToDetail(id) {
   router.push(`/checklist/${id}`)
 }
-
-onMounted(() => {
-  checklists.value = [
-    {
-      id: 1,
-      title: '기본 체크리스트',
-      description1: '체크리스트 설명',
-      description2: '체크리스트 설명',
-    },
-    {
-      id: 2,
-      title: '체크리스트 2',
-      description1: '이사 전에 확인할 항목',
-      description2: '주소 이전, 청소 예약 등',
-    },
-  ]
-})
 </script>
 
 <template>
@@ -87,8 +69,7 @@ onMounted(() => {
         ></div>
         <div class="flex-grow-1">
           <div class="title-bold">{{ checklist.title }}</div>
-          <div class="text-muted small">{{ checklist.description1 }}</div>
-          <div class="text-muted small">{{ checklist.description2 }}</div>
+          <div class="text-muted small">{{ checklist.description }}</div>
         </div>
       </div>
       <button
