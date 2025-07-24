@@ -1,9 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import LandCheck from '@/components/landing/LandCheck.vue'
-import LandRisk from '@/components/landing/LandRisk.vue'
-import LandFav from '@/components/landing/LandFav.vue'
-import LandPost from '@/components/landing/LandPost.vue'
+// import LandRisk from '@/components/landing/LandRisk.vue'
+// import LandFav from '@/components/landing/LandFav.vue'
+// import LandPost from '@/components/landing/LandPost.vue'
 import Footer from '@/components/layouts/Footer.vue'
 </script>
 
@@ -95,18 +95,16 @@ import Footer from '@/components/layouts/Footer.vue'
         당신의 주거 결정이 지금보다 더 단단해지도록.
       </p>
     </section>
+    <Footer />
   </div>
-
-  <!-- Footer -->
-  <Footer />
 </template>
 
 <style scoped lang="scss">
 .landing-container {
   max-width: rem(600px);
+  min-width: rem(375px);
+  width: 100%;
   min-height: 100vh;
-  margin: 0 auto;
-  padding: 1.5rem 0rem;
   font-size: 1rem;
   background-color: var(--white);
   color: var(--black);
