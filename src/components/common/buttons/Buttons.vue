@@ -28,7 +28,7 @@ const props = defineProps({
     type: String,
     default: 'default',
     validator: (val) => [
-      'default', 'xl', 'md', 'sm', 'xs', 'ok', 'go', 'property', 'start-option', 'start-lg', 'start-photo', 'start-direction', 'start-floor', 'my-option'
+      'default', 'xl', 'md', 'sm', 'xs', 'ok', 'go', 'property', 'role', 'option', 'direction', 'date', 'photo', 'floor', 'my-option'
     ].includes(val),
   },
   togo: {
