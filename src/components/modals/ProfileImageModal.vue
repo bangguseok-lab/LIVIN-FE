@@ -41,7 +41,8 @@ watch(
   <div v-if="modelValue" class="ProfileImageModal">
     <div class="modal-overlay" @click="closeModal"></div>
     <div class="modal-content">
-      <h2>프로필 이미지 변경</h2>
+      <h2>프로필 이미지를 선택하세요</h2>
+      <p>선택 후 완료를 누르면 적용돼요</p>
       <div class="image-list">
         <div
           v-for="img in images"
@@ -54,8 +55,7 @@ watch(
         </div>
       </div>
       <div class="modal-actions">
-        <button @click="closeModal">취소</button>
-        <button @click="confirmChange">변경하기</button>
+        <button @click="confirmChange">완료</button>
       </div>
     </div>
   </div>
@@ -84,32 +84,41 @@ watch(
 .modal-content {
   position: relative;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 24px;
   padding: 24px;
-  width: 300px;
+  width: 500px;
   z-index: 1000;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 h2 {
-  text-align: center;
-  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 800;
+  padding-left: 20px;
+  margin-bottom: 3px;
+  margin-top: 20px;
+}
+p {
+  padding-left: 20px;
+  font-size: 12px;
+  margin-bottom: 34px;
+  color: var(--grey);
 }
 .image-list {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 18px;
+  margin-bottom: 40px;
 }
 .image-item {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+  width: 132px;
+  height: 165px;
+  border-radius: 14%;
   overflow: hidden;
-  border: 2px solid transparent;
+  border: 4px solid transparent;
   cursor: pointer;
 }
 .image-item.selected {
-  border-color: #007bff;
+  border-color: var(--primary-color);
 }
 .image-item img {
   width: 100%;
@@ -118,20 +127,21 @@ h2 {
 }
 .modal-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  font-size: 14px;
 }
 button {
-  padding: 8px 16px;
+  padding: 16px 200px;
   border: none;
-  border-radius: 6px;
-  font-weight: bold;
+  border-radius: 18px;
   cursor: pointer;
+  margin-bottom: 8px;
 }
 button:first-child {
   background: #eee;
 }
 button:last-child {
-  background: #007bff;
+  background: var(--primary-color);
   color: #fff;
 }
 </style>
