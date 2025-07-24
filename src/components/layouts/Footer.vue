@@ -23,9 +23,8 @@
   left: 0;
   right: 0; // 전체 너비 기준 가운데로
   margin: 0 auto;
-  height: rem(70px);
   max-width: rem(600px);
-  min-width: rem(100px);
+  min-width: rem(350px);
   width: 100%;
   background-color: var(--whitish);
   font-size: rem(10px);
@@ -38,9 +37,7 @@
 
 .footer-top {
   display: flex;
-  // justify-content: flex-start;
   justify-content: center;
-  // justify-content: flex-end;
 }
 
 .footer-logo {
@@ -55,6 +52,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 rem(10px);
+  background-color: var(--whitish);
+  padding-bottom: rem(80px);
 }
 
 .footer-links {

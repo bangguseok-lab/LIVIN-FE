@@ -61,15 +61,21 @@ const goToChecklist = () => {
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
+
+  @media (max-width: 600px) {
+    flex-direction: column-reverse;
+  }
 }
 
 /* 이미지 영역 */
 .checklist-image-wrapper {
-  flex-shrink: 0;
+  /* flex-shrink: 0; */
   cursor: pointer;
   transition: transform 0.2s;
-  width: 45%;
+  /* width: 45%; */
   margin: 1rem;
+  display: flex;
+  justify-content: center;
 }
 .checklist-image-wrapper:hover {
   transform: scale(1.02);
@@ -86,6 +92,9 @@ const goToChecklist = () => {
   flex: 1;
   text-align: left;
   margin: 0.5rem;
+  @media (max-width: 600px) {
+    text-align: center;
+  }
 }
 .description-title {
   font-weight: var(--font-weight-lg);

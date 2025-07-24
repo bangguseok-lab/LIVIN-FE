@@ -14,27 +14,39 @@ const goToSearch = () => {
   router.push('/auth/login') // 로그인 페이지로 경로 이동
 }
 
+const disableBodyScroll = () => {
+  document.body.style.overflow = 'hidden'
+}
+const enableBodyScroll = () => {
+  document.body.style.overflow = ''
+}
+
 const startX = ref(0)
 const endX = ref(0)
 const isDragging = ref(false)
 
 const onTouchStart = e => {
   startX.value = e.touches[0].clientX
+  disableBodyScroll()
 }
+
 const onTouchEnd = e => {
   endX.value = e.changedTouches[0].clientX
+  enableBodyScroll()
   handleSwipe()
 }
 
 const onMouseDown = e => {
   isDragging.value = true
   startX.value = e.clientX
+  disableBodyScroll()
 }
 
 const onMouseUp = e => {
   if (!isDragging.value) return
   endX.value = e.clientX
   isDragging.value = false
+  enableBodyScroll()
   handleSwipe()
 }
 
@@ -60,20 +72,19 @@ const prevSlide = () => {
 
 <template>
   <section class="landfav-section">
-    <!-- POINT 3 라벨 -->
     <div class="point-label">POINT 3</div>
 
-    <div class="landfav-container">
-      <!-- 좌측: 슬라이드 이미지 -->
-      <div
-        class="landfav-image-wrapper"
-        @touchstart="onTouchStart"
-        @touchend="onTouchEnd"
-        @mousedown="onMouseDown"
-        @mouseup="onMouseUp"
-        @mouseleave="isDragging && onMouseUp($event)"
-        @click="goToSearch"
-      >
+    <div
+      class="landfav-card"
+      @touchstart="onTouchStart"
+      @touchend="onTouchEnd"
+      @mousedown="onMouseDown"
+      @mouseup="onMouseUp"
+      @mouseleave="isDragging && onMouseUp($event)"
+      @click="goToSearch"
+    >
+      <!-- 이미지 영역 -->
+      <div class="landfav-image-wrapper">
         <img
           :src="images[currentIndex]"
           alt="내 기준 매물 이미지"
@@ -88,9 +99,8 @@ const prevSlide = () => {
           ></span>
         </div>
       </div>
-
-      <!-- 우측: 텍스트 -->
-      <div class="landfav-description">
+      <!-- 텍스트 영역 -->
+      <div class="landfav-text">
         <p class="description-title">내가 정한 기준,<br />내가 고르는 매물</p>
         <p class="description-subtitle">
           조건 설정, 찜, 비교까지 한 번에 찾는 내 기준 매물
@@ -100,7 +110,7 @@ const prevSlide = () => {
   </section>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .landfav-section {
   background-color: var(--white);
   max-width: rem(600px);
@@ -115,55 +125,64 @@ const prevSlide = () => {
   background-color: var(--primary-color);
   color: var(--white);
   padding: 0.25rem 0.75rem;
-  margin: 1rem 2rem 2rem 2rem;
+  margin-bottom: 1rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: var(--font-weight-lg);
 }
 
-.landfav-container {
+/* ✅ 카드 컨테이너 */
+.landfav-card {
   display: flex;
-  flex-direction: row;
   gap: 2rem;
   align-items: center;
-  flex-wrap: wrap;
   justify-content: center;
+  flex-wrap: wrap;
+  flex-direction: row;
+
+  @media (max-width: 600px) {
+    flex-direction: column-reverse;
+  }
 }
 
-/* 이미지 */
+/* ✅ 텍스트 */
+.landfav-text {
+  flex: 1;
+  text-align: left;
+
+  @media (max-width: 600px) {
+    text-align: center;
+  }
+}
+
+.description-title {
+  font-weight: var(--font-weight-lg);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  -webkit-text-stroke: 0.6px var(--black);
+  color: var(--black);
+}
+
+.description-subtitle {
+  font-size: 0.875rem;
+  color: var(--grey);
+}
+
+/* ✅ 이미지 */
 .landfav-image-wrapper {
   position: relative;
-  flex-shrink: 0;
   cursor: pointer;
-  width: 45%;
-  margin: 1rem;
-  -webkit-user-select: none;
-  -ms-user-select: none;
   user-select: none;
+  touch-action: pan-y;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .landfav-image {
   width: 230px;
+  margin: 1rem;
   border-radius: 1rem;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
-
-.slide-controls {
-  position: absolute;
-  top: 45%;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 8px;
-}
-.slide-controls button {
-  background: rgba(255, 255, 255, 0.8);
-  border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  font-size: 1rem;
-  cursor: pointer;
 }
 
 .dots {
@@ -181,24 +200,5 @@ const prevSlide = () => {
 }
 .dots span.active {
   background: var(--primary-color);
-}
-
-/* 텍스트 */
-.landfav-description {
-  width: 50%;
-  flex: 1;
-  text-align: left;
-  margin: 0.5rem;
-}
-.description-title {
-  font-weight: var(--font-weight-lg);
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  -webkit-text-stroke: 0.6px var(--black);
-  color: var(--black);
-}
-.description-subtitle {
-  font-size: 0.875rem;
-  color: var(--grey);
 }
 </style>
