@@ -1,26 +1,22 @@
 <script setup>
 import { ref, defineEmits, defineProps, watch } from 'vue'
+import ImageBox from '@/components/common/imagebox/ImageBox.vue'
+
+import profileSvg from '@/assets/images/profile/test-img.svg' // svg 하나만 임포트
 
 const emit = defineEmits(['change', 'update:modelValue'])
-const props = defineProps({
-  modelValue: Boolean,
-})
+const props = defineProps({ modelValue: Boolean })
 
-const images = [
-  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?&w=100&q=80',
-  'https://images.unsplash.com/photo-1527980965255-d3b416303d12?&w=100&q=80',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?&w=100&q=80',
-]
+const images = [profileSvg, profileSvg, profileSvg]
+const selectedIndex = ref(null)
 
-const selectedImage = ref(null)
-
-const selectImage = img => {
-  selectedImage.value = img
+const selectImage = index => {
+  selectedIndex.value = index
 }
 
 const confirmChange = () => {
-  if (selectedImage.value) {
-    emit('change', selectedImage.value)
+  if (selectedIndex.value !== null) {
+    emit('change', images[selectedIndex.value])
   }
   emit('update:modelValue', false)
 }
@@ -32,7 +28,7 @@ const closeModal = () => {
 watch(
   () => props.modelValue,
   val => {
-    if (!val) selectedImage.value = null
+    if (!val) selectedIndex.value = null
   },
 )
 </script>
@@ -44,15 +40,13 @@ watch(
       <h2>프로필 이미지를 선택하세요</h2>
       <p>선택 후 완료를 누르면 적용돼요</p>
       <div class="image-list">
-        <div
-          v-for="img in images"
-          :key="img"
-          class="image-item"
-          :class="{ selected: selectedImage === img }"
-          @click="selectImage(img)"
-        >
-          <img :src="img" alt="프로필" />
-        </div>
+        <ImageBox
+          v-for="(img, idx) in images"
+          :key="idx"
+          :image="img"
+          :selected="selectedIndex === idx"
+          @select="() => selectImage(idx)"
+        />
       </div>
       <div class="modal-actions">
         <button @click="confirmChange">완료</button>

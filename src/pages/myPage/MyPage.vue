@@ -5,6 +5,9 @@ import Navbar from '@/components/layouts/Navbar.vue'
 import Buttons from '@/components/common/buttons/Buttons.vue'
 import ProfileImageModal from '@/components/modals/ProfileImageModal.vue'
 
+// SVG 이미지 불러오기
+import defaultProfileImage from '@/assets/images/profile/test-img.svg'
+
 const router = useRouter()
 
 const user = ref({
@@ -22,9 +25,7 @@ const nicknameRef = ref(null)
 const phoneRef = ref(null)
 
 const showProfileModal = ref(false)
-const profileImage = ref(
-  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?&w=100&q=80',
-) // 기본 프로필 이미지
+const profileImage = ref(defaultProfileImage) // 기본 프로필 이미지를 SVG로
 
 function startEdit(field) {
   editingField.value = field
