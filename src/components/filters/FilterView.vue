@@ -229,7 +229,7 @@ watch(
   margin: 0 auto;
   background-color: var(--white);
   border: rem(1px) solid #ccc;
-  padding: rem(24px);
+  padding: rem(50px) rem(24px);
   box-sizing: border-box;
 }
 

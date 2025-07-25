@@ -17,7 +17,7 @@ defineProps({
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .check-panel {
   background-color: white;
   border-radius: 1rem;

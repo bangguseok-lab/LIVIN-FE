@@ -118,7 +118,7 @@ function selectParish(code) {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .region-selector {
   font-size: 0.9rem;
   display: flex;

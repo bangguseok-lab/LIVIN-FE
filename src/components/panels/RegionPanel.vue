@@ -38,13 +38,13 @@ const handleRegionUpdate = region => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .region-panel {
   background-color: var(--white);
   border-radius: 1rem;
   padding: 2rem;
   width: rem(400px);
-  max-width: rem(500px);
+  max-width: rem(400px);
   height: 60vh;
   border: solid var(--whitish) 1.5px;
   position: relative;
