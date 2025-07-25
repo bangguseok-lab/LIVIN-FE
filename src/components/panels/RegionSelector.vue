@@ -1,10 +1,12 @@
 <script setup>
-import { ref, reactive, watch, onMounted } from 'vue'
+import { ref, reactive, watch, onMounted, onUpdated } from 'vue'
 
 // emit 정의
+// 상위 컴포넌트에 선택된 지역 정보를 전달하기 위한 emit 함수 선언 (이벤트 이름: updateRegion)
 const emit = defineEmits(['updateRegion'])
 
 // 상위에서 내려주는 지역 리스트 props
+// 외부로부터 3가지 지역 목록을 props로 받습니다
 const props = defineProps({
   cities: {
     type: Array,
@@ -18,39 +20,38 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  selectedRegion: {
+    type: Object,
+    required: false,
+    default: () => ({ city: null, district: null, parish: null }),
+  },
 })
 
 // 선택된 지역 정보를 저장
+// 현재 사용자가 선택한 지역 코드들을 저장하는 반응형 상태 객체
 const selected = reactive({
   city: null, // 시/도 코드
   district: null, // 군/구 코드
   parish: null, // 읍/면/동 코드
 })
 
-// 각각의 지역 목록을 저장하는 상태 (초기에는 비어있음)
-// const cities = ref([]) // 시/도 목록
-// const districts = ref([]) // 군/구 목록
-// const parishes = ref([]) // 읍/면/동 목록
-// onMounted(() => {
-//   cities.value = props.cities
-//   districts.value = props.districts
-//   parishes.value = props.parishes
-// })
+watch(
+  () => props.selectedRegion,
+  val => {
+    // console.log('[watch:selectedRegion] 감지됨:', val)
+    if (!val) return
+    selected.city = val.city || null
+    selected.district = val.district || null
+    selected.parish = val.parish || null
+    // console.log('[watch:selectedRegion] 내부 selected 변경 완료:', {
+    //   ...selected,
+    // })
+  },
+  { immediate: true, deep: true }, // 이 부분 중요!
+)
 
-// watch(
-//   () => props.cities,
-//   val => (cities.value = val),
-// )
-// watch(
-//   () => props.districts,
-//   val => (districts.value = val),
-// )
-// watch(
-//   () => props.parishes,
-//   val => (parishes.value = val),
-// )
-
-// 시/도 선택 → emit
+// 시/도 선택 → 상위 컴포넌트로 현재 선택 정보 emit
+// 하위 지역(군/구, 읍/면/동)은 초기화
 function selectCity(code) {
   selected.city = code
   selected.district = null
@@ -58,7 +59,7 @@ function selectCity(code) {
   emit('updateRegion', { ...selected })
 }
 
-// 군/구 선택 → emit
+// 군/구 선택 → 읍/면/동 초기화 → emit
 function selectDistrict(code) {
   selected.district = code
   selected.parish = null
@@ -70,6 +71,13 @@ function selectParish(code) {
   selected.parish = code
   emit('updateRegion', { ...selected })
 }
+// onMounted(() => {
+//   console.log('[onMounted] 초기 selected 상태:', { ...selected })
+// })
+
+// onUpdated(() => {
+//   console.log('[onUpdated] 업데이트 후 selected 상태:', { ...selected })
+// })
 </script>
 
 <template>
@@ -77,6 +85,11 @@ function selectParish(code) {
     <div class="col">
       <div class="header">시/도</div>
       <ul class="scroll-list">
+        <!-- 
+         시/도 목록을 순회
+         클릭 시 selectCity 호출
+         현재 선택된 항목은 class selected 적용 
+        -->
         <li
           v-for="c in props.cities"
           :key="c.code"
@@ -88,6 +101,7 @@ function selectParish(code) {
       </ul>
     </div>
 
+    <!-- 위와 동일한 구조. 각각 props.districts, props.parishes 기반으로 렌더링 -->
     <div class="col">
       <div class="header">군/구</div>
       <ul class="scroll-list">

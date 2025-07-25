@@ -1,7 +1,7 @@
 <script setup>
 import { FilterDropdownSection, FilterSecureOption } from './FilterBar.js' // 섹션 export 경로
 
-// props로 상위에서 전달 받는 상태 바인딩
+// props로 상위에서 전달 받는(FilterView.vue로부터 내려받은) 상태 바인딩
 const props = defineProps({
   dealType: Array,
   deposit: Object,
@@ -12,6 +12,7 @@ const props = defineProps({
 })
 
 // emit으로 상위에 전달
+// 하위 컴포넌트에서 emit된 값을 그대로 상위(FilterView.vue)로 다시 올려주는 역할
 const emit = defineEmits([
   'update:dealType',
   'update:deposit',
@@ -29,6 +30,7 @@ const emit = defineEmits([
       :deposit="props.deposit"
       :monthly="props.monthly"
       :region-data="props.regionData"
+      :region="props.region"
       @update:dealType="val => emit('update:dealType', val)"
       @update:deposit="val => emit('update:deposit', val)"
       @update:monthly="val => emit('update:monthly', val)"

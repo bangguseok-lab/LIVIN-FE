@@ -63,6 +63,7 @@ function selectFavorite() {
       :deposit="props.deposit"
       :monthly="props.monthly"
       :region-data="props.regionData"
+      :region="props.region"
       @update:dealType="val => emit('update:dealType', val)"
       @update:deposit="val => emit('update:deposit', val)"
       @update:monthly="val => emit('update:monthly', val)"

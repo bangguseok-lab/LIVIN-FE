@@ -6,6 +6,7 @@ const props = defineProps({
   checklistItems: Array,
   modelValue: String,
   regionData: Object,
+  region: Object,
 })
 const emit = defineEmits(['update:modelValue', 'update:region'])
 
@@ -99,6 +100,7 @@ onUnmounted(() => {
         :cities="regionData.cities"
         :districts="regionData.districts"
         :parishes="regionData.parishes"
+        :selected-region="props.region"
         @updateRegion="val => emit('update:region', val)"
       />
     </div>

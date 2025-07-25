@@ -1,6 +1,6 @@
 <script setup>
 import RegionSelector from './RegionSelector.vue'
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, watch } from 'vue'
 
 // 지역 리스트는 props로 받고, 선택된 결과만 emit
 const props = defineProps({
@@ -16,14 +16,24 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  selectedRegion: Object,
 })
 
-// 선택 결과를 부모로 전달
+// RegionSelector에서 전달받은 선택 정보를 다시 외부로 emit하는 중간 다리
 const emit = defineEmits(['updateRegion'])
 
 const handleRegionUpdate = region => {
   emit('updateRegion', region)
 }
+
+// ✅ selectedRegion 값이 바뀔 때마다 로그 찍기
+// watch(
+//   () => props.selectedRegion,
+//   val => {
+//     console.log('[RegionPanel] 전달 중인 selectedRegion:', val)
+//   },
+//   { immediate: true, deep: true },
+// )
 </script>
 
 <template>
@@ -33,6 +43,7 @@ const handleRegionUpdate = region => {
       :cities="cities"
       :districts="districts"
       :parishes="parishes"
+      :selected-region="selectedRegion"
       @updateRegion="handleRegionUpdate"
     />
   </div>

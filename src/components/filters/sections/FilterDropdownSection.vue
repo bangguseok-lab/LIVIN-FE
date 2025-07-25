@@ -11,8 +11,10 @@ const props = defineProps({
   deposit: Object,
   monthly: Object,
   regionData: Object,
+  region: Object,
 })
 
+// 각 패널에서 선택된 값을 v-model 스타일로 상위에 올려줌
 const emit = defineEmits([
   'update:dealType',
   'update:deposit',
@@ -20,12 +22,16 @@ const emit = defineEmits([
   'update:region',
 ])
 
+//상태 관리
 const activePanel = ref(null)
 const panelPosition = ref({ left: 0, top: 0 })
 
 const panelRef = ref(null)
 const buttonGroupRef = ref(null)
 
+// 이미 열려 있던 패널이면 닫음
+// 새로 열려야 할 패널이면 activePanel 변경
+// nextTick() 이후 DOM 계산하여 드롭다운 위치 설정
 function togglePanel(event, panelKey) {
   if (activePanel.value === panelKey) {
     activePanel.value = null
@@ -50,6 +56,7 @@ function togglePanel(event, panelKey) {
   })
 }
 
+// 클릭된 대상이 패널과 버튼 그룹 바깥이면 activePanel을 null로 닫음
 function handleClickOutside(event) {
   const panelEl = panelRef.value
   const buttonsEl = buttonGroupRef.value
@@ -63,9 +70,11 @@ function handleClickOutside(event) {
   }
 }
 
+//document 클릭 이벤트 등록
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
+// document 클릭 이벤트 제거
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
@@ -87,6 +96,9 @@ const currentPanelComponent = computed(() => {
 <template>
   <div class="dropdown-section">
     <div class="filter-buttons" ref="buttonGroupRef">
+      <!-- 
+      클릭 시 togglePanel() 실행
+      is-active로 버튼에 강조 효과 줌 -->
       <FilterButton
         label="거래 유형"
         panelKey="deal"
@@ -117,6 +129,7 @@ const currentPanelComponent = computed(() => {
         top: panelPosition.top + 'px',
       }"
     >
+      <!-- 현재 열린 패널에 따라 동적으로 패널 컴포넌트가 바뀜 -->
       <component
         :is="currentPanelComponent"
         :selected="props.dealType"
@@ -128,6 +141,7 @@ const currentPanelComponent = computed(() => {
         :cities="props.regionData.cities"
         :districts="props.regionData.districts"
         :parishes="props.regionData.parishes"
+        :selected-region="props.region"
         @updateRegion="val => emit('update:region', val)"
       />
     </div>

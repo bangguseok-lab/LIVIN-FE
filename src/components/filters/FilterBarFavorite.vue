@@ -23,6 +23,7 @@ const emit = defineEmits([
       :checklist-items="props.checklistItems"
       :model-value="props.selected"
       :region-data="props.regionData"
+      :region="props.region"
       @update:region="val => emit('update:region', val)"
       @update:modelValue="val => emit('update:selected', val)"
     />

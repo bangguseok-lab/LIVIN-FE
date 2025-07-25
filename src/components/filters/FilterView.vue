@@ -38,22 +38,6 @@ const dummyDistricts = [
   { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '교동' },
   { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매산동' },
   { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매향동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '남수동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '남창동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '북수동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '중동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '지동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '우만동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '인계동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '화서동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '행궁동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로1가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로2가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로3가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로4가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로5가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로6가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로7가' },
 ]
 
 // 지역 상태
@@ -104,9 +88,9 @@ const getRegionData = computed(() => {
     parishes: uniqueParishes,
   }
 })
-watchEffect(() => {
-  console.log('[Check getRegionData.value]', getRegionData.value)
-})
+// watchEffect(() => {
+//   console.log('[Check getRegionData.value]', getRegionData.value)
+// })
 
 // 상태들
 const selectedDealTypes = ref([])
@@ -117,13 +101,13 @@ const checklistOnlySecure = ref(false)
 const favSelectedChecklist = ref('전체')
 const checklistSelectedChecklist = ref('전체')
 
-watch(
-  () => getRegionData,
-  val => {
-    console.log('[FilterView] getRegionData changed:', val)
-  },
-  { immediate: true },
-)
+// watch(
+//   () => getRegionData,
+//   val => {
+//     console.log('[FilterView] getRegionData changed:', val)
+//   },
+//   { immediate: true },
+// )
 </script>
 
 <template>
