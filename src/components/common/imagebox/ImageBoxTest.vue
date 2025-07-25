@@ -2,14 +2,12 @@
 import { ref } from 'vue'
 import ImageBox from '@/components/common/imagebox/ImageBox.vue'
 
-// ✅ 색상 다른 PNG 이미지 3개 import
 import img1 from '@/assets/images/profile/test1.png'
 import img2 from '@/assets/images/profile/test2.png'
 import img3 from '@/assets/images/profile/test3.png'
 
 const images = [img1, img2, img3]
 
-// 프로필 이미지 선택 상태
 const selectedIndex = ref(null)
 const handleSelect = index => {
   selectedIndex.value = index
@@ -17,9 +15,12 @@ const handleSelect = index => {
 </script>
 
 <template>
-  <div style="padding: 60px; display: flex; flex-direction: column; gap: 40px">
+  <div style="padding: 70px; display: flex; flex-direction: column; gap: 40px">
+    <!-- ✅ 프로필 이미지 테스트 -->
     <section>
-      <h2 style="font-size: large; text-align: center">프로필 이미지 테스트</h2>
+      <h2 style="font-size: large; text-align: center">
+        프로필 이미지 테스트 (type="profile") 선택하면 파란 테두리
+      </h2>
       <div style="display: flex; gap: 30px">
         <ImageBox
           v-for="(img, idx) in images"
@@ -29,6 +30,37 @@ const handleSelect = index => {
           :selected="selectedIndex === idx"
           @select="() => handleSelect(idx)"
         />
+      </div>
+    </section>
+
+    <!-- ✅ 등록용 이미지 테스트 -->
+    <section>
+      <h2 style="font-size: large; text-align: center">
+        등록용 이미지 테스트 (type="register")
+      </h2>
+      <div style="display: flex; justify-content: center; gap: 30px">
+        <ImageBox :image="img1" type="register" alt="등록 이미지" />
+        <ImageBox :image="img1" type="register" alt="등록 이미지" />
+        <ImageBox :image="img1" type="register" alt="등록 이미지" />
+      </div>
+    </section>
+
+    <!-- ✅ 매물 이미지 테스트 -->
+    <section>
+      <h2 style="font-size: large; text-align: center">
+        매물 이미지 테스트 (type="listing")
+      </h2>
+      <div style="display: flex; justify-content: center">
+        <ImageBox :image="img1" type="listing" alt="매물 이미지" />
+      </div>
+    </section>
+
+    <section>
+      <h2 style="font-size: large; text-align: center">
+        안심매물 이미지 테스트 (type="listing-safe") - 왼쪽 상단 뱃지 표시
+      </h2>
+      <div style="display: flex; justify-content: center">
+        <ImageBox :image="img1" type="listing-safe" alt="안심매물 이미지" />
       </div>
     </section>
   </div>
