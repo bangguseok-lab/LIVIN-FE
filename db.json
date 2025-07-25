@@ -1,0 +1,44 @@
+{
+  "favoriteProperties": [
+    {
+      "id": 1,
+      "image_url": "./src/assets/images/home/sample-img1.png",
+      "name": "삼성그랑빌 1동중층",
+      "filteringDistrictName": "서울시 강남구 삼성동 150-20",
+      "description": "코엑스 인근 매매 A급 아파트 매물"
+    },
+    {
+      "id": 2,
+      "image_url": "./src/assets/images/home/sample-img2.png",
+      "name": "삼성힐스테이트1단지 103동7층",
+      "filteringDistrictName": "서울시 강남구 삼성동 16-2",
+      "description": "지하철2호선 강남역 1번출구 바로 앞, 병원층 특별분양 (약국, 성형외과, 피부과, 치과, 안과, 내과 ..)"
+    },
+    {
+      "id": 3,
+      "image_url": "./src/assets/images/home/sample-img3.png",
+      "name": "형우 101동6층",
+      "filteringDistrictName": "서울시 강남구 삼성동 64-9",
+      "description": "추천 대형 고급빌라 컨디션 너무 좋은 세대"
+    }
+  ],
+
+  "properties": [
+    {
+      "id": 1,
+      "name": "삼성그랑빌 1동중층"
+    },
+    {
+      "id": 2,
+      "name": "삼성힐스테이트1단지 103동7층"
+    },
+    {
+      "id": 3,
+      "name": "형우 101동6층"
+    },
+    {
+      "id": 4,
+      "name": "풍림1차 1동3층"
+    }
+  ]
+}
