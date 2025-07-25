@@ -3,18 +3,18 @@ import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 const router = useRouter()
 
-import image1 from '@/assets/images/landing/TestImage.png'
-import image2 from '@/assets/images/landing/HeroImage.png'
+import image1 from '@/assets/images/landing/PostHome.svg'
+import image2 from '@/assets/images/landing/SecureBadge.svg'
 
 const cardData = [
   {
     title: '매물 등록, 더 간편하게',
-    subtitle: '복잡함 없이, 주소 입력만으로\n공적 자료 기반 매물 정리',
+    subtitle: '복잡함 없이 주소 입력만으로! </br> 간편한 매물 등록',
     image: image1,
   },
   {
-    title: "신뢰를 보여주는 가장 쉬운 방법\n'안심 매물' 뱃지",
-    subtitle: '안심 뱃지와 함께하는 4가지 핵심 분석,\n신뢰를 높이는 매물 홍보',
+    title: "신뢰를 보여주는 가장 쉬운 방법, \n '안심 매물 뱃지'",
+    subtitle: '리빈의 4가지 핵심 분석을 통한 </br> 신뢰를 높이는 매물 홍보',
     image: image2,
   },
 ]
@@ -102,18 +102,6 @@ const prevSlide = () => {
         @mouseleave="isDragging && onMouseUp($event)"
         @click="goToRegister"
       >
-        <!-- <div class="point-label">POINT 4</div>
-        <div class="landpost-text">
-          <h3>{{ cardData[currentIndex].title }}</h3>
-          <p v-html="cardData[currentIndex].subtitle" />
-        </div>
-        <div class="landpost-image">
-          <img
-            :src="cardData[currentIndex].image"
-            alt="등록 카드"
-            draggable="false"
-          />
-        </div> -->
         <!-- 항상 상단 중앙에 고정될 라벨 -->
         <div class="point-label">POINT 4</div>
 
@@ -154,19 +142,19 @@ const prevSlide = () => {
   color: var(--grey);
 }
 .post-highlight {
-  color: var(--blue);
-  -webkit-text-stroke: 1px var(--blue);
+  color: var(--red);
   font-weight: var(--font-weight-lg);
 }
 .landpost-heading h2 {
   font-size: 1.2rem;
   font-weight: var(--font-weight-lg);
-  -webkit-text-stroke: 0.7px var(--black);
+  color: var(--black);
   margin: 0.5rem 0 0.5rem 0;
 }
 
 .landpost-heading p {
   font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
 }
 
 .landpost-card {
@@ -174,7 +162,6 @@ const prevSlide = () => {
   border-radius: 1rem;
   padding: 2rem 1rem;
   margin-top: 4rem;
-  /* min-height: 300px; */
   touch-action: pan-y;
   aspect-ratio: 3 / 2;
   display: flex;
@@ -200,7 +187,7 @@ const prevSlide = () => {
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: var(--font-weight-lg);
+  font-weight: var(--font-weight-semibold);
   margin-bottom: 1rem;
 }
 
@@ -232,13 +219,14 @@ const prevSlide = () => {
 
 .landpost-text h3 {
   font-size: 1rem;
-  -webkit-text-stroke: 0.6px var(--black);
   font-weight: var(--font-weight-lg);
   margin-bottom: 0.5rem;
 }
 
 .landpost-text p {
   font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--grey);
   line-height: 1.4;
 }
 

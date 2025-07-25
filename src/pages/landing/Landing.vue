@@ -29,7 +29,7 @@ const goToLogin = () => {
         />
       </div>
       <p class="hero-description">
-        매물 비교부터 위험 진단, 체크리스트까지<br />
+        매물 비교부터 위험 진단과 체크리스트까지<br />
         복잡한 부동산, 이제 한 번에 해결하세요
       </p>
       <div class="hero-image-wrapper">
@@ -52,8 +52,8 @@ const goToLogin = () => {
           <p class="problem-badge1">직접 검색하고 정리하기 귀찮아</p>
         </div>
         <div class="bottom-badge">
-          <p class="problem-badge2">내가 이 집을 왜 골랐었지?</p>
-          <p class="problem-badge3">전세 사기, 남의 일 같지 않네</p>
+          <p class="problem-badge2">내가 이 집을 왜 골랐지?</p>
+          <p class="problem-badge3">전세 사기, 남 일 같지 않네</p>
         </div>
       </div>
       <div class="problem-image-wrapper">
@@ -106,7 +106,13 @@ const goToLogin = () => {
     </section>
     <!-- Floating Button -->
     <div class="floating-start-btn">
-      <button class="start-btn" @click="goToLogin">LIVIN 시작하기</button>
+      <button class="start-btn" @click="goToLogin">
+        <img
+          src="@/assets/images/landing/LogoWhite.png"
+          class="floating-logo"
+        />
+        &nbsp; 시작하기
+      </button>
     </div>
 
     <!-- Footer -->
@@ -127,7 +133,7 @@ const goToLogin = () => {
   margin: 0 auto;
 }
 
-/* Hero */
+/* Hero section */
 .hero-section {
   text-align: center;
   margin-bottom: 3rem;
@@ -135,24 +141,22 @@ const goToLogin = () => {
 .hero-title {
   margin-top: 3rem;
   color: var(--white);
-  font-weight: var(--font-weight-lg);
+  font-weight: var(--font-weight-bold);
   font-size: 1.25rem;
-  -webkit-text-stroke: 0.4px var(--white);
+  // -webkit-text-stroke: 0.4px var(--white);
 }
 .hero-highlight {
-  color: var(--pinl);
-  font-weight: var(--font-weight-lg);
-  -webkit-text-stroke: 0.7px var(--pink);
+  color: var(--pink);
+  font-weight: var(--font-weight-bold);
 }
 .hero-logo {
   height: 20px;
-  margin-top: -1rem;
 }
 .hero-description {
   color: var(--white);
   font-size: 1rem;
-  margin-top: 2rem;
-  font-weight: var(--font-weight-sm);
+  margin-top: 3rem;
+  font-weight: var(--font-weight-light);
   line-height: 1.5;
 }
 .hero-image-wrapper {
@@ -176,12 +180,10 @@ const goToLogin = () => {
   font-size: 1.25rem;
   line-height: 1.5;
   padding-top: 0.5rem;
-  -webkit-text-stroke: 0.4px var(--black);
 }
 .problem-highlight {
-  color: var(--blue);
+  color: var(--primary-color);
   font-weight: var(--font-weight-lg);
-  -webkit-text-stroke: 0.8px var(--blue);
 }
 .problem-badge-wrapper {
   margin-top: 3rem;
@@ -200,7 +202,7 @@ const goToLogin = () => {
   font-size: 0.9rem;
   padding: 0.75rem 1.25rem;
   border-radius: 9999px;
-  font-weight: var(--font-weight-sm);
+  font-weight: var(--font-weight-semibold);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 .problem-badge2,
@@ -211,7 +213,7 @@ const goToLogin = () => {
   font-size: 0.9rem;
   padding: 0.75rem 1.25rem;
   border-radius: 9999px;
-  font-weight: var(--font-weight-sm);
+  font-weight: var(--font-weight-semibold);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 .problem-image-wrapper {
@@ -250,12 +252,10 @@ const goToLogin = () => {
   font-size: 1.25rem;
   font-weight: var(--font-weight-lg);
   line-height: 1.5;
-  -webkit-text-stroke: 0.4px var(--black);
 }
 .solution-highlight {
   color: var(--purple);
   font-weight: var(--font-weight-lg);
-  -webkit-text-stroke: 0.8px var(--purple);
 }
 .solution-logo-wrapper {
   display: inline-block;
@@ -271,7 +271,6 @@ const goToLogin = () => {
   background-color: var(--white);
   text-align: center;
   padding: 4rem 1rem;
-  /* background-color: var(--whitish); */
 }
 .cta-title {
   font-size: 1.25rem;
@@ -290,30 +289,18 @@ const goToLogin = () => {
   font-size: 0.75rem;
   margin-top: 4rem;
   line-height: 1.5;
-  font-weight: var(--font-weight-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--grey);
 }
 .highlight-primary {
   color: var(--skyblue);
-  -webkit-text-stroke: 0.7px var(--skyblue);
   font-weight: var(--font-weight-lg);
 }
 
-/* 플로팅 버튼 부분 */
-// .floating-start-btn {
-//   position: absolute;
-//   bottom: rem(20px);
-//   left: 0;
-//   right: 0;
-//   z-index: 1000;
-//   pointer-events: none;
-//   display: flex;
-//   justify-content: center;
-//   width: 100%;
-//   max-width: rem(600px);
-//   padding: 0;
-//   box-sizing: border-box;
-// }
+.floating-logo {
+  width: rem(42px);
+}
+
 .floating-start-btn {
   position: fixed;
   bottom: rem(20px);
