@@ -1,7 +1,5 @@
 <script setup>
-import { useAuthStore } from '@/stores/authStore'
 
-const store = useAuthStore()
 
 const handleKakaoLogin = () => {
   sessionStorage.setItem('provider', 'kakao');
@@ -9,8 +7,8 @@ const handleKakaoLogin = () => {
 }
 
 const handleNaverLogin = () => {
-  store.setProvider('naver');
-  window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=V2i2T0pvAb9NtEW2yzbS&redirect_uri=http://localhost:8080/api/naver/callback&state=random_state`
+  sessionStorage.setItem('provider', 'naver');
+  window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=V2i2T0pvAb9NtEW2yzbS&redirect_uri=http://localhost:5173/naver/callback&state=random_state`
 }
 </script>
 

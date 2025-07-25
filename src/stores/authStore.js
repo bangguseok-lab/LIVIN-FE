@@ -9,7 +9,6 @@ export const useAuthStore = defineStore('signup', {
     role: '', // 'TENANT' or 'LANDLORD'
     profileImage: 0,
     providerId: '',
-    provider: '',
   }),
 
   actions: {
@@ -33,9 +32,6 @@ export const useAuthStore = defineStore('signup', {
     },
     setProviderId(id) {
       this.providerId = id
-    },
-    setProvider(provider) {
-      this.provider = provider
     },
   },
   getSignupPayload() {
