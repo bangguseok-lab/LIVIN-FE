@@ -21,7 +21,7 @@ apiClient.interceptors.request.use(
             `/api/users/refresh?providerId=${providerId}`,
           )
           token = response.data
-          sessionStorage.setItem('accessToken', token)
+          // sessionStorage.setItem('accessToken', token)
         }
       } catch (e) {
         console.error('토큰 재발급 실패:', e)

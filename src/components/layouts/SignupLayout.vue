@@ -217,7 +217,7 @@ const handleSubmit = async () => {
     const token = response.headers['authorization'] || response.headers['Authorization']
 
     if (token) {
-      sessionStorage.setItem('accessToken', token)
+      // sessionStorage.setItem('accessToken', token)
       // 토큰을 세션 스토리지에 저장 후 /home으로 이동
       router.push('/home')
     } else {
