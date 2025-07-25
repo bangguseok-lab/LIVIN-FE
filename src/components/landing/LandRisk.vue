@@ -27,7 +27,7 @@ const goToRiskInfo = () => {
       <!-- 우측: 이미지 (클릭 시 이동) -->
       <div class="landrisk-image-wrapper" @click="goToRiskInfo">
         <img
-          src="@/assets/images/landing/TestImage.png"
+          src="@/assets/images/landing/SecureBadge.png"
           alt="안심 매물 이미지"
           class="landrisk-image"
         />
@@ -54,7 +54,7 @@ const goToRiskInfo = () => {
   margin: 1rem 2rem 2rem 2rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: var(--font-weight-lg);
+  font-weight: var(--font-weight-semibold);
 }
 
 .landrisk-container {
@@ -84,11 +84,11 @@ const goToRiskInfo = () => {
   font-weight: var(--font-weight-lg);
   font-size: 1rem;
   margin-bottom: 0.5rem;
-  -webkit-text-stroke: 0.6px var(--black);
   color: var(--black);
 }
 .description-subtitle {
   font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
   color: var(--grey);
 }
 
@@ -108,6 +108,5 @@ const goToRiskInfo = () => {
 .landrisk-image {
   width: 230px;
   border-radius: 1rem;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 }
 </style>

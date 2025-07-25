@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const goToChecklist = () => {
-  router.push('/checklist/detail') // 원하는 라우터 경로로 수정
+  router.push('/auth/login')
 }
 </script>
 <template>
@@ -14,7 +14,7 @@ const goToChecklist = () => {
       <!-- 좌측: 이미지 -->
       <div class="checklist-image-wrapper" @click="goToChecklist">
         <img
-          src="@/assets/images/landing/TestImage.png"
+          src="@/assets/images/landing/CheckList.svg"
           alt="체크리스트 이미지"
           class="checklist-image"
         />
@@ -51,7 +51,7 @@ const goToChecklist = () => {
   margin: 1rem 2rem 2rem 2rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: var(--font-weight-lg);
+  font-weight: var(--font-weight-semibold);
 }
 
 .checklist-container {
@@ -100,11 +100,11 @@ const goToChecklist = () => {
   font-weight: var(--font-weight-lg);
   font-size: 1rem;
   margin-bottom: 0.5rem;
-  -webkit-text-stroke: 0.6px var(--black); /* stroke 스타일 */
-  color: var(--black); /* 내부 텍스트 색상 */
+  color: var(--black);
 }
 .description-subtitle {
   font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
   color: var(--grey);
 }
 </style>
