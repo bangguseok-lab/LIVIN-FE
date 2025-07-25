@@ -15,7 +15,11 @@ import propertyManageRoutes from './propertyManage'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', name: 'landing', component: landingPage },
+    {
+      path: '/',
+      redirect: '/landing',
+    },
+    { path: '/landing', name: 'landing', component: landingPage },
     ...authRoutes,
     ...checklistRoutes,
     ...contentRoutes,
