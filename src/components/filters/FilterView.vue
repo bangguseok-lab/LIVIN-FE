@@ -1,21 +1,16 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
-import FilterBar from '@/components/filters/FilterBar.vue'
+import { ref, computed, watch, watchEffect } from 'vue'
+import FilterBarSearch from './FilterBarSearch.vue'
+import FilterBarFavorite from './FilterBarFavorite.vue'
+import FilterBarChecklist from './FilterBarChecklist.vue'
 
-// 현재 선택된 모드 상태 ('search' | 'favorite' | 'checklist')
-const selectedMode = ref('search') // 초기 모드는 'search'
+// 모드 상태
+const selectedMode = ref('search')
 
-// 가격 범위 상태 (보증금 / 월세)
+// 상태들
 const depositRange = ref({ min: null, max: null })
 const monthlyRange = ref({ min: null, max: null })
 
-// computed로 각 범위의 최소/최대값 접근
-const depositMin = computed(() => depositRange.value.min)
-const depositMax = computed(() => depositRange.value.max)
-const monthlyMin = computed(() => monthlyRange.value.min)
-const monthlyMax = computed(() => monthlyRange.value.max)
-
-// 체크리스트 예시 데이터
 const checklistItems = [
   '체크리스트A',
   '체크리스트B',
@@ -27,28 +22,58 @@ const checklistItems = [
   '체크리스트H',
 ]
 
-//지역 더미데이터
+// 지역 더미 데이터 - 패널 길이 테스트용으로 많이 넣음. dev에 넣을때 좀 뺴서 넣어야됨.
 const dummyDistricts = [
-  // 서울시
   { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '역삼동' },
   { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '삼성동' },
   { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '서교동' },
   { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '합정동' },
-  // 부산시
   { sido: '부산광역시', sigungu: '해운대구', eupmyeondong: '우동' },
   { sido: '부산광역시', sigungu: '해운대구', eupmyeondong: '중동' },
   { sido: '부산광역시', sigungu: '수영구', eupmyeondong: '광안동' },
-  // 경기도
   { sido: '경기도', sigungu: '성남시 분당구', eupmyeondong: '정자동' },
   { sido: '경기도', sigungu: '성남시 분당구', eupmyeondong: '수내동' },
   { sido: '경기도', sigungu: '고양시 일산서구', eupmyeondong: '주엽동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '고등동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '교동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매산동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매향동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '남수동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '남창동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '북수동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '중동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '지동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '우만동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '인계동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '화서동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '행궁동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로1가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로2가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로3가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로4가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로5가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로6가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로7가' },
 ]
 
-// 지역 선택 상태
+// 지역 상태
 const searchRegion = ref({ city: null, district: null, parish: null })
 const favRegion = ref({ city: null, district: null, parish: null })
 const checklistRegion = ref({ city: null, district: null, parish: null })
 
+const currentRegion = computed(() => {
+  if (selectedMode.value === 'search') return searchRegion.value
+  if (selectedMode.value === 'favorite') return favRegion.value
+  return checklistRegion.value
+})
+
+function handleRegionUpdate(region) {
+  if (selectedMode.value === 'search') searchRegion.value = region
+  else if (selectedMode.value === 'favorite') favRegion.value = region
+  else checklistRegion.value = region
+}
+
+// 지역 옵션 목록 계산
 const getRegionData = computed(() => {
   const cities = [...new Set(dummyDistricts.map(d => d.sido))].map(name => ({
     code: name,
@@ -79,37 +104,33 @@ const getRegionData = computed(() => {
     parishes: uniqueParishes,
   }
 })
-
-const currentRegion = computed(() => {
-  if (selectedMode.value === 'search') return searchRegion.value
-  if (selectedMode.value === 'favorite') return favRegion.value
-  return checklistRegion.value
+watchEffect(() => {
+  console.log('[Check getRegionData.value]', getRegionData.value)
 })
 
-function handleRegionUpdate(region) {
-  if (selectedMode.value === 'search') searchRegion.value = region
-  else if (selectedMode.value === 'favorite') favRegion.value = region
-  else checklistRegion.value = region
-}
-
-// 각 모드에 따른 선택 값 상태
+// 상태들
+const selectedDealTypes = ref([])
 const searchOnlySecure = ref(true)
 const favOnlySecure = ref(false)
 const checklistOnlySecure = ref(false)
 
-// 선택된 체크리스트 항목
-const favSelectedChecklist = ref('전체') // Favorite 전용
-const checklistSelectedChecklist = ref('전체') // Checklist 전용
+const favSelectedChecklist = ref('전체')
+const checklistSelectedChecklist = ref('전체')
 
-// 거래유형 선택 상태 (공통)
-const selectedDealTypes = ref([])
+watch(
+  () => getRegionData,
+  val => {
+    console.log('[FilterView] getRegionData changed:', val)
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
   <div class="filter-test-container">
     <h2>🔍 필터바 테스트</h2>
 
-    <!-- 모드 선택 버튼 -->
+    <!-- 모드 버튼 -->
     <div class="mode-buttons">
       <button
         :class="{ active: selectedMode === 'search' }"
@@ -131,108 +152,72 @@ const selectedDealTypes = ref([])
       </button>
     </div>
 
-    <!-- Search 모드 -->
-    <div v-if="selectedMode === 'search'">
-      <h3>Search 모드</h3>
-      <FilterBar
-        mode="search"
-        v-model:onlySecure="searchOnlySecure"
-        v-model:dealType="selectedDealTypes"
-        v-model:deposit="depositRange"
-        v-model:monthly="monthlyRange"
+    <!-- 모드별 렌더링 -->
+    <!-- search -->
+    <div v-if="selectedMode === 'search'" class="debug-box">
+      <FilterBarSearch
+        :dealType="selectedDealTypes"
+        :deposit="depositRange"
+        :monthly="monthlyRange"
+        :onlySecure="searchOnlySecure"
+        :region="searchRegion"
         :region-data="getRegionData"
+        @update:dealType="val => (selectedDealTypes = val)"
+        @update:deposit="val => (depositRange = val)"
+        @update:monthly="val => (monthlyRange = val)"
+        @update:onlySecure="val => (searchOnlySecure = val)"
         @update:region="handleRegionUpdate"
       />
-      <p v-if="searchOnlySecure" class="secure-msg">안심 매물 필터링 중</p>
-      <p>선택된 거래유형: {{ selectedDealTypes.join(', ') }}</p>
-      <p>
-        보증금 범위:
-        {{ depositMin !== null ? depositMin + ' 만원' : '-' }}
-        ~
-        {{ depositMax !== null ? depositMax + ' 만원' : '-' }}
-      </p>
 
+      <h3>🔍 Search 모드 상태</h3>
       <p>
-        월세 범위:
-        {{ monthlyMin !== null ? monthlyMin + ' 만원' : '-' }}
-        ~
-        {{ monthlyMax !== null ? monthlyMax + ' 만원' : '-' }}
+        <strong>거래유형:</strong>
+        {{ JSON.stringify(selectedDealTypes, null, 2) }}
       </p>
       <p>
-        지역 선택:
-        {{
-          searchRegion.city && searchRegion.district && searchRegion.parish
-            ? `${searchRegion.city} ${searchRegion.district} ${searchRegion.parish}`
-            : '미선택'
-        }}
+        <strong>보증금 범위:</strong>
+        {{ JSON.stringify(depositRange, null, 2) }}
+      </p>
+      <p>
+        <strong>월세 범위:</strong> {{ JSON.stringify(monthlyRange, null, 2) }}
+      </p>
+      <p><strong>Only Secure:</strong> {{ searchOnlySecure }}</p>
+      <p>
+        <strong>선택된 지역:</strong>
+        {{ JSON.stringify(searchRegion, null, 2) }}
       </p>
     </div>
 
-    <!-- Favorite 모드 -->
     <div v-else-if="selectedMode === 'favorite'">
-      <h3>Favorite 모드</h3>
-      <FilterBar
-        mode="favorite"
+      <FilterBarFavorite
         :checklist-items="checklistItems"
-        v-model:selected="favSelectedChecklist"
-        v-model:onlySecure="favOnlySecure"
+        :selected="favSelectedChecklist"
+        :onlySecure="favOnlySecure"
+        :region="favRegion"
         :region-data="getRegionData"
+        @update:selected="val => (favSelectedChecklist = val)"
+        @update:onlySecure="val => (favOnlySecure = val)"
         @update:region="handleRegionUpdate"
       />
-      <p>
-        선택된 체크리스트: <strong>{{ favSelectedChecklist }}</strong>
-      </p>
-      <p v-if="favOnlySecure" class="secure-msg">안심 매물 필터링 중</p>
-      <p>
-        지역 선택:
-        {{
-          searchRegion.city && searchRegion.district && searchRegion.parish
-            ? `${searchRegion.city} ${searchRegion.district} ${searchRegion.parish}`
-            : '미선택'
-        }}
-      </p>
     </div>
 
-    <!-- Checklist 모드 -->
     <div v-else-if="selectedMode === 'checklist'">
-      <h3>Checklist 모드</h3>
-      <FilterBar
-        mode="checklist"
+      <FilterBarChecklist
         :checklist-items="checklistItems"
-        v-model:selected="checklistSelectedChecklist"
-        v-model:onlySecure="checklistOnlySecure"
-        v-model:dealType="selectedDealTypes"
-        v-model:deposit="depositRange"
-        v-model:monthly="monthlyRange"
+        :selected="checklistSelectedChecklist"
+        :onlySecure="checklistOnlySecure"
+        :dealType="selectedDealTypes"
+        :deposit="depositRange"
+        :monthly="monthlyRange"
+        :region="checklistRegion"
         :region-data="getRegionData"
+        @update:selected="val => (checklistSelectedChecklist = val)"
+        @update:onlySecure="val => (checklistOnlySecure = val)"
+        @update:dealType="val => (selectedDealTypes = val)"
+        @update:deposit="val => (depositRange = val)"
+        @update:monthly="val => (monthlyRange = val)"
         @update:region="handleRegionUpdate"
       />
-      <p>
-        선택된 매물: <strong>{{ checklistSelectedChecklist }}</strong>
-      </p>
-      <p v-if="checklistOnlySecure" class="secure-msg">안심 매물 필터링 중</p>
-      <p>선택된 거래유형: {{ selectedDealTypes.join(', ') }}</p>
-      <p>
-        보증금 범위:
-        {{ depositMin !== null ? depositMin + ' 만원' : '-' }}
-        ~
-        {{ depositMax !== null ? depositMax + ' 만원' : '-' }}
-      </p>
-
-      <p>
-        월세 범위:
-        {{ monthlyMin !== null ? monthlyMin + ' 만원' : '-' }}
-        ~
-        {{ monthlyMax !== null ? monthlyMax + ' 만원' : '-' }}
-      </p>
-      <p>
-        지역 선택:
-        {{
-          searchRegion.city && searchRegion.district && searchRegion.parish
-            ? `${searchRegion.city} ${searchRegion.district} ${searchRegion.parish}`
-            : '미선택'
-        }}
-      </p>
     </div>
   </div>
 </template>
@@ -247,6 +232,7 @@ const selectedDealTypes = ref([])
   padding: rem(24px);
   box-sizing: border-box;
 }
+
 .mode-buttons {
   display: flex;
   gap: rem(8px);
