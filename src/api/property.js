@@ -1,6 +1,6 @@
-import api from '@/api'
+import api from '@/api/apiClient'
 
-// const BASE_URL = 'http://localhost:3000/'
+const BASE_URL = 'http://localhost:3000/'
 
 export default {
   async getFavorite(params) {
