@@ -2,12 +2,15 @@
 import { ref, defineEmits, defineProps, watch } from 'vue'
 import ImageBox from '@/components/common/imagebox/ImageBox.vue'
 
-import profileSvg from '@/assets/images/profile/test-img.svg' // svg 하나만 임포트
+// png 이미지 3개 임포트 (같은 경로에 있다고 가정)
+import test1 from '@/assets/images/profile/test1.png'
+import test2 from '@/assets/images/profile/test2.png'
+import test3 from '@/assets/images/profile/test3.png'
 
 const emit = defineEmits(['change', 'update:modelValue'])
 const props = defineProps({ modelValue: Boolean })
 
-const images = [profileSvg, profileSvg, profileSvg]
+const images = [test1, test2, test3] // 이미지 배열 변경
 const selectedIndex = ref(null)
 
 const selectImage = index => {
@@ -44,6 +47,7 @@ watch(
           v-for="(img, idx) in images"
           :key="idx"
           :image="img"
+          type="profile"
           :selected="selectedIndex === idx"
           @select="() => selectImage(idx)"
         />
@@ -82,7 +86,7 @@ watch(
   background: var(--white);
   border-radius: rem(24px);
   padding: rem(24px);
-  width: rem(500px);
+  width: rem(510px);
   z-index: 1000;
   box-shadow: 0 rem(4px) rem(16px) rgba(0, 0, 0, 0.25);
 }
@@ -98,7 +102,7 @@ h2 {
 p {
   padding-left: rem(20px);
   font-size: rem(12px);
-  margin-bottom: rem(34px);
+  margin-bottom: rem(30px);
   color: var(--grey);
 }
 
@@ -107,25 +111,6 @@ p {
   justify-content: center;
   gap: rem(18px);
   margin-bottom: rem(40px);
-}
-
-.image-item {
-  width: rem(132px);
-  height: rem(165px);
-  border-radius: 14%;
-  overflow: hidden;
-  border: rem(4px) solid transparent;
-  cursor: pointer;
-}
-
-.image-item.selected {
-  border-color: var(--primary-color);
-}
-
-.image-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .modal-actions {
