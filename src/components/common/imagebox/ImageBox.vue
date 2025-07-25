@@ -88,8 +88,8 @@ const handleClick = () => {
 }
 
 .imagebox-listing {
-  width: rem(132px);
-  height: rem(104px);
+  width: rem(152px);
+  height: rem(118px);
 }
 
 .imagebox-listing-safe {
@@ -99,8 +99,8 @@ const handleClick = () => {
 
 .badge-icon {
   position: absolute;
-  top: rem(-10px);
-  left: rem(-18px);
+  top: rem(-7px);
+  left: rem(-12px);
   z-index: 2;
 }
 </style>

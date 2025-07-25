@@ -2,9 +2,9 @@
 import { ref } from 'vue'
 import ImageBox from '@/components/common/imagebox/ImageBox.vue'
 
-import img1 from '@/assets/images/profile/test1.png'
-import img2 from '@/assets/images/profile/test2.png'
-import img3 from '@/assets/images/profile/test3.png'
+import img1 from '@/assets/images/profile/test-1.svg'
+import img2 from '@/assets/images/profile/test-2.svg'
+import img3 from '@/assets/images/profile/test-3.svg'
 
 const images = [img1, img2, img3]
 
@@ -16,7 +16,6 @@ const handleSelect = index => {
 
 <template>
   <div style="padding: 70px; display: flex; flex-direction: column; gap: 40px">
-    <!-- ✅ 프로필 이미지 테스트 -->
     <section>
       <h2 style="font-size: large; text-align: center">
         프로필 이미지 테스트 (type="profile") 선택하면 파란 테두리
@@ -33,19 +32,15 @@ const handleSelect = index => {
       </div>
     </section>
 
-    <!-- ✅ 등록용 이미지 테스트 -->
     <section>
       <h2 style="font-size: large; text-align: center">
         등록용 이미지 테스트 (type="register")
       </h2>
       <div style="display: flex; justify-content: center; gap: 30px">
         <ImageBox :image="img1" type="register" alt="등록 이미지" />
-        <ImageBox :image="img1" type="register" alt="등록 이미지" />
-        <ImageBox :image="img1" type="register" alt="등록 이미지" />
       </div>
     </section>
 
-    <!-- ✅ 매물 이미지 테스트 -->
     <section>
       <h2 style="font-size: large; text-align: center">
         매물 이미지 테스트 (type="listing")
@@ -60,7 +55,7 @@ const handleSelect = index => {
         안심매물 이미지 테스트 (type="listing-safe") - 왼쪽 상단 뱃지 표시
       </h2>
       <div style="display: flex; justify-content: center">
-        <ImageBox :image="img1" type="listing-safe" alt="안심매물 이미지" />
+        <ImageBox :image="img2" type="listing-safe" alt="안심매물 이미지" />
       </div>
     </section>
   </div>
