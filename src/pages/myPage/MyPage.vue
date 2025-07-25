@@ -229,8 +229,8 @@ function onProfileImageChange(newImage) {
   gap: rem(12px);
 }
 .profile-img {
-  width: rem(56px);
-  height: rem(56px);
+  width: rem(72px);
+  height: rem(72px);
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
@@ -242,12 +242,12 @@ function onProfileImageChange(newImage) {
   }
 }
 .text-block .hello {
-  font-size: rem(12px);
+  font-size: rem(14px);
   margin: 0;
   opacity: 0.6;
 }
 .nickname {
-  font-size: rem(16px);
+  font-size: rem(18px);
   font-weight: 800;
   margin: 0;
 }

@@ -5,8 +5,8 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const currentIndex = ref(0)
 
-import image1 from '@/assets/images/landing/TestImage.png'
-import image2 from '@/assets/images/landing/HeroImage.png'
+import image1 from '@/assets/images/landing/FavoriteList.svg'
+import image2 from '@/assets/images/landing/SearchList.svg'
 
 const images = [image1, image2]
 
@@ -129,7 +129,7 @@ const prevSlide = () => {
   margin-bottom: 1rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: var(--font-weight-lg);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* 카드 컨테이너 */
@@ -161,12 +161,12 @@ const prevSlide = () => {
   font-size: 1rem;
   margin-bottom: 0.5rem;
   margin-top: 1.5rem;
-  -webkit-text-stroke: 0.6px var(--black);
   color: var(--black);
 }
 
 .description-subtitle {
   font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
   color: var(--grey);
 }
 
