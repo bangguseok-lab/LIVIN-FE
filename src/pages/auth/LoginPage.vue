@@ -1,11 +1,16 @@
 <script setup>
-import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
 
-const router = useRouter()
+const store = useAuthStore()
 
+const handleKakaoLogin = () => {
+  sessionStorage.setItem('provider', 'kakao');
+  window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=5d9abb9b194736dcef213fc877a7a3c6&redirect_uri=http://localhost:5173/kakao/callback`
+}
 
-const handleClick = () => {
-  router.push('/home');
+const handleNaverLogin = () => {
+  store.setProvider('naver');
+  window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=V2i2T0pvAb9NtEW2yzbS&redirect_uri=http://localhost:8080/api/naver/callback&state=random_state`
 }
 </script>
 
@@ -19,8 +24,8 @@ const handleClick = () => {
     <div class="character-container"><img src='@/assets/images/login/livin-character.svg' alt="메인캐릭터" id="character">
     </div>
     <div class="social-login-container">
-      <img src='@/assets/images/login/kakao-login.svg' alt="카카오 로그인" @click="handleClick">
-      <img src='@/assets/images/login/naver-login.svg' alt="네이버 로그인" @click="handleClick">
+      <img src='@/assets/images/login/kakao-login.svg' alt="카카오 로그인" @click="handleKakaoLogin">
+      <img src='@/assets/images/login/naver-login.svg' alt="네이버 로그인" @click="handleNaverLogin">
     </div>
   </div>
 </template>

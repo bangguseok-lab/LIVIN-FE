@@ -21,7 +21,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'input'])
+const emit = defineEmits(['update:modelValue', 'input', 'error'])
 const inputRef = ref(null)
 
 // 전화번호 입력 시 자동 하이픈(-) 처리
@@ -38,6 +38,14 @@ const onInput = (e) => {
   // 전화번호일 경우 자동 포맷 적용
   if (props.type === 'tel') {
     value = formatPhoneNumber(value)
+    if (value.length > 13) {
+      value = value.slice(0, 13) // 13자 초과 시 자르기
+    }
+    if (value.length < 13) {
+      emit('error', '전화번호는 하이픈 포함 13글자를 넘을 수 없습니다.')
+    } else {
+      emit('error', '') // 에러 없음
+    }
   }
 
   emit('update:modelValue', value);

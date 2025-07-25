@@ -1,8 +1,12 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Buttons from '@/components/common/buttons/Buttons.vue';
 import Inputs from '@/components/common/input/Inputs.vue';
+import { useAuthStore } from '@/stores/authStore';
+import axios from 'axios';
+
+const store = useAuthStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -27,22 +31,26 @@ const isShow = computed(() => {
     return 'showProfileImg'
   }
 
+  if (path.endsWith('/done')) {
+    return 'showDone'
+  }
+
   return 'showInput'
 })
 
 // 임대인, 임차인 값을 결정하는 변수
-const tanantBtn = ref(false)
+const tenantBtn = ref(false)
 const landlordBtn = ref(false)
 
 // 임차인 버튼 클릭 시 임대인 버튼 비활성화 하는 함수
-const onTanantClick = () => {
-  tanantBtn.value = true
+const onTenantClick = () => {
+  tenantBtn.value = true
   landlordBtn.value = false
 }
 
 // 임대인 버튼 클릭 시 임차인 버튼 비활성화 하는 함수
 const onLandlordClick = () => {
-  tanantBtn.value = false
+  tenantBtn.value = false
   landlordBtn.value = true
 }
 
@@ -52,13 +60,35 @@ const inputName = ref('name');  // 입력창의 이름을 저장하는 변수
 
 // 유효성 검사 함수
 const isKorean = (text) => /^[가-힣]{2,}$/.test(text)
-const isValidPhone = (text) => /^01[016789]-\d{3,4}-\d{4}$/.test(text)
+const isValidPhone = (text) => {
+  const pattern = /^01[016789]-\d{4}-\d{4}$/;
+  return pattern.test(text) && text.length === 13
+};
 const isValidNickname = (text) => /^[a-zA-Z가-힣0-9]{2,12}$/.test(text)
 
 // Inputs 컴포넌트에서 emit으로 넘긴 값(=입력값)을 받아 inputValue에 저장
 const handleInput = ({ value }) => {
   inputValue.value = value
 }
+
+// 전화번호 에러 메시지 컨트롤
+const handleError = (msg) => {
+  errorMessage.value = msg
+}
+
+// 다음 경로 지정하는 함수
+const nextPath = {
+  name: 'nickname',
+  nickname: 'phone',
+  phone: 'birth',
+  birth: 'role',
+  role: 'profile',
+  profile: 'done',
+};
+
+const getNextRoute = (currPath) => {
+  return `/auth/signup/${nextPath[currPath]}?providerId=${store.providerId}`;
+};
 
 const profileList = [1, 2, 3, 4, 5, 6]  // 이미지 번호 배열
 const selectedProfile = ref(null)       // 선택된 프로필 번호
@@ -84,8 +114,9 @@ const handleInputClick = () => {
         errorMessage.value = '한글 2자 이상 입력해주세요.'
         return
       } else {
+        store.setName(inputValue.value);
         inputValue.value = '' // 입력값 초기화
-        router.push('/auth/signup/nickname')
+        router.push(getNextRoute(inputName.value))
         return
       }
     }
@@ -100,8 +131,9 @@ const handleInputClick = () => {
         errorMessage.value = '닉네임은 특수문자 제외 2~12자여야 합니다.'
         return
       } else {
+        store.setNickname(inputValue.value);
         inputValue.value = ''
-        router.push('/auth/signup/phone')
+        router.push(getNextRoute(inputName.value))
         return
       }
     }
@@ -116,8 +148,9 @@ const handleInputClick = () => {
         errorMessage.value = '올바른 전화번호 형식이 아닙니다.'
         return
       } else {
+        store.setPhone(inputValue.value);   // 010-1234-5678 형식으로 저장
         inputValue.value = ''
-        router.push('/auth/signup/birth')
+        router.push(getNextRoute(inputName.value))
         return
       }
     }
@@ -127,55 +160,103 @@ const handleInputClick = () => {
     if (!inputValue.value) {
       errorMessage.value = '생년월일을 선택해주세요.'
     } else {
+      store.setBirth(inputValue.value);   // 1999-01-01 형식으로 저장
       inputValue.value = ''
-      router.push('/auth/signup/role')
+      router.push(getNextRoute(inputName.value))
       return
     }
   }
   if (path.endsWith('/role')) {
-    if (!tanantBtn.value && !landlordBtn.value) {
+    inputName.value = 'role'
+    if (!tenantBtn.value && !landlordBtn.value) {
       alert('임차인 또는 임대인 역할을 선택해주세요.')
       return
     } else {
-      if (tanantBtn.value && confirm('집을 구하시는게 맞나요?')) {
-        // store.setRole('tanant')  // 피니아에 임차인 역할을 저장하는 코드
-        router.push('/auth/signup/profile')
+      if (tenantBtn.value && confirm('집을 구하시는게 맞나요?')) {
+        store.setRole('TENANT')  // 피니아에 임차인 역할을 저장하는 코드
+        router.push(getNextRoute(inputName.value))
       }
       if (landlordBtn.value && confirm('집을 빌려주실건가요?')) {
-        // store.setRole('landlord')
-        router.push('/auth/signup/profile')
+        store.setRole('LANDLORD')
+        router.push(getNextRoute(inputName.value))
       }
     }
   }
   if (path.endsWith('/profile')) {
+    inputName.value = 'profile'
     if (selectedProfile.value !== null) {
-      console.log('select:', selectedProfile.value)
-      // store.setProfile(selectedProfile.value) // 이미지 번호 스토어에 저장
+      store.setProfile(selectedProfile.value) // 이미지 번호 스토어에 저장
       router.push('/auth/signup/done')
     } else {
       alert('프로필 이미지를 선택해주세요.')
     }
   }
 }
+
+
+const handleSubmit = async () => {
+  try {
+    const payload = {
+      name: store.name,
+      nickname: store.nickname,
+      phone: store.phone,
+      birthDate: store.birthDate,
+      role: store.role,
+      profileImage: store.profileImage,
+    }
+
+    const provider = sessionStorage.getItem('provider');
+    const providerId = store.providerId
+    console.log('입력 받은 회원 정보: ', payload)
+    console.log('providerId: ', providerId)
+    console.log('provide:', provider)
+
+    // encodeURIComponent() : 특수문자 처리 위함
+    const response = await axios.post(
+      `/api/${provider}/register?providerId=${encodeURIComponent(providerId)}`,
+      payload
+    )
+
+    const token = response.headers['authorization'] || response.headers['Authorization']
+
+    if (token) {
+      sessionStorage.setItem('accessToken', token)
+      // 토큰을 세션 스토리지에 저장 후 /home으로 이동
+      router.push('/home')
+    } else {
+      console.error('Authorization 헤더가 없습니다.')
+    }
+  } catch (error) {
+    console.error('회원가입 실패:', error)
+  }
+}
+
+// 페이지가 마운트될 때, providerId를 스토어에 저장
+onMounted(() => {
+  const providerId = route.query.providerId
+  if (providerId) {
+    store.setProviderId(providerId)
+  }
+})
 </script>
 
 <template>
   <div class="SignupLayout">
-    <div class="signup-page-number">{{ page }}<span class="total-page"> / 6</span></div>
-    <div class="signup-title-wrapper">
+    <div class="signup-page-number" v-if="isShow !== 'showDone'">{{ page }}<span class="total-page"> / 6</span></div>
+    <div class="signup-title-wrapper" v-if="isShow !== 'showDone'">
       <p class="signup-title-text">{{ title }}</p>
       <p class="signup-sub-title-text">{{ subTitle }}</p>
 
       <!-- 입력창 (이름, 닉네임, 전화번호, 생년월일) -->
       <Inputs v-if="isShow === 'showInput'" :placeholder="placeholder" :type="type" :name="inputName"
-        :modelValue="inputValue" @input="handleInput" />
+        :modelValue="inputValue" @input="handleInput" @error="handleError" />
 
       <!-- 에러 메시지 보이는 곳 -->
       <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
 
       <!-- 역할(임대인, 임차인) 선택하는 버튼 -->
       <div v-if="isShow === 'showRoleBtn'" class="btn-role-box">
-        <Buttons v-model:is-active="tanantBtn" :type="type" class="tanantBtn" @click="onTanantClick">
+        <Buttons v-model:is-active="tenantBtn" :type="type" class="tenantBtn" @click="onTenantClick">
           <div class="role-text">임차인</div>
           <div class="role-description-text">집을 구해요</div>
         </Buttons>
@@ -194,6 +275,12 @@ const handleInputClick = () => {
       </div>
       <!-- 주소가 있으면 버튼 활성화 -->
       <Buttons type="default" label="다음" @click="handleInputClick" class="nextBtn" />
+    </div>
+    <div class="signup-done-wrapper" v-if="isShow === 'showDone'">
+      <p>{{ title }}</p>
+      <p>{{ subTitle }}</p>
+      <img src='@/assets/images/login/livin-character.svg' alt="메인캐릭터" class="character">
+      <Buttons type="default" label="시작하기" @click="handleSubmit" class="doneBtn" />
     </div>
   </div>
 </template>
@@ -242,7 +329,7 @@ const handleInputClick = () => {
   width: 100%;
 }
 
-.tanantBtn {
+.tenantBtn {
   margin-right: rem(42px);
 }
 
@@ -277,10 +364,44 @@ const handleInputClick = () => {
   border-color: var(--primary-color);
 }
 
+.signup-done-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: rem(100px);
+
+  font-size: var(--sub-title-size);
+  font-weight: var(--font-weight-regular);
+  color: var(--sub-title-text);
+}
+
+.signup-done-wrapper>p:nth-child(1) {
+  font-size: var(--title-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--title-text);
+}
+
+.character {
+  position: relative;
+  right: rem(-145px);
+  top: rem(60px);
+  width: 65%;
+}
+
 .nextBtn {
   position: absolute;
   bottom: 0;
   width: 100%;
   height: rem(50px);
+}
+
+.doneBtn {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: rem(50px);
+  font-size: 1rem;
 }
 </style>
