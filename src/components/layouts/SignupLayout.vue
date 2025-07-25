@@ -207,9 +207,6 @@ const handleSubmit = async () => {
 
     const provider = sessionStorage.getItem('provider');
     const providerId = store.providerId
-    console.log('입력 받은 회원 정보: ', payload)
-    console.log('providerId: ', providerId)
-    console.log('provide:', provider)
 
     // encodeURIComponent() : 특수문자 처리 위함
     const response = await axios.post(

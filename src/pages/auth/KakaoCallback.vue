@@ -1,34 +1,28 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/authStore';
+import axios from 'axios'
+
 const route = useRoute()
 const router = useRouter()
 
+const store = useAuthStore()
 
 onMounted(async () => {
   const code = route.query.code
 
   if (code) {
     try {
+      const res = await axios.get(`/api/kakao/callback?code=${code}`)   // 토큰 발급
 
-      const res = await axios.get(`/api/${name}/callback?code=${code}`)
+      store.setProviderId(res.data)
 
-
-      const jwt = res.headers['authorization']?.replace('Bearer ', '')
-      const providerId = res.data
-
-      sessionStorage.setItem('accessToken', jwt)
-      sessionStorage.setItem('providerId', providerId)
-
-      router.push('/home')
-
+      router.push('/home')    // 로그인 성공
     } catch (err) {
       if (err.response?.status === 404) {
-        const jwt = err.response.headers['authorization']?.replace('Bearer ', '')
-        const providerId = err.response.data
-        sessionStorage.setItem('accessToken', jwt)
-        sessionStorage.setItem('providerId', providerId)
+        // 회원정보가 없는 경우, 회원가입 진행
+        const providerId = store.providerId
         router.push(`/auth/signup?providerId=${providerId}`)
       } else {
         console.error('카카오 로그인 실패', err)
@@ -40,7 +34,6 @@ onMounted(async () => {
 
 <template>
   <div class="KakaoCallback">
-    <div>로그인 처리 중...</div>
   </div>
 </template>
 
