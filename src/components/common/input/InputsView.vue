@@ -23,19 +23,6 @@ const isKorean = (text) => /^[가-힣]{2,}$/.test(text)
 const isValidPhone = (text) => /^01[016789]-\d{3,4}-\d{4}$/.test(text)
 const isValidNickname = (text) => /^[a-zA-Z가-힣0-9]{2,12}$/.test(text)
 
-// 경로별 유효성 검사 에러 메시지
-// const errorMessage = computed(() => {
-//   if (route.path.endsWith('/name')) {
-//     if (!inputValue.value) return '이름을 입력해주세요.'
-//     if (!isKorean(inputValue.value)) return '한글 2자 이상 입력해주세요.'
-//   }
-
-//     if (!inputValue.value) return '닉네임을 입력해주세요.'
-//     if (!isValidNickname(inputValue.value)) return '닉네임은 특수문자 제외 2~12자여야 합니다.'
-
-//   return ''
-// })
-
 const handleInput = ({ name, value }) => {
   if (name === 'name') {
     nameInputValue.value = value
@@ -143,7 +130,8 @@ const handleInputClick = (inputName) => {
 
 .error-text {
   color: red;
-  font-size: 14px;
-  margin-top: 4px;
+  font-size: rem(14px);
+  margin-top: rem(8px);
+  padding-left: rem(4.8px);
 }
 </style>
