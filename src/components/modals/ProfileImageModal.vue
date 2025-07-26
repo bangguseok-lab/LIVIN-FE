@@ -3,9 +3,9 @@ import { ref, defineEmits, defineProps, watch } from 'vue'
 import ImageBox from '@/components/common/imagebox/ImageBox.vue'
 
 // png 이미지 3개 임포트 (같은 경로에 있다고 가정)
-import test1 from '@/assets/images/profile/test1.png'
-import test2 from '@/assets/images/profile/test2.png'
-import test3 from '@/assets/images/profile/test3.png'
+import test1 from '@/assets/images/profile/test-1.svg'
+import test2 from '@/assets/images/profile/test-2.svg'
+import test3 from '@/assets/images/profile/test-3.svg'
 
 const emit = defineEmits(['change', 'update:modelValue'])
 const props = defineProps({ modelValue: Boolean })
@@ -43,14 +43,8 @@ watch(
       <h2>프로필 이미지를 선택하세요</h2>
       <p>선택 후 완료를 누르면 적용돼요</p>
       <div class="image-list">
-        <ImageBox
-          v-for="(img, idx) in images"
-          :key="idx"
-          :image="img"
-          type="profile"
-          :selected="selectedIndex === idx"
-          @select="() => selectImage(idx)"
-        />
+        <ImageBox v-for="(img, idx) in images" :key="idx" :image="img" type="profile" :selected="selectedIndex === idx"
+          @select="() => selectImage(idx)" />
       </div>
       <div class="modal-actions">
         <button @click="confirmChange">완료</button>
