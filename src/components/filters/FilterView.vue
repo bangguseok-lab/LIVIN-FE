@@ -38,6 +38,22 @@ const dummyDistricts = [
   { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '교동' },
   { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매산동' },
   { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매향동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '남수동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '남창동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '북수동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '중동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '지동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '우만동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '인계동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '화서동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '행궁동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로1가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로2가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로3가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로4가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로5가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로6가' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로7가' },
 ]
 
 // 지역 상태
@@ -99,7 +115,7 @@ const favOnlySecure = ref(false)
 const checklistOnlySecure = ref(false)
 
 const favSelectedChecklist = ref('전체')
-const checklistSelectedChecklist = ref('전체')
+const checklistSelectedChecklist = ref('일반 매물')
 
 // watch(
 //   () => getRegionData,
@@ -153,20 +169,21 @@ const checklistSelectedChecklist = ref('전체')
         @update:region="handleRegionUpdate"
       />
 
+      <!-- v-if 처리에서 .final이 true일 때 백으로 매물 정보 요청 보내기. -->
       <h3>🔍 Search 모드 상태</h3>
       <p>
         <strong>거래유형:</strong>
         {{ JSON.stringify(selectedDealTypes, null, 2) }}
       </p>
-      <p>
+      <p v-if="depositRange.final == true">
         <strong>보증금 범위:</strong>
         {{ JSON.stringify(depositRange, null, 2) }}
       </p>
-      <p>
+      <p v-if="monthlyRange.final == true">
         <strong>월세 범위:</strong> {{ JSON.stringify(monthlyRange, null, 2) }}
       </p>
       <p><strong>Only Secure:</strong> {{ searchOnlySecure }}</p>
-      <p>
+      <p v-if="searchRegion.final == true">
         <strong>선택된 지역:</strong>
         {{ JSON.stringify(searchRegion, null, 2) }}
       </p>
@@ -183,6 +200,9 @@ const checklistSelectedChecklist = ref('전체')
         @update:onlySecure="val => (favOnlySecure = val)"
         @update:region="handleRegionUpdate"
       />
+      <div style="margin-top: 2rem">
+        선택된 체크리스트: {{ favSelectedChecklist || '전체' }}
+      </div>
     </div>
 
     <div v-else-if="selectedMode === 'checklist'">
@@ -202,6 +222,11 @@ const checklistSelectedChecklist = ref('전체')
         @update:monthly="val => (monthlyRange = val)"
         @update:region="handleRegionUpdate"
       />
+
+      <h3>🔍 Checklist 모드 상태</h3>
+      <p>
+        <strong>체크리스트 모드 선택:</strong> {{ checklistSelectedChecklist }}
+      </p>
     </div>
   </div>
 </template>
