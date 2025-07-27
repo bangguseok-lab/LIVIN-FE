@@ -34,7 +34,7 @@ function updateSelected() {
   const selectedLabels = dealTypes.value
     .filter(type => type.checked)
     .map(type => type.label)
-  console.log('[DealTypePanel] 선택된 거래 유형:', selectedLabels)
+  // console.log('[DealTypePanel] 선택된 거래 유형:', selectedLabels)
 
   emit('select', selectedLabels)
 }

@@ -62,9 +62,9 @@ function handleClick(num) {
 // min/max 변경 시 부모에 emit
 watch([min, max], () => {
   emit('updateRange', { min: min.value, max: max.value })
-  console.log(
-    `[RangeSelector] 선택된 범위: min = ${min.value}, max = ${max.value}`,
-  )
+  // console.log(
+  //   `[RangeSelector] 선택된 범위: min = ${min.value}, max = ${max.value}`,
+  // )
 })
 
 // props 변경 시 내부 상태 반영
@@ -73,7 +73,7 @@ watch(
   ([newMin, newMax]) => {
     min.value = newMin
     max.value = newMax
-    console.log('[RangeSelector] initial 값으로 갱신됨:', newMin, newMax)
+    // console.log('[RangeSelector] initial 값으로 갱신됨:', newMin, newMax)
   },
   { immediate: true },
 )
