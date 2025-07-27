@@ -19,6 +19,11 @@ defineProps({
 
 <style scoped lang="scss">
 .check-panel {
+  position: fixed; // 또는 absolute (보통 fixed가 UI 겹침 방지에 유리)
+  z-index: 9999;
+  left: 0; // 디폴트값
+  top: 0;
+
   background-color: white;
   border-radius: 1rem;
   border: solid var(--whitish) 1.5px;

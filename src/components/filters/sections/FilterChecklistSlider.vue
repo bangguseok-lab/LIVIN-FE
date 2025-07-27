@@ -1,6 +1,7 @@
 <script setup>
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import RegionPanel from '@/components/panels/RegionPanel.vue'
+import CheckPanel from '@/components/panels/CheckPanel.vue'
 
 const props = defineProps({
   checklistItems: Array,
@@ -10,14 +11,39 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue', 'update:region'])
 
-function handleSelect(item) {
-  emit('update:modelValue', item)
-}
-
 const showPanel = ref(null)
 const panelRef = ref(null)
 const buttonRef = ref(null)
 const panelPosition = ref({ left: 0, top: 0 })
+
+const activeChecklist = ref(null)
+
+function setPanelPositionByElement(el) {
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  const container = el.closest('.filter-scroll-section')
+  const containerRect = container.getBoundingClientRect()
+  const panelWidth = 400
+
+  panelPosition.value = {
+    left: containerRect.left + containerRect.width / 2 - panelWidth / 2,
+    top: rect.bottom + 8 + window.scrollY,
+  }
+}
+
+function handleSelect(item, event) {
+  activeChecklist.value = item
+  emit('update:modelValue', item)
+
+  // 체크리스트 패널 위치 설정
+  nextTick(() => {
+    setPanelPositionByElement(event.currentTarget)
+  })
+}
+
+function closeChecklistPanel() {
+  activeChecklist.value = null
+}
 
 function togglePanel(event, panelKey) {
   if (showPanel.value === panelKey) {
@@ -28,17 +54,7 @@ function togglePanel(event, panelKey) {
   showPanel.value = panelKey
 
   nextTick(() => {
-    const button = event.currentTarget
-    const rect = button.getBoundingClientRect()
-    const container = button.closest('.filter-scroll-section')
-    const containerRect = container.getBoundingClientRect()
-
-    const panelWidth = 400
-
-    panelPosition.value = {
-      left: containerRect.left + containerRect.width / 2 - panelWidth / 2,
-      top: rect.bottom + 8 + window.scrollY,
-    }
+    setPanelPositionByElement(event.currentTarget)
   })
 }
 
@@ -61,6 +77,11 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+
+const handleRegionUpdate = region => {
+  if (region.final == true) showPanel.value = null
+  emit('update:region', region)
+}
 </script>
 
 <template>
@@ -81,7 +102,7 @@ onUnmounted(() => {
       v-for="item in checklistItems"
       :key="item"
       :class="{ active: modelValue === item }"
-      @click="handleSelect(item)"
+      @click="e => handleSelect(item, e)"
     >
       {{ item }}
     </button>
@@ -101,9 +122,20 @@ onUnmounted(() => {
         :districts="regionData.districts"
         :parishes="regionData.parishes"
         :selected-region="props.region"
-        @updateRegion="val => emit('update:region', val)"
+        @updateRegion="handleRegionUpdate"
       />
     </div>
+    <CheckPanel
+      v-if="activeChecklist"
+      :title="activeChecklist"
+      :onClose="closeChecklistPanel"
+      :style="{
+        left: panelPosition.left + 'px',
+        top: panelPosition.top + 'px',
+      }"
+    >
+      <p>✔️ {{ activeChecklist }} 상세 내용입니다.</p>
+    </CheckPanel>
   </div>
 </template>
 
