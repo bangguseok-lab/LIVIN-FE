@@ -1,5 +1,5 @@
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   icon: {
@@ -8,22 +8,24 @@ const props = defineProps({
   },
 })
 const router = useRouter()
+const route = useRoute()
 const back = () => {
+  if (route.path.startsWith('/auth/signup')) {
+    if (
+      confirm(
+        '작성하신 내용이 저장되지 않습니다. \n괜찮으시다면 "확인"을 눌러주세요.',
+      )
+    ) {
+      router.push('/landing')
+    }
+  }
   router.back()
 }
 </script>
 <template>
   <div class="back-button-wrap" @click.prevent="back">
-    <img
-      src="../../../assets/icons/header/back-icon-blue.svg"
-      alt="뒤로가기 파란색"
-      v-if="props.icon === 'blue'"
-    />
-    <img
-      src="../../../assets/icons/header/back-icon-white.svg"
-      alt="뒤로가기 하얀색"
-      v-else-if="props.icon === 'white'"
-    />
+    <img src="../../../assets/icons/header/back-icon-blue.svg" alt="뒤로가기 파란색" v-if="props.icon === 'blue'" />
+    <img src="../../../assets/icons/header/back-icon-white.svg" alt="뒤로가기 하얀색" v-else-if="props.icon === 'white'" />
   </div>
 </template>
 <style scoped>
