@@ -1,5 +1,6 @@
 <script setup>
 import RegionSelector from './RegionSelector.vue'
+import Buttons from '../common/buttons/Buttons.vue'
 import { defineProps, defineEmits, watch } from 'vue'
 
 // 지역 리스트는 props로 받고, 선택된 결과만 emit
@@ -23,7 +24,23 @@ const props = defineProps({
 const emit = defineEmits(['updateRegion'])
 
 const handleRegionUpdate = region => {
+  region.final = false
   emit('updateRegion', region)
+}
+
+function complete_btn_handler() {
+  props.selectedRegion.final = true
+  // console.log('selectedRegion: ', props.selectedRegion)
+  emit('updateRegion', props.selectedRegion)
+}
+
+function cancel_btn_handler() {
+  props.selectedRegion.final = false
+  props.selectedRegion.city = null
+  props.selectedRegion.district = null
+  props.selectedRegion.parish = null
+  // console.log('selectedRegion: ', props.selectedRegion)
+  emit('updateRegion', props.selectedRegion)
 }
 
 // ✅ selectedRegion 값이 바뀔 때마다 로그 찍기
@@ -46,6 +63,21 @@ const handleRegionUpdate = region => {
       :selected-region="selectedRegion"
       @updateRegion="handleRegionUpdate"
     />
+
+    <div class="region-btn-section">
+      <Buttons
+        label="완료"
+        :is-active="true"
+        type="md"
+        @click="complete_btn_handler"
+      />
+      <Buttons
+        label="초기화"
+        :is-active="false"
+        type="md"
+        @click="cancel_btn_handler"
+      />
+    </div>
   </div>
 </template>
 
@@ -68,5 +100,11 @@ const handleRegionUpdate = region => {
   margin-top: 1.5rem;
   font-size: 0.9rem;
   color: #333;
+}
+.region-btn-section {
+  display: flex; // 버튼들을 가로로 나열
+  justify-content: space-between; // 또는 center, flex-end 등 필요에 맞게 조정
+  gap: rem(10px); // 버튼 사이 간격
+  margin: 1.5rem 1rem 0 1rem;
 }
 </style>

@@ -79,6 +79,11 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
+const handleRegionUpdate = region => {
+  if (region.final == true) activePanel.value = null
+  emit('update:region', region)
+}
+
 const currentPanelComponent = computed(() => {
   switch (activePanel.value) {
     case 'deal':
@@ -142,7 +147,7 @@ const currentPanelComponent = computed(() => {
         :districts="props.regionData.districts"
         :parishes="props.regionData.parishes"
         :selected-region="props.region"
-        @updateRegion="val => emit('update:region', val)"
+        @updateRegion="handleRegionUpdate"
       />
     </div>
   </div>
