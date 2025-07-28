@@ -2,8 +2,7 @@
 import axios from 'axios'
 
 const apiClient = axios.create({
-  // baseURL: import.meta.env.VITE_SERVER_BASE_URL || '/api',
-  baseURL: 'http://localhost:8080/',
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -23,30 +22,13 @@ const processQueue = (error, token = null) => {
   failedQueue = []
 }
 // 요청 인터셉터
+// 요청 인터셉터 개선
 apiClient.interceptors.request.use(
   async config => {
-    let token = sessionStorage.getItem('accessToken')
-
-    if (!token) {
-      try {
-        const providerId = sessionStorage.getItem('providerId')
-        if (providerId) {
-          const response = await axios.post(
-            `/api/users/refresh?providerId=${providerId}`,
-          )
-          token = response.data
-          // sessionStorage.setItem('accessToken', token)
-        }
-      } catch (e) {
-        console.error('토큰 재발급 실패:', e)
-        return Promise.reject(e)
-      }
-    }
-
+    const token = sessionStorage.getItem('accessToken')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-
     return config
   },
   error => Promise.reject(error),
