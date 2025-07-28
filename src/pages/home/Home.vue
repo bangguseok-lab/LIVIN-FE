@@ -108,14 +108,17 @@ onMounted(() => {
       '카카오 맵 API 스크립트가 로드되지 않았습니다. public/index.html 파일을 확인해주세요.'
     console.error('Kakao Maps SDK not loaded in index.html.')
   }
-
+  const providerId = sessionStorage.getItem('providerId') //나중에 병합 후 수정
   const favoriteParams = {
     limit: 3,
-    desc: 'date',
+    providerId: providerId,
   }
+  //post로 변경 시 수정
   const propertiesPrams = {
     limit: 4,
-    desc: 'date',
+    sido: sido.value,
+    sigungu: sigungu.value,
+    eupmyendong: eupmyendong.value,
   }
   property.fetchFavoriteProperties(favoriteParams)
   property.fetchProperties(propertiesPrams)
