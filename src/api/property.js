@@ -1,16 +1,14 @@
-import api from '@/api/apiClient'
-
-const BASE_URL = 'http://localhost:3000/'
+import apiClient from '@/api/apiClient'
 
 export default {
   async getFavorite(params) {
-    const { data } = await api.get(`${BASE_URL}favoriteProperties`, { params })
+    const { data } = await apiClient.get('/favoriteProperties', { params })
     console.log(data)
     return data
   },
 
   async getProperties(params) {
-    const { data } = await api.get(`${BASE_URL}properties`, { params })
+    const { data } = await apiClient.get('/properties', { params })
     return data
   },
 }
