@@ -13,3 +13,8 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
+window.addEventListener('beforeunload', () => {
+  sessionStorage.clear()
+  localStorage.clear()
+})
