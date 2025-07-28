@@ -22,7 +22,6 @@ const processQueue = (error, token = null) => {
   failedQueue = []
 }
 // 요청 인터셉터
-// 요청 인터셉터 개선
 apiClient.interceptors.request.use(
   async config => {
     const token = sessionStorage.getItem('accessToken')
@@ -102,7 +101,7 @@ const refreshAccessToken = async () => {
   }
 
   const response = await axios.post(
-    `${apiClient.defaults.baseURL}/api/users/refresh?providerId=${providerId}`,
+    `${apiClient.defaults.baseURL}/users/refresh?providerId=${providerId}`,
   )
   const accessToken = response.headers?.Authorization?.split(' ')[1]
   return accessToken
