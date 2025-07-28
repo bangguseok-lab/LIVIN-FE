@@ -2,15 +2,17 @@
 import { ref, defineEmits, defineProps, watch } from 'vue'
 import ImageBox from '@/components/common/imagebox/ImageBox.vue'
 
-// png 이미지 3개 임포트 (같은 경로에 있다고 가정)
 import test1 from '@/assets/images/profile/test-1.svg'
 import test2 from '@/assets/images/profile/test-2.svg'
 import test3 from '@/assets/images/profile/test-3.svg'
+import test4 from '@/assets/images/profile/test-4.svg'
+import test5 from '@/assets/images/profile/test-5.svg'
+import test6 from '@/assets/images/profile/test-6.svg'
 
 const emit = defineEmits(['change', 'update:modelValue'])
 const props = defineProps({ modelValue: Boolean })
 
-const images = [test1, test2, test3] // 이미지 배열 변경
+const images = [test1, test2, test3, test4, test5, test6]
 const selectedIndex = ref(null)
 
 const selectImage = index => {
@@ -101,10 +103,11 @@ p {
 }
 
 .image-list {
-  display: flex;
-  justify-content: center;
-  gap: rem(18px);
-  margin-bottom: rem(40px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: rem(20px);
+  max-width: rem(600px);
+  margin: 0 auto rem(40px);
 }
 
 .modal-actions {
