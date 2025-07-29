@@ -28,7 +28,7 @@ const props = defineProps({
     type: String,
     default: 'default',
     validator: (val) => [
-      'default', 'xl', 'md', 'sm', 'xs', 'ok', 'go', 'property', 'start-option', 'start-lg', 'start-photo', 'start-direction', 'start-floor', 'my-option'
+      'default', 'xl', 'md', 'sm', 'xs', 'ok', 'go', 'property', 'role', 'option', 'direction', 'date', 'photo', 'floor', 'my-option'
     ].includes(val),
   },
   togo: {
@@ -121,15 +121,20 @@ const iconComponent = computed(() => {
   font-weight: 600;
   cursor: pointer;
   border: none;
+  width: 100%;
+  height: 100%;
 }
 
 // btn-default, 제일 기본 버튼
 .btn-default {
   background-color: var(--grey);
-  width: rem(294px);
-  height: rem(42px);
   color: var(--white);
   border-radius: rem(10px);
+}
+
+.btn-default:hover {
+  background-color: var(--primary-color);
+  color: white;
 }
 
 // btn-xl, 메인페이지에 사용되는 큰 버튼
@@ -139,8 +144,6 @@ const iconComponent = computed(() => {
   align-items: flex-start;
   justify-content: center;
   background-color: var(--primary-color);
-  width: rem(358px);
-  height: rem(108px);
   padding: rem(8px) rem(30px);
   border-radius: rem(10px);
   color: white;
@@ -162,8 +165,6 @@ const iconComponent = computed(() => {
 .btn-md {
   background-color: var(--grey);
   color: white;
-  width: rem(130px);
-  height: rem(42px);
   border-radius: rem(8px);
 }
 
@@ -242,22 +243,27 @@ const iconComponent = computed(() => {
 
 // btn-role, 임대인, 임차인 역할 관련 버튼
 .btn-role {
-  width: rem(150px);
-  height: rem(194px);
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  padding-top: 4rem;
+
+  width: rem(240px);
+  height: rem(300px);
   border: rem(1px) solid var(--grey);
   border-radius: rem(13px);
 }
 
 .btn-role :deep(.role-text) {
-  font-size: rem(16px);
-  font-weight: var(--font-weight-lg);
+  font-size: rem(18px);
+  font-weight: var(--font-weight-bold);
   margin-bottom: rem(4px);
-  color: black;
+  color: var(--title-text);
 }
 
 .btn-role :deep(.role-description-text) {
   font-size: rem(12px);
-  font-weight: var(--font-weight-sm);
+  font-weight: var(--font-weight-regular);
   color: var(--grey);
 }
 

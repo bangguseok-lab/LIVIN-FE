@@ -17,7 +17,7 @@ import MypageIconActive from '@/assets/icons/navbar/mypage-icon-active.svg'
 const route = useRoute()
 const navMenus = [
   {
-    path: '/',
+    path: '/home',
     icon: HomeIcon,
     activeIcon: HomeIconActive,
     alt: '홈 아이콘',
@@ -62,9 +62,18 @@ const isActive = computed(() => menu => {
   <div class="nav-wrap">
     <div class="Navbar">
       <div class="nav-box">
-        <router-link v-for="menu in navMenus" :key="menu.path" :to="menu.path" class="icon-box"
-          :class="{ active: isActive(menu) }">
-          <img :src="isActive(menu) ? menu.activeIcon : menu.icon" :alt="menu.alt" class="mt-2" />
+        <router-link
+          v-for="menu in navMenus"
+          :key="menu.path"
+          :to="menu.path"
+          class="icon-box"
+          :class="{ active: isActive(menu) }"
+        >
+          <img
+            :src="isActive(menu) ? menu.activeIcon : menu.icon"
+            :alt="menu.alt"
+            class="mt-2"
+          />
         </router-link>
       </div>
     </div>

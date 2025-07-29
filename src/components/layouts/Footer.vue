@@ -38,6 +38,7 @@
 .footer-top {
   display: flex;
   justify-content: center;
+  margin-top: 0.8rem;
 }
 
 .footer-logo {

@@ -2,12 +2,17 @@
 import { ref, defineEmits, defineProps, watch } from 'vue'
 import ImageBox from '@/components/common/imagebox/ImageBox.vue'
 
-import profileSvg from '@/assets/images/profile/test-img.svg' // svg 하나만 임포트
+import test1 from '@/assets/images/profile/test-1.svg'
+import test2 from '@/assets/images/profile/test-2.svg'
+import test3 from '@/assets/images/profile/test-3.svg'
+import test4 from '@/assets/images/profile/test-4.svg'
+import test5 from '@/assets/images/profile/test-5.svg'
+import test6 from '@/assets/images/profile/test-6.svg'
 
 const emit = defineEmits(['change', 'update:modelValue'])
 const props = defineProps({ modelValue: Boolean })
 
-const images = [profileSvg, profileSvg, profileSvg]
+const images = [test1, test2, test3, test4, test5, test6]
 const selectedIndex = ref(null)
 
 const selectImage = index => {
@@ -40,13 +45,8 @@ watch(
       <h2>프로필 이미지를 선택하세요</h2>
       <p>선택 후 완료를 누르면 적용돼요</p>
       <div class="image-list">
-        <ImageBox
-          v-for="(img, idx) in images"
-          :key="idx"
-          :image="img"
-          :selected="selectedIndex === idx"
-          @select="() => selectImage(idx)"
-        />
+        <ImageBox v-for="(img, idx) in images" :key="idx" :image="img" type="profile" :selected="selectedIndex === idx"
+          @select="() => selectImage(idx)" />
       </div>
       <div class="modal-actions">
         <button @click="confirmChange">완료</button>
@@ -82,7 +82,7 @@ watch(
   background: var(--white);
   border-radius: rem(24px);
   padding: rem(24px);
-  width: rem(500px);
+  width: rem(510px);
   z-index: 1000;
   box-shadow: 0 rem(4px) rem(16px) rgba(0, 0, 0, 0.25);
 }
@@ -98,34 +98,16 @@ h2 {
 p {
   padding-left: rem(20px);
   font-size: rem(12px);
-  margin-bottom: rem(34px);
+  margin-bottom: rem(30px);
   color: var(--grey);
 }
 
 .image-list {
-  display: flex;
-  justify-content: center;
-  gap: rem(18px);
-  margin-bottom: rem(40px);
-}
-
-.image-item {
-  width: rem(132px);
-  height: rem(165px);
-  border-radius: 14%;
-  overflow: hidden;
-  border: rem(4px) solid transparent;
-  cursor: pointer;
-}
-
-.image-item.selected {
-  border-color: var(--primary-color);
-}
-
-.image-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: rem(20px);
+  max-width: rem(600px);
+  margin: 0 auto rem(40px);
 }
 
 .modal-actions {
