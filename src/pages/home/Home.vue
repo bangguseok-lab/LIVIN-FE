@@ -3,7 +3,10 @@ import Buttons from '@/components/common/buttons/Buttons.vue'
 import FavoritePropertySection from './FavoritePropertySection.vue'
 import PropertySection from './PropertySection.vue'
 import { usePropertyStore } from '@/stores/property'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+
+const auth = useAuthStore()
 
 const sido = ref('서울특별시')
 const sigungu = ref('강남구')
@@ -26,6 +29,7 @@ const SIDO_MAP = {
   광주: '광주광역시',
   대전: '대전광역시',
 }
+const isAddressUpdate = ref(false)
 
 const searchAddressByCoords = (latitude, longitude) => {
   addressErrorMessage.value = ''
@@ -55,12 +59,15 @@ const searchAddressByCoords = (latitude, longitude) => {
         if (sido.value === '세종특별자치시' && sigungu.value === '세종시') {
           sigungu.value = null
         }
+        isAddressUpdate.value = true
       } else {
         addressErrorMessage.value =
           '해당 좌표에 대한 주소 정보를 찾을 수 없습니다.'
+        isAddressUpdate.value = true
       }
     } else {
       addressErrorMessage.value = `주소 검색 실패: ${status}`
+      isAddressUpdate.value = true
     }
   })
 }
@@ -108,22 +115,29 @@ onMounted(() => {
       '카카오 맵 API 스크립트가 로드되지 않았습니다. public/index.html 파일을 확인해주세요.'
     console.error('Kakao Maps SDK not loaded in index.html.')
   }
-  const providerId = sessionStorage.getItem('providerId') //나중에 병합 후 수정
+  const providerId = auth.providerId
   const favoriteParams = {
     limit: 3,
     providerId: providerId,
   }
-  //post로 변경 시 수정
-  const propertiesPrams = {
-    limit: 4,
-    sido: sido.value,
-    sigungu: sigungu.value,
-    eupmyendong: eupmyendong.value,
-  }
   property.fetchFavoriteProperties(favoriteParams)
-  property.fetchProperties(propertiesPrams)
 })
-
+watch(
+  [sido, sigungu, eupmyendong, isAddressUpdate],
+  ([newSido, newSigungu, newEupmyendong, newIsAddressUpdate]) => {
+    // hasAddressBeenSet이 true일 때만 매물 정보 요청
+    if (newIsAddressUpdate) {
+      const propertiesPrams = {
+        limit: 4,
+        sido: newSido,
+        sigungu: newSigungu,
+        eupmyendong: newEupmyendong,
+      }
+      property.fetchProperties(propertiesPrams)
+    }
+  },
+  { immediate: true }, // 컴포넌트 마운트 시 한 번 즉시 실행하여 초기 값으로 요청하도록 함
+)
 const nickname = localStorage.getItem('nickname')
 </script>
 
