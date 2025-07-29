@@ -5,6 +5,11 @@ export const usePropertyStore = defineStore('property', {
   state: () => ({
     favoriteProperties: [],
     properties: [],
+    address: {
+      sido: '서울특별시',
+      sigungu: '강남구',
+      eupmyendong: '대치동',
+    },
   }),
   actions: {
     async fetchFavoriteProperties(params) {
@@ -28,5 +33,6 @@ export const usePropertyStore = defineStore('property', {
   getters: {
     getFavorite: state => state.favoriteProperties,
     getPropertiesList: state => state.properties,
+    getAddress: state => state.address,
   },
 })
