@@ -1,19 +1,5 @@
-<template>
-  <div class="property-card">
-    <div class="image-placeholder">사진</div>
-    <div class="details">
-      <div class="price">전세 {{ formattedPrice }} </div>
-      <div class="title">{{ title }}</div>
-      <div class="info">{{ area }} / {{ supplyArea }} · {{ floor }} / {{ totalFloors }}층 · {{ direction }}</div>
-      <div class="address">{{ address }}</div>
-      <div class="badge">안심 매물</div>
-    </div>
-    <div class="heart">❤️</div>
-  </div>
-</template>
-
 <script setup>
-defineProps({
+const props = defineProps({
   price: Number,
   title: String,
   area: String,
@@ -24,8 +10,22 @@ defineProps({
   address: String,
 });
 
-const formattedPrice = `${(price / 1000).toFixed(0)},000`;
+const formattedPrice = `${(props.price / 1000).toFixed(0)},000`;
 </script>
+
+<template>
+  <div class="property-card">
+    <div class="image-placeholder">사진</div>
+    <div class="details">
+      <div class="price">전세 {{ formattedPrice }}</div>
+      <div class="title">{{ props.title }}</div>
+      <div class="info">{{ props.area }} / {{ props.supplyArea }} · {{ props.floor }} / {{ props.totalFloors }}층 · {{ props.direction }}</div>
+      <div class="address">{{ props.address }}</div>
+      <div class="badge">안심 매물</div>
+    </div>
+    <div class="heart">❤️</div>
+  </div>
+</template>
 
 <style scoped>
 .property-card {

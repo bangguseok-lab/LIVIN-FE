@@ -1,3 +1,7 @@
+<script setup>
+import PropertyCard from '@/components/cards/PropertyCard.vue'
+</script>
+
 <template>
   <div>
     <h1>매물 카드</h1>
@@ -13,7 +17,3 @@
     />
   </div>
 </template>
-
-<script setup>
-import PropertyCard from '@/components/Card/PropertyCard.vue'
-</script>
