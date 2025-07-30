@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import Buttons from '@/components/common/buttons/Buttons.vue'
 import FavoritePropertySection from './FavoritePropertySection.vue'
@@ -157,7 +158,7 @@ const nickname = localStorage.getItem('nickname')
         <property-section :properties="property.getPropertiesList" />
       </div>
       <div class="checklist-router-box">
-        <Buttons type="xl" togo="/checklist">
+        <Buttons type="xl" togo="/checklist" class="checklist-router-btn">
           <div class="top-text">
             나만의 공간을 위한 모든 준비, 지금 여기서 시작하세요
           </div>
@@ -173,6 +174,7 @@ const nickname = localStorage.getItem('nickname')
   width: 100%;
   height: 100%;
 }
+
 .Home {
   width: 100%;
   padding: 4rem 0;
@@ -180,17 +182,21 @@ const nickname = localStorage.getItem('nickname')
   display: flex;
   flex-direction: column;
 }
+
 .intro-box {
   color: white;
   margin-top: rem(100px);
   padding: 0 2rem;
 }
+
 .board-text-box {
   font-weight: var(--font-weight-lg);
 }
+
 .lg-text-box {
   font-size: rem(22px);
 }
+
 .content-wrap {
   width: 100%;
   height: auto;
@@ -199,14 +205,20 @@ const nickname = localStorage.getItem('nickname')
   margin-top: rem(100px);
   margin-bottom: rem(-20px);
 }
+
 .content-box {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
+
 .checklist-router-box {
   padding: 0 rem(10px) rem(30px) rem(10px);
   background-color: var(--white);
   width: 100%;
+}
+
+.checklist-router-btn {
+  height: rem(100px);
 }
 </style>

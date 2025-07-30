@@ -52,13 +52,13 @@ function setUserType(type) {
 const manageButton = computed(() => {
   return user.value.type === '임대인'
     ? {
-        title: '내 매물 관리하기',
-        desc: '내가 올린 매물을 확인하고 관리해요',
-      }
+      title: '내 매물 관리하기',
+      desc: '내가 올린 매물을 확인하고 관리해요',
+    }
     : {
-        title: '나만의 체크리스트 관리하기',
-        desc: '내가 찾는 집을 위한',
-      }
+      title: '나만의 체크리스트 관리하기',
+      desc: '내가 찾는 집을 위한',
+    }
 })
 
 function handleManageClick() {
@@ -100,16 +100,10 @@ function onProfileImageChange(newImage) {
       <div class="info-header">
         <h2>회원 정보</h2>
         <div class="user-type-toggle">
-          <button
-            :class="{ active: user.type === '임대인' }"
-            @click="setUserType('임대인')"
-          >
+          <button :class="{ active: user.type === '임대인' }" @click="setUserType('임대인')">
             임대인
           </button>
-          <button
-            :class="{ active: user.type === '임차인' }"
-            @click="setUserType('임차인')"
-          >
+          <button :class="{ active: user.type === '임차인' }" @click="setUserType('임차인')">
             임차인
           </button>
         </div>
@@ -125,24 +119,15 @@ function onProfileImageChange(newImage) {
         <li>
           <span class="label">닉네임</span>
           <span class="value">
-            <span
-              v-if="editingField === 'nickname'"
-              contenteditable="true"
-              class="editable-text"
-              ref="nicknameRef"
-              :style="{ color: 'var(--primary-color)' }"
-              >{{ tempValue }}</span
-            >
+            <span v-if="editingField === 'nickname'" contenteditable="true" class="editable-text" ref="nicknameRef"
+              :style="{ color: 'var(--primary-color)' }">{{ tempValue }}</span>
             <span v-else>{{ user.nickname }}</span>
           </span>
-          <button
-            class="edit-btn"
-            @click="
-              editingField === 'nickname'
-                ? saveEdit('nickname')
-                : startEdit('nickname')
-            "
-          >
+          <button class="edit-btn" @click="
+            editingField === 'nickname'
+              ? saveEdit('nickname')
+              : startEdit('nickname')
+            ">
             {{ editingField === 'nickname' ? '수정완료' : '수정하기' }}
           </button>
         </li>
@@ -156,22 +141,13 @@ function onProfileImageChange(newImage) {
         <li>
           <span class="label">연락처</span>
           <span class="value">
-            <span
-              v-if="editingField === 'phone'"
-              contenteditable="true"
-              class="editable-text"
-              ref="phoneRef"
-              :style="{ color: 'var(--primary-color)' }"
-              >{{ tempValue }}</span
-            >
+            <span v-if="editingField === 'phone'" contenteditable="true" class="editable-text" ref="phoneRef"
+              :style="{ color: 'var(--primary-color)' }">{{ tempValue }}</span>
             <span v-else>{{ user.phone }}</span>
           </span>
-          <button
-            class="edit-btn"
-            @click="
-              editingField === 'phone' ? saveEdit('phone') : startEdit('phone')
-            "
-          >
+          <button class="edit-btn" @click="
+            editingField === 'phone' ? saveEdit('phone') : startEdit('phone')
+            ">
             {{ editingField === 'phone' ? '수정완료' : '수정하기' }}
           </button>
         </li>
@@ -184,7 +160,7 @@ function onProfileImageChange(newImage) {
       <h2 class="manage-title">
         {{ user.type === '임대인' ? '나의 매물 관리' : '나의 체크리스트 관리' }}
       </h2>
-      <Buttons type="xl" @click="handleManageClick">
+      <Buttons type="xl" @click="handleManageClick" class="manage-btn">
         <div class="top-text">{{ manageButton.desc }}</div>
         <div class="bottom-text">{{ manageButton.title }}</div>
       </Buttons>
@@ -197,10 +173,7 @@ function onProfileImageChange(newImage) {
     </section>
 
     <!-- 프로필 이미지 변경 모달 -->
-    <ProfileImageModal
-      v-model="showProfileModal"
-      @change="onProfileImageChange"
-    />
+    <ProfileImageModal v-model="showProfileModal" @change="onProfileImageChange" />
   </div>
 
   <Navbar />
@@ -223,17 +196,20 @@ function onProfileImageChange(newImage) {
   position: relative;
   z-index: 1;
 }
+
 .greeting-inner {
   display: flex;
   align-items: center;
   gap: rem(12px);
 }
+
 .profile-img {
   width: rem(72px);
   height: rem(72px);
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
+
   img {
     width: 100%;
     height: 100%;
@@ -241,11 +217,13 @@ function onProfileImageChange(newImage) {
     display: block;
   }
 }
+
 .text-block .hello {
   font-size: rem(14px);
   margin: 0;
   opacity: 0.6;
 }
+
 .nickname {
   font-size: rem(18px);
   font-weight: 800;
@@ -268,16 +246,19 @@ function onProfileImageChange(newImage) {
   position: relative;
   z-index: 2;
 }
+
 .info-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: rem(16px);
 }
+
 .info-header h2 {
   font-size: rem(16px);
   font-weight: 800;
 }
+
 .user-type-toggle {
   background: var(--grey);
   border-radius: rem(24px);
@@ -288,6 +269,7 @@ function onProfileImageChange(newImage) {
   font-size: rem(10px);
   overflow: hidden;
 }
+
 .user-type-toggle button {
   flex: 1;
   background: transparent;
@@ -298,6 +280,7 @@ function onProfileImageChange(newImage) {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+
 .user-type-toggle button.active {
   background: var(--primary-color);
   color: var(--white);
@@ -313,6 +296,7 @@ function onProfileImageChange(newImage) {
   margin: 0;
   width: 100%;
 }
+
 .info-list li {
   display: grid;
   grid-template-columns: 1.2fr 2fr rem(40px);
@@ -320,12 +304,14 @@ function onProfileImageChange(newImage) {
   border-bottom: rem(1px) solid #eee;
   padding: rem(12px) 0;
 }
+
 .label {
   flex: 1;
   color: #777;
   font-weight: 500;
   font-size: rem(13px);
 }
+
 .value {
   flex: 2;
   color: var(--black);
@@ -336,12 +322,14 @@ function onProfileImageChange(newImage) {
   word-break: break-word;
   font-size: rem(13px);
 }
+
 .editable-text {
   outline: none;
   min-width: rem(50px);
   display: inline-block;
   cursor: text;
 }
+
 .edit-btn {
   width: rem(40px);
   background: none;
@@ -350,6 +338,7 @@ function onProfileImageChange(newImage) {
   color: var(--grey);
   cursor: pointer;
 }
+
 .invisible {
   visibility: hidden;
 }
@@ -364,11 +353,16 @@ function onProfileImageChange(newImage) {
   padding: 0 rem(50px);
   margin-bottom: rem(20px);
 }
+
 .manage-title {
   font-size: rem(16px);
   font-weight: 600;
   margin-bottom: rem(24px);
   padding-top: rem(16px);
+}
+
+.manage-btn {
+  height: rem(100px);
 }
 
 .account-section {
