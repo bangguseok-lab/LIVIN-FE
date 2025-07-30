@@ -28,6 +28,7 @@ function complete_btn_handler() {
   if (props.monthly) props.monthly.final = true
   emit('update:deposit', props.deposit)
   emit('update:monthly', props.monthly)
+  emit('filterCompleted') // 완료되었다는 이벤트를 emit
 }
 
 function cancel_btn_handler() {
