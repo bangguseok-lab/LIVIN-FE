@@ -1,10 +1,10 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Buttons from '@/components/common/buttons/Buttons.vue';
-import Inputs from '@/components/common/input/Inputs.vue';
-import { useAuthStore } from '@/stores/authStore';
-import axios from 'axios';
+import Buttons from '@/components/common/buttons/Buttons.vue'
+import Inputs from '@/components/common/input/Inputs.vue'
+import { useAuthStore } from '@/stores/authStore'
+import axios from 'axios'
 
 const store = useAuthStore()
 
@@ -21,7 +21,7 @@ defineProps({
 
 // 경로에 따라 필요한 컴포넌트 보이도록 결정하는 함수
 const isShow = computed(() => {
-  const path = route.path;
+  const path = route.path
 
   if (path.endsWith('/role')) {
     return 'showRoleBtn'
@@ -54,17 +54,17 @@ const onLandlordClick = () => {
   landlordBtn.value = true
 }
 
-const inputValue = ref('')      // 입력창에 입력되는 값을 저장하는 변수
-const errorMessage = ref('')    // 입력값에 따른 에러 메시지를 보여줄 변수
-const inputName = ref('name');  // 입력창의 이름을 저장하는 변수
+const inputValue = ref('') // 입력창에 입력되는 값을 저장하는 변수
+const errorMessage = ref('') // 입력값에 따른 에러 메시지를 보여줄 변수
+const inputName = ref('name') // 입력창의 이름을 저장하는 변수
 
 // 유효성 검사 함수
-const isKorean = (text) => /^[가-힣]{2,}$/.test(text)
-const isValidPhone = (text) => {
-  const pattern = /^01[016789]-\d{4}-\d{4}$/;
+const isKorean = text => /^[가-힣]{2,}$/.test(text)
+const isValidPhone = text => {
+  const pattern = /^01[016789]-\d{4}-\d{4}$/
   return pattern.test(text) && text.length === 13
-};
-const isValidNickname = (text) => /^[a-zA-Z가-힣0-9]{2,12}$/.test(text)
+}
+const isValidNickname = text => /^[a-zA-Z가-힣0-9]{2,12}$/.test(text)
 
 // Inputs 컴포넌트에서 emit으로 넘긴 값(=입력값)을 받아 inputValue에 저장
 const handleInput = ({ value }) => {
@@ -72,7 +72,7 @@ const handleInput = ({ value }) => {
 }
 
 // 전화번호 에러 메시지 컨트롤
-const handleError = (msg) => {
+const handleError = msg => {
   errorMessage.value = msg
 }
 
@@ -84,23 +84,23 @@ const nextPath = {
   birth: 'role',
   role: 'profile',
   profile: 'done',
-};
+}
 
-const getNextRoute = (currPath) => {
-  return `/auth/signup/${nextPath[currPath]}?providerId=${store.providerId}`;
-};
+const getNextRoute = currPath => {
+  return `/auth/signup/${nextPath[currPath]}?providerId=${store.providerId}`
+}
 
-const profileList = [1, 2, 3, 4, 5, 6]  // 이미지 번호 배열
-const selectedProfile = ref(null)       // 선택된 프로필 번호
+const profileList = [1, 2, 3, 4, 5, 6] // 이미지 번호 배열
+const selectedProfile = ref(null) // 선택된 프로필 번호
 
 // 선택된 이미지 번호를 지정하는 함수
-const selectProfile = (num) => {
+const selectProfile = num => {
   selectedProfile.value = num
 }
 
 // 경로별 유효성 검사에 맞추어 보일 에러 메시지와 다음 경로를 지정하는 함수
 const handleInputClick = () => {
-  const path = route.path;
+  const path = route.path
 
   errorMessage.value = '' // 에러 메시지 초기화
 
@@ -108,13 +108,13 @@ const handleInputClick = () => {
     inputName.value = 'name'
     if (!inputValue.value) {
       errorMessage.value = '이름을 입력해주세요.'
-      return  // 잘못된 이벤트 실행을 막기 위해서 모든 곳에 추가함
+      return // 잘못된 이벤트 실행을 막기 위해서 모든 곳에 추가함
     } else {
       if (!isKorean(inputValue.value)) {
         errorMessage.value = '한글 2자 이상 입력해주세요.'
         return
       } else {
-        store.setName(inputValue.value);
+        store.setName(inputValue.value)
         inputValue.value = '' // 입력값 초기화
         router.push(getNextRoute(inputName.value))
         return
@@ -131,7 +131,7 @@ const handleInputClick = () => {
         errorMessage.value = '닉네임은 특수문자 제외 2~12자여야 합니다.'
         return
       } else {
-        store.setNickname(inputValue.value);
+        store.setNickname(inputValue.value)
         inputValue.value = ''
         router.push(getNextRoute(inputName.value))
         return
@@ -148,7 +148,7 @@ const handleInputClick = () => {
         errorMessage.value = '올바른 전화번호 형식이 아닙니다.'
         return
       } else {
-        store.setPhone(inputValue.value);   // 010-1234-5678 형식으로 저장
+        store.setPhone(inputValue.value) // 010-1234-5678 형식으로 저장
         inputValue.value = ''
         router.push(getNextRoute(inputName.value))
         return
@@ -160,7 +160,7 @@ const handleInputClick = () => {
     if (!inputValue.value) {
       errorMessage.value = '생년월일을 선택해주세요.'
     } else {
-      store.setBirth(inputValue.value);   // 1999-01-01 형식으로 저장
+      store.setBirth(inputValue.value) // 1999-01-01 형식으로 저장
       inputValue.value = ''
       router.push(getNextRoute(inputName.value))
       return
@@ -173,7 +173,7 @@ const handleInputClick = () => {
       return
     } else {
       if (tenantBtn.value && confirm('집을 구하시는게 맞나요?')) {
-        store.setRole('TENANT')  // 피니아에 임차인 역할을 저장하는 코드
+        store.setRole('TENANT') // 피니아에 임차인 역할을 저장하는 코드
         router.push(getNextRoute(inputName.value))
       }
       if (landlordBtn.value && confirm('집을 빌려주실건가요?')) {
@@ -193,7 +193,6 @@ const handleInputClick = () => {
   }
 }
 
-
 const handleSubmit = async () => {
   try {
     const payload = {
@@ -205,19 +204,23 @@ const handleSubmit = async () => {
       profileImage: store.profileImage,
     }
 
-    const provider = sessionStorage.getItem('provider');
+    const provider = sessionStorage.getItem('provider')
     const providerId = store.providerId
 
     // encodeURIComponent() : 특수문자 처리 위함
     const response = await axios.post(
       `/api/${provider}/register?providerId=${encodeURIComponent(providerId)}`,
-      payload
+      payload,
     )
 
-    const token = response.headers['authorization'] || response.headers['Authorization']
+    const token =
+      response.headers['authorization'] || response.headers['Authorization']
 
     if (token) {
-      // sessionStorage.setItem('accessToken', token)
+      const token = response.headers['authorization']
+      if (token) {
+        sessionStorage.setItem('accessToken', token)
+      }
       // 토큰을 세션 스토리지에 저장 후 /home으로 이동
       router.push('/home')
     } else {
@@ -239,7 +242,9 @@ onMounted(() => {
 
 <template>
   <div class="SignupLayout">
-    <div class="signup-page-number" v-if="isShow !== 'showDone'">{{ page }}<span class="total-page"> / 6</span></div>
+    <div class="signup-page-number" v-if="isShow !== 'showDone'">
+      {{ page }}<span class="total-page"> / 6</span>
+    </div>
     <div class="signup-title-wrapper" v-if="isShow !== 'showDone'">
       <p class="signup-title-text">{{ title }}</p>
       <p class="signup-sub-title-text">{{ subTitle }}</p>
@@ -267,7 +272,7 @@ onMounted(() => {
       <div v-if="isShow === 'showProfileImg'" class="profile-img-box grid-container">
         <div v-for="num in profileList" :key="num" class="profile-img-item"
           :class="{ selected: selectedProfile === num }" @click="selectProfile(num)">
-          <img :src='`/src/assets/images/profile/test-${num}.svg`' :alt="`profile-${num}`" />
+          <img :src="`/src/assets/images/profile/test-${num}.svg`" :alt="`profile-${num}`" />
         </div>
       </div>
       <!-- 주소가 있으면 버튼 활성화 -->
@@ -276,7 +281,7 @@ onMounted(() => {
     <div class="signup-done-wrapper" v-if="isShow === 'showDone'">
       <p>{{ title }}</p>
       <p>{{ subTitle }}</p>
-      <img src='@/assets/images/login/livin-character.svg' alt="메인캐릭터" class="character">
+      <img src="@/assets/images/login/livin-character.svg" alt="메인캐릭터" class="character" />
       <Buttons type="default" label="시작하기" @click="handleSubmit" class="doneBtn" />
     </div>
   </div>
