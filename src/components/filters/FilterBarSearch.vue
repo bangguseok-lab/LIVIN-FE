@@ -35,6 +35,7 @@ const emit = defineEmits([
       @update:deposit="val => emit('update:deposit', val)"
       @update:monthly="val => emit('update:monthly', val)"
       @update:region="val => emit('update:region', val)"
+      @filterCompleted="() => emit('filterCompleted')"
     />
 
     <FilterSecureOption

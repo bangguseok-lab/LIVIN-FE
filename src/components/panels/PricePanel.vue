@@ -24,25 +24,28 @@ const handleMonthly = range => {
 }
 
 function complete_btn_handler() {
-  if (props.deposit) props.deposit.final = true
-  if (props.monthly) props.monthly.final = true
-  emit('update:deposit', props.deposit)
-  emit('update:monthly', props.monthly)
-  emit('filterCompleted') // 완료되었다는 이벤트를 emit
+  if (props.deposit) {
+    const updatedDeposit = { ...props.deposit, final: true }
+    emit('update:deposit', updatedDeposit)
+  }
+
+  if (props.monthly) {
+    const updatedMonthly = { ...props.monthly, final: true }
+    emit('update:monthly', updatedMonthly)
+  }
+
+  emit('filterCompleted') // 변경되었다는 이벤트를 emit
 }
 
 function cancel_btn_handler() {
   if (props.deposit) {
-    props.deposit.final = false
-    props.deposit.min = null
-    props.deposit.max = null
-    emit('update:deposit', props.deposit)
+    const resetDeposit = { min: null, max: null, final: false }
+    emit('update:deposit', resetDeposit)
   }
+
   if (props.monthly) {
-    props.monthly.final = false
-    props.monthly.min = null
-    props.monthly.max = null
-    emit('update:monthly', props.monthly)
+    const resetMonthly = { min: null, max: null, final: false }
+    emit('update:monthly', resetMonthly)
   }
 }
 </script>

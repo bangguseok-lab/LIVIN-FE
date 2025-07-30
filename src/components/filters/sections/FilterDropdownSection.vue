@@ -148,6 +148,7 @@ const currentPanelComponent = computed(() => {
         :parishes="props.regionData.parishes"
         :selected-region="props.region"
         @updateRegion="handleRegionUpdate"
+        @filterCompleted="$emit('filterCompleted')"
       />
     </div>
   </div>

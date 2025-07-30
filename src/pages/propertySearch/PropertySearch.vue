@@ -8,8 +8,9 @@ const deposit = ref({ min: null, max: null })
 const monthly = ref({ min: null, max: null })
 const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null })
+const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
 
-// 예시 더미 데이터)
+// 예시 더미 데이터
 const dummyDistricts = [
   { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '역삼동' },
   { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '삼성동' },
@@ -72,7 +73,7 @@ function fetchProperties() {
     .get('/api/properties', { params })
     .then(res => {
       console.log('매물 결과:', res.data)
-      // TODO: 결과값 저장 처리
+      propertyList.value = res.data
     })
     .catch(err => console.error('매물 요청 실패:', err))
 }
@@ -118,6 +119,11 @@ function fetchProperties() {
     <!-- 매물 리스트 -->
     <div class="property-list">
       <!-- 매물 카드 컴포넌트 -->
+      <PropertyCard
+        v-for="item in propertyList"
+        :key="item.id"
+        :property="item"
+      />
     </div>
   </div>
 </template>
