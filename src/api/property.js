@@ -4,7 +4,6 @@ import axios from 'axios'
 export default {
   async getFavorite(params) {
     const { data } = await apiClient.get('/properties/favorite', { params })
-    console.log(data)
     return data
   },
 

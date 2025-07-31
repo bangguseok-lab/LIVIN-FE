@@ -8,10 +8,8 @@ import { onMounted, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 
 const auth = useAuthStore()
+const property = usePropertyStore()
 
-const sido = ref('서울특별시')
-const sigungu = ref('강남구')
-const eupmyendong = ref('대치동')
 const addressErrorMessage = ref('')
 const isKakaoApiReady = ref(false)
 
@@ -30,7 +28,6 @@ const SIDO_MAP = {
   광주: '광주광역시',
   대전: '대전광역시',
 }
-const isAddressUpdate = ref(false)
 
 const searchAddressByCoords = (latitude, longitude) => {
   addressErrorMessage.value = ''
@@ -52,28 +49,23 @@ const searchAddressByCoords = (latitude, longitude) => {
         const region2 = firstResult.address.region_2depth_name
         const region3 = firstResult.address.region_3depth_name
 
-        sido.value = SIDO_MAP[region1.slice(0, 2)] || region1
+        property.address.sido = SIDO_MAP[region1.slice(0, 2)] || region1
 
-        sigungu.value = region2 || null
-        eupmyendong.value = region3 ? region3.split(' ')[0] : null
-
-        if (sido.value === '세종특별자치시' && sigungu.value === '세종시') {
-          sigungu.value = null
+        if (property.address.sido === '세종특별자치시') {
+          property.address.sigungu = null // 세종시는 시군구 없이 바로 읍면동으로 넘어가는 경우가 많음
+        } else {
+          property.address.sigungu = region2 || null
         }
-        isAddressUpdate.value = true
+        property.address.eupmyendong = region3 ? region3.split(' ')[0] : null
       } else {
         addressErrorMessage.value =
           '해당 좌표에 대한 주소 정보를 찾을 수 없습니다.'
-        isAddressUpdate.value = true
       }
     } else {
       addressErrorMessage.value = `주소 검색 실패: ${status}`
-      isAddressUpdate.value = true
     }
   })
 }
-
-const property = usePropertyStore()
 
 onMounted(() => {
   if (window.kakao && window.kakao.maps) {
@@ -116,28 +108,37 @@ onMounted(() => {
       '카카오 맵 API 스크립트가 로드되지 않았습니다. public/index.html 파일을 확인해주세요.'
     console.error('Kakao Maps SDK not loaded in index.html.')
   }
-  const providerId = auth.providerId
   const favoriteParams = {
     limit: 3,
-    providerId: providerId,
   }
   property.fetchFavoriteProperties(favoriteParams)
 })
+
 watch(
-  [sido, sigungu, eupmyendong, isAddressUpdate],
-  ([newSido, newSigungu, newEupmyendong, newIsAddressUpdate]) => {
-    // hasAddressBeenSet이 true일 때만 매물 정보 요청
-    if (newIsAddressUpdate) {
-      const propertiesPrams = {
+  () => property.address,
+  newAddress => {
+    if (newAddress.sido && newAddress.sigungu && newAddress.eupmyendong) {
+      const properties = {
         limit: 4,
-        sido: newSido,
-        sigungu: newSigungu,
-        eupmyendong: newEupmyendong,
+        sido: newAddress.sido,
+        sigungu: newAddress.sigungu,
+        eupmyendong: newAddress.eupmyendong,
       }
-      property.fetchProperties(propertiesPrams)
+      property.fetchProperties(properties)
+    } else if (
+      newAddress.sido &&
+      !newAddress.sigungu &&
+      newAddress.eupmyendong
+    ) {
+      const properties = {
+        limit: 4,
+        sido: newAddress.sido,
+        eupmyendong: newAddress.eupmyendong,
+      }
+      property.fetchProperties(properties)
     }
   },
-  { immediate: true }, // 컴포넌트 마운트 시 한 번 즉시 실행하여 초기 값으로 요청하도록 함
+  { deep: true, immediate: true },
 )
 const nickname = localStorage.getItem('nickname')
 </script>
