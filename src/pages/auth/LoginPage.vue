@@ -53,6 +53,7 @@ const handleNaverLogin = () => {
 }
 
 .main-text-container {
+  position: relative;
   padding-top: rem(80px);
   margin-left: rem(45px);
   height: rem(192px);
@@ -65,14 +66,14 @@ const handleNaverLogin = () => {
 }
 
 .main-text-container p:nth-child(2) {
-  position: relative;
-  top: rem(-18px);
+  position: absolute;
+  top: rem(114px);
+  left: rem(28.8px);
 }
 
 .main-text-container p:nth-child(3) {
-  position: relative;
-  top: rem(-40px);
-  // font-weight: var(--font-weight-semibold);
+  position: absolute;
+  top: rem(168px);
 }
 
 .main-text-bold {
@@ -80,10 +81,10 @@ const handleNaverLogin = () => {
 }
 
 #logo {
-  width: 35%;
+  width: 70%;
   position: relative;
   top: rem(-3px);
-  left: rem(-27.2px);
+  left: rem(-41.6px);
 
   opacity: 0;
   transform: translateY(30px);
@@ -104,10 +105,12 @@ const handleNaverLogin = () => {
 
 #logo-text {
   position: relative;
-  left: rem(-32px);
+  left: -3rem;
+  top: -0.02rem;
 }
 
 .character-container {
+  position: relative;
   width: 100%;
   display: flex;
   justify-content: flex-end;
@@ -133,5 +136,40 @@ const handleNaverLogin = () => {
 
 .social-login-container img:nth-child(1) {
   margin-bottom: 1rem;
+}
+
+@media (max-width: 375px) {
+  .main-text-container {
+    position: relative;
+    padding-top: rem(50px);
+    margin-left: rem(15px);
+    height: rem(172px);
+  }
+
+  .main-text-container>p {
+    margin-bottom: 0;
+    font-size: rem(20px);
+    font-weight: var(--font-weight-light);
+  }
+
+  .main-text-container p:nth-child(2) {
+    position: absolute;
+    top: rem(74px);
+    left: rem(24.8px);
+  }
+
+  .main-text-container p:nth-child(3) {
+    position: absolute;
+    top: rem(128px);
+  }
+
+  #character {
+    width: 100%;
+    position: relative;
+    top: rem(2px);
+    right: rem(-85px);
+  }
+
+
 }
 </style>

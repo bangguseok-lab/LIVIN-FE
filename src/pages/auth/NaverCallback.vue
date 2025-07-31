@@ -1,12 +1,10 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { onMounted } from 'vue'
-import { useAuthStore } from '@/stores/authStore'
-import axios from 'axios'
+import apiClient from '@/api/apiClient'
 
 const route = useRoute()
 const router = useRouter()
-const store = useAuthStore()
 
 onMounted(async () => {
   const code = route.query.code
@@ -14,17 +12,19 @@ onMounted(async () => {
 
   if (code && state) {
     try {
-      const res = await axios.get(`/api/naver/callback?code=${code}&state=${state}`)
-      const providerId = res.data
-      console.log(providerId)
+      const res = await apiClient(`naver/callback?code=${code}&state=${state}`)
 
-      store.setProviderId(providerId)
+      // JWT 토큰을 헤더에서 꺼내기
+      const token = res.headers['authorization'] || res.headers['Authorization'];
+      if (token) {
+        sessionStorage.setItem('accessToken', token)
+      }
 
       router.push('/home') // 로그인 성공
     } catch (err) {
       if (err.response?.status === 404) {
+        // 회원정보가 없는 경우, 회원가입 진행
         const providerId = err.response.data
-        store.setProviderId(providerId)
         router.push(`/auth/signup?providerId=${providerId}`)
       } else {
         console.error('네이버 로그인 실패', err)
@@ -38,6 +38,4 @@ onMounted(async () => {
   <div class="NaverCallback"></div>
 </template>
 
-<style scoped>
-.NaverCallback {}
-</style>
+<style scoped></style>
