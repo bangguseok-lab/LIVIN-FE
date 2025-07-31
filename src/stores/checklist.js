@@ -6,6 +6,7 @@ export const useChecklistStore = defineStore('checklist', {
   state: () => ({
     checklists: [],
     currentChecklist: null,
+    currentChecklistItems: [],
     loading: false,
     error: null,
   }),
@@ -28,6 +29,7 @@ export const useChecklistStore = defineStore('checklist', {
       this.loading = true
       try {
         this.currentChecklist = await checklistAPI.fetchChecklistById(id)
+        this.currentChecklistItems = await checklistAPI.fetchChecklistItems(id)
       } catch (err) {
         this.error = err
       } finally {
@@ -40,6 +42,7 @@ export const useChecklistStore = defineStore('checklist', {
       try {
         const newChecklist = await checklistAPI.createChecklist(payload)
         this.checklists.push(newChecklist)
+        return newChecklist
       } catch (err) {
         this.error = err
       }
@@ -69,8 +72,8 @@ export const useChecklistStore = defineStore('checklist', {
     // 체크리스트 항목 추가
     async addItemToChecklist(id, payload) {
       try {
-        const updated = await checklistAPI.createMyChecklistItem(id, payload)
-        this.currentChecklist = updated
+        await checklistAPI.createMyChecklistItem(id, payload)
+        this.currentChecklistItems = await checklistAPI.fetchChecklistItems(id)
       } catch (err) {
         this.error = err
       }
@@ -79,8 +82,8 @@ export const useChecklistStore = defineStore('checklist', {
     // 체크리스트 항목 삭제
     async removeItemFromChecklist(id, itemId) {
       try {
-        const updated = await checklistAPI.deleteMyChecklistItem(id, itemId)
-        this.currentChecklist = updated
+        await checklistAPI.deleteMyChecklistItem(id, itemId)
+        this.currentChecklistItems = await checklistAPI.fetchChecklistItems(id)
       } catch (err) {
         this.error = err
       }
@@ -89,12 +92,8 @@ export const useChecklistStore = defineStore('checklist', {
     // 체크리스트 항목 수정
     async updateChecklistItem(id, itemId, payload) {
       try {
-        const updated = await checklistAPI.editMyChecklistItem(
-          id,
-          itemId,
-          payload,
-        )
-        this.currentChecklist = updated
+        await checklistAPI.editMyChecklistItem(id, itemId, payload)
+        this.currentChecklistItems = await checklistAPI.fetchChecklistItems(id)
       } catch (err) {
         this.error = err
       }
