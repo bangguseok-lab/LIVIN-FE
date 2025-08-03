@@ -1,3 +1,19 @@
+<template>
+  <div class="property-card">
+    <div class="image-wrapper">
+      <div class="image-placeholder">사진</div>
+      <div v-if="isWished" class="badge">안심<br />매물</div>
+    </div>
+
+    <div class="details">
+      <div class="price">전세 {{ formattedPrice }}</div>
+      <div class="title">{{ title }}</div>
+      <div class="info">{{ area }} / {{ supplyArea }} · {{ floor }} / {{ totalFloors }}층 · {{ direction }}</div>
+      <div class="address">{{ address }}</div>
+    </div>
+  </div>
+</template>
+
 <script setup>
 const props = defineProps({
   price: Number,
@@ -8,68 +24,69 @@ const props = defineProps({
   totalFloors: String,
   direction: String,
   address: String,
-});
+  isWished: Boolean
+})
 
-const formattedPrice = `${(props.price / 1000).toFixed(0)},000`;
+const formattedPrice = `${(props.price / 10000).toFixed(1).replace('.0', '')}억 ${props.price % 10000 !== 0 ? props.price % 10000 : ''}`
 </script>
-
-<template>
-  <div class="property-card">
-    <div class="image-placeholder">사진</div>
-    <div class="details">
-      <div class="price">전세 {{ formattedPrice }}</div>
-      <div class="title">{{ props.title }}</div>
-      <div class="info">{{ props.area }} / {{ props.supplyArea }} · {{ props.floor }} / {{ props.totalFloors }}층 · {{ props.direction }}</div>
-      <div class="address">{{ props.address }}</div>
-      <div class="badge">안심 매물</div>
-    </div>
-    <div class="heart">❤️</div>
-  </div>
-</template>
 
 <style scoped>
 .property-card {
   display: flex;
-  background-color: #e0e0e0;
-  padding: 10px;
-  border-radius: 6px;
-  align-items: flex-start;
+  padding: 16px 0;
+  border-bottom: 1px solid #ddd;
+}
+.image-wrapper {
   position: relative;
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
 }
 .image-placeholder {
-  width: 100px;
-  height: 100px;
-  background-color: #aaa;
-  color: white;
+  width: 100%;
+  height: 100%;
+  background-color: #ddd;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 13px;
+  color: #555;
+  border-radius: 8px;
+}
+.badge {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  background-color: #2b80ff;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 6px;
+  border-radius: 999px;
+  line-height: 1.2;
+  text-align: center;
 }
 .details {
   margin-left: 12px;
   flex: 1;
 }
 .price {
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
-.title,
-.info,
-.address {
+.title {
   font-size: 14px;
-  margin-top: 4px;
+  color: #333;
+  margin-bottom: 2px;
 }
-.badge {
-  display: inline-block;
-  background-color: #4a8378;
-  color: white;
-  padding: 2px 8px;
-  margin-top: 6px;
+.info {
   font-size: 13px;
+  color: #666;
+  margin-bottom: 2px;
 }
-.heart {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  color: red;
+.address {
+  font-size: 12px;
+  color: #999;
 }
 </style>
