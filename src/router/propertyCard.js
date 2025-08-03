@@ -2,6 +2,6 @@ export default [
   {
     path: '/cards',
     name: 'propertycard',
-    component: () => import('@/pages/cards/PropertyCardView.vue'),
+    component: () => import('@/components/cards/PropertyCardView.vue'),
   },
 ]
