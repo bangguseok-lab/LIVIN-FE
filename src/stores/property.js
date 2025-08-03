@@ -10,6 +10,7 @@ export const usePropertyStore = defineStore('property', {
       sigungu: '강남구',
       eupmyendong: '대치동',
     },
+    propertyDetails: {},
   }),
   actions: {
     async fetchFavoriteProperties(params) {
@@ -29,10 +30,19 @@ export const usePropertyStore = defineStore('property', {
         console.error('매물 데이터를 불러오는 데 실패했습니다:', error)
       }
     },
+    async fetchPropertyDetails(params) {
+      try {
+        const data = await api.getPropertiesDetails(params)
+        this.propertyDetails = data
+      } catch (error) {
+        console.error('매물 상세 데이터를 불러오는 데 실패했습니다:', error)
+      }
+    },
   },
   getters: {
     getFavorite: state => state.favoriteProperties,
     getPropertiesList: state => state.properties,
     getAddress: state => state.address,
+    getPropertyDetails: state => state.propertyDetails,
   },
 })

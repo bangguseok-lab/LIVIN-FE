@@ -11,4 +11,10 @@ export default {
     const { data } = await apiClient.post('/properties', params)
     return data
   },
+
+  async getPropertyDetails(propertyId) {
+    const { data } = await apiClient.get(`/properties/${propertyId}`)
+    console.log(data)
+    return data
+  },
 }
