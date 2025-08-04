@@ -5,11 +5,10 @@ import FavoritePropertySection from './FavoritePropertySection.vue'
 import PropertySection from './PropertySection.vue'
 import { usePropertyStore } from '@/stores/property'
 import { onMounted, ref, watch } from 'vue'
-import { useAuthStore } from '@/stores/authStore'
+import { useUserStore } from '@/stores/user'
 
-const auth = useAuthStore()
 const property = usePropertyStore()
-
+const user = useUserStore()
 const addressErrorMessage = ref('')
 const isKakaoApiReady = ref(false)
 
@@ -112,6 +111,7 @@ onMounted(() => {
     limit: 3,
   }
   property.fetchFavoriteProperties(favoriteParams)
+  user.fetchNickname()
 })
 
 watch(
@@ -140,13 +140,12 @@ watch(
   },
   { deep: true, immediate: true },
 )
-const nickname = localStorage.getItem('nickname')
 </script>
 
 <template>
   <div class="Home">
     <div class="intro-box">
-      {{ nickname }}님,
+      {{ user.getNickname }}님,
       <br />
       <div class="board-text-box lg-text-box">
         오늘도 함께 <br />
