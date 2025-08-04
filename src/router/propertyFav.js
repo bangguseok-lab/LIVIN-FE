@@ -1,6 +1,6 @@
 export default [
   {
-    path: '/favorites',
+    path: '/favorite',
     name: 'propertyfav',
     component: () => import('@/pages/propertyFav/PropertyFav.vue'),
   },
