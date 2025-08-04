@@ -11,6 +11,7 @@ import propertyFavRoutes from './propertyFav'
 import propertySearchRoutes from './propertySearch'
 import componentsRoutes from './components'
 import propertyManageRoutes from './propertyManage'
+import PropertyCardRoutes from './propertyCard'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,6 +32,7 @@ const router = createRouter({
     ...propertySearchRoutes,
     ...componentsRoutes,
     ...propertyManageRoutes,
+    ...PropertyCardRoutes,
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
