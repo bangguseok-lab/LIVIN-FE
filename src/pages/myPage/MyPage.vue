@@ -51,24 +51,27 @@ function setUserType(type) {
 
 const manageButton = computed(() => {
   return user.value.type === '임대인'
-    ? {
-      title: '내 매물 관리하기',
-      desc: '내가 올린 매물을 확인하고 관리해요',
-    }
+    ? (
+      {
+        title: '내 매물 관리하기',
+        desc: '내가 올린 매물을 확인하고 관리해요',
+      })
     : {
       title: '나만의 체크리스트 관리하기',
       desc: '내가 찾는 집을 위한',
     }
 })
 
-function handleManageClick() {
+function handleManageClick(buttonTitle) {
   if (user.value.type === '임차인') {
     router.push('/checklist')
   } else {
-    if (manageButton.value.title === '내 매물 관리하기') {
+    console.log('buttonTitle: ', buttonTitle)
+    if (buttonTitle === '내 매물 관리하기') {
       router.push('/propertyManage')
+    } else if (buttonTitle === '내 매물 등록하기') {
+      router.push({ name: 'propertyAdd' })
     }
-    router.push('/add/property')
   }
 }
 
@@ -163,11 +166,11 @@ function onProfileImageChange(newImage) {
       <h2 class="manage-title">
         {{ user.type === '임대인' ? '나의 매물 관리' : '나의 체크리스트 관리' }}
       </h2>
-      <Buttons v-if="user.type === '임대인'" type="xl" @click="handleManageClick" class="create-property-btn">
+      <Buttons v-if="user.type === '임대인'" type="xl" @click="handleManageClick('내 매물 등록하기')" class="create-property-btn">
         <div class="top-text">나의 매물을 등록하고 싶어요</div>
         <div class="bottom-text">내 매물 등록하기</div>
       </Buttons>
-      <Buttons type="xl" @click="handleManageClick" class="manage-btn">
+      <Buttons type="xl" @click="handleManageClick(manageButton.title)" class="manage-btn">
         <div class="top-text">{{ manageButton.desc }}</div>
         <div class="bottom-text">{{ manageButton.title }}</div>
       </Buttons>
