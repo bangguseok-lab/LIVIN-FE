@@ -19,7 +19,7 @@ const dummyDistricts = [
   { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '인계동' },
 ]
 
-// 📌 지역 옵션 계산
+// 지역 옵션 계산
 const getRegionData = computed(() => {
   const cities = [...new Set(dummyDistricts.map(d => d.sido))].map(name => ({
     code: name,
