@@ -2,10 +2,12 @@
 import { ref, computed } from 'vue'
 import axios from 'axios'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
+import PropertyCard from '@/components/cards/PropertyCard.vue'
 
 const dealType = ref([])
-const deposit = ref({ min: null, max: null })
-const monthly = ref({ min: null, max: null })
+const jeonseDeposit = ref({ min: null, max: null }) // 전세 보증금
+const monthlyDeposit = ref({ min: null, max: null }) // 월세 보증금
+const monthlyRent = ref({ min: null, max: null }) // 월세
 const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null })
 const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
@@ -59,14 +61,17 @@ function handleRegionUpdate(updatedRegion) {
 function fetchProperties() {
   const params = {
     dealType: dealType.value,
-    depositMin: deposit.value.min,
-    depositMax: deposit.value.max,
-    monthlyMin: monthly.value.min,
-    monthlyMax: monthly.value.max,
-    city: region.value.city,
-    district: region.value.district,
-    parish: region.value.parish,
+    jeonseDepositMin: jeonseDeposit.value.min,
+    jeonseDepositMax: jeonseDeposit.value.max,
+    monthlyDepositMin: monthlyDeposit.value.min,
+    monthlyDepositMax: monthlyDeposit.value.max,
+    monthlyRentMin: monthlyRent.value.min,
+    monthlyRentMax: monthlyRent.value.max,
+    sido: region.value.city,
+    sigungu: region.value.district,
+    eupmyendong: region.value.parish,
     onlySecure: onlySecure.value,
+    limit: 20,
   }
 
   axios
@@ -102,14 +107,16 @@ function fetchProperties() {
     <div class="filtering">
       <Filtering
         :deal-type="dealType"
-        :deposit="deposit"
-        :monthly="monthly"
+        :jeonse-deposit="jeonseDeposit"
+        :monthly-deposit="monthlyDeposit"
+        :monthly-rent="monthlyRent"
         :only-secure="onlySecure"
         :region="region"
         :region-data="regionData"
         @update:dealType="val => (dealType.value = val)"
-        @update:deposit="val => (deposit.value = val)"
-        @update:monthly="val => (monthly.value = val)"
+        @update:jeonseDeposit="val => (jeonseDeposit.value = val)"
+        @update:monthlyDeposit="val => (monthlyDeposit.value = val)"
+        @update:monthlyRent="val => (monthlyRent.value = val)"
         @update:onlySecure="val => (onlySecure.value = val)"
         @update:region="handleRegionUpdate"
         @filterCompleted="fetchProperties"
@@ -119,10 +126,23 @@ function fetchProperties() {
     <!-- 매물 리스트 -->
     <div class="property-list">
       <!-- 매물 카드 컴포넌트 -->
+      <!-- 부모에서 이렇게 바꿔줘야 함 -->
       <PropertyCard
         v-for="item in propertyList"
-        :key="item.id"
-        :property="item"
+        :key="item.propertyId"
+        :price="
+          item.transactionType === 'JEONSE'
+            ? item.jeonseDeposit
+            : item.monthlyDeposit
+        "
+        :title="item.name"
+        :area="item.exclusiveAreaM2"
+        :supplyArea="item.supplyAreaM2"
+        :floor="item.floor"
+        :totalFloors="item.totalFloors"
+        :direction="item.mainDirection"
+        :address="item.roadAddress"
+        :isWished="item.isFavorite"
       />
     </div>
   </div>

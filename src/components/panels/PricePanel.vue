@@ -92,13 +92,13 @@ function cancel_btn_handler() {
       <swiper-slide>
         <!-- 전세 보증금 범위 선택 패널 -->
         <RangeSelector
-          key="JSON.stringify(deposit)"
+          :key="JSON.stringify(jeonseDeposit)"
           title="전세 보증금"
           description="최소 금액과 최대 금액을 순서대로 선택해주세요."
           class="element1"
           :numberList="paddedJeonseList"
-          :initialMin="deposit?.min ?? null"
-          :initialMax="deposit?.max ?? null"
+          :initialMin="jeonseDeposit?.min ?? null"
+          :initialMax="jeonseDeposit?.max ?? null"
           :visible="isActive"
           @updateRange="handleJeonseDeposit"
         />
@@ -106,13 +106,13 @@ function cancel_btn_handler() {
       <swiper-slide>
         <!-- 월세 보증금 범위 선택 패널 -->
         <RangeSelector
-          key="JSON.stringify(deposit)"
+          :key="JSON.stringify(monthlyDeposit)"
           title="월세 보증금"
           description="최소 금액과 최대 금액을 순서대로 선택해주세요."
           class="element1"
           :numberList="paddedMonthlyDepositList"
-          :initialMin="deposit?.min ?? null"
-          :initialMax="deposit?.max ?? null"
+          :initialMin="monthlyDeposit?.min ?? null"
+          :initialMax="monthlyDeposit?.max ?? null"
           :visible="isActive"
           @updateRange="handleMonthlyDeposit"
         />
@@ -120,13 +120,13 @@ function cancel_btn_handler() {
       <!-- 월세 범위 선택 패널 -->
       <swiper-slide>
         <RangeSelector
-          key="JSON.stringify(monthly)"
+          :key="JSON.stringify(monthlyRent)"
           title="월세"
           description="최소 금액과 최대 금액을 순서대로 선택해주세요."
           class="element2"
           :numberList="paddedMonthlyRentList"
-          :initialMin="monthly?.min ?? null"
-          :initialMax="monthly?.max ?? null"
+          :initialMin="monthlyRent?.min ?? null"
+          :initialMax="monthlyRent?.max ?? null"
           :visible="isActive"
           @updateRange="handleMonthlyRent"
         />
