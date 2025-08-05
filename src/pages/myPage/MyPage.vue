@@ -65,7 +65,10 @@ function handleManageClick() {
   if (user.value.type === '임차인') {
     router.push('/checklist')
   } else {
-    router.push('/propertyManage')
+    if (manageButton.value.title === '내 매물 관리하기') {
+      router.push('/propertyManage')
+    }
+    router.push('/add/property')
   }
 }
 
@@ -160,10 +163,15 @@ function onProfileImageChange(newImage) {
       <h2 class="manage-title">
         {{ user.type === '임대인' ? '나의 매물 관리' : '나의 체크리스트 관리' }}
       </h2>
+      <Buttons v-if="user.type === '임대인'" type="xl" @click="handleManageClick" class="create-property-btn">
+        <div class="top-text">나의 매물을 등록하고 싶어요</div>
+        <div class="bottom-text">내 매물 등록하기</div>
+      </Buttons>
       <Buttons type="xl" @click="handleManageClick" class="manage-btn">
         <div class="top-text">{{ manageButton.desc }}</div>
         <div class="bottom-text">{{ manageButton.title }}</div>
       </Buttons>
+
     </section>
 
     <section class="account-section">
@@ -363,6 +371,11 @@ function onProfileImageChange(newImage) {
 
 .manage-btn {
   height: rem(100px);
+}
+
+.create-property-btn {
+  height: rem(100px);
+  margin-bottom: 1rem;
 }
 
 .account-section {
