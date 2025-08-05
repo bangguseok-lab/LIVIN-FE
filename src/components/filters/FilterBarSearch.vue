@@ -4,8 +4,9 @@ import { FilterDropdownSection, FilterSecureOption } from './FilterBar.js' // �
 // props로 상위에서 전달 받는(FilterView.vue로부터 내려받은) 상태 바인딩
 const props = defineProps({
   dealType: Array,
-  deposit: Object,
-  monthly: Object,
+  jeonseDeposit: Object,
+  monthlyDeposit: Object,
+  monthlyRent: Object,
   onlySecure: Boolean,
   region: Object,
   regionData: Object,
@@ -15,8 +16,9 @@ const props = defineProps({
 // 하위 컴포넌트에서 emit된 값을 그대로 상위(FilterView.vue)로 다시 올려주는 역할
 const emit = defineEmits([
   'update:dealType',
-  'update:deposit',
-  'update:monthly',
+  'update:jeonseDeposit',
+  'update:monthlyDeposit',
+  'update:monthlyRent',
   'update:onlySecure',
   'update:region',
 ])
@@ -27,13 +29,15 @@ const emit = defineEmits([
     <FilterDropdownSection
       mode="search"
       :dealType="props.dealType"
-      :deposit="props.deposit"
-      :monthly="props.monthly"
+      :jeonseDeposit="props.jeonseDeposit"
+      :monthlyDeposit="props.monthlyDeposit"
+      :monthlyRent="props.monthlyRent"
       :region-data="props.regionData"
       :region="props.region"
       @update:dealType="val => emit('update:dealType', val)"
-      @update:deposit="val => emit('update:deposit', val)"
-      @update:monthly="val => emit('update:monthly', val)"
+      @update:jeonseDeposit="val => emit('update:jeonseDeposit', val)"
+      @update:monthlyDeposit="val => emit('update:monthlyDeposit', val)"
+      @update:monthlyRent="val => emit('update:monthlyRent', val)"
       @update:region="val => emit('update:region', val)"
       @filterCompleted="() => emit('filterCompleted')"
     />
