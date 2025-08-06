@@ -1,7 +1,12 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { usePropertyStore } from '@/stores/property'
+import Buttons from '@/components/common/buttons/Buttons.vue'
 import { VueDaumPostcode } from 'vue-daum-postcode'
 
+const router = useRouter()
+const propertyStore = usePropertyStore()
 
 const postcode = ref('')
 const address = ref('')
@@ -18,7 +23,6 @@ const handleComplete = (data) => {
   // 검색된 기본 주소 타입: R(도로명), J(지번)
   if (data.userSelectedType === 'R') {    // userSelectedType: 검색 결과에서 사용자가 선택한 주소의 타입
     addr = data.roadAddress
-    console.log(addr) // 경북 경산시 압량읍 압독4로 12
   } else {
     addr = data.jibunAddress
   }
@@ -45,7 +49,7 @@ const handleComplete = (data) => {
 
   // 상세주소 필드로 포커스 이동
   setTimeout(() => {
-    document.getElementById('sample3_detailAddress')?.focus()
+    document.getElementById('detailAddress')?.focus()
   }, 100)
 
   // 주소 선택 완료 시 우편 번호창 숨기기
@@ -56,30 +60,52 @@ const handleComplete = (data) => {
 const openPostcode = () => {
   isPostcodeVisible.value = true
 }
+
+
+// '다음' 버튼 클릭했을 때 실행되는 함수
+const handleClick = () => {
+  // propertyStore에 매물 정보 등록
+  propertyStore.updateNewProperty('postcode', postcode.value);
+  propertyStore.updateNewProperty('address', address.value);
+  propertyStore.updateNewProperty('detailAddress', detailAddress.value);
+  propertyStore.updateNewProperty('extraAddress', extraAddress.value);
+
+
+  if (propertyStore.getNewProperty.postcode !== '' && propertyStore.getNewProperty.address !== '' && propertyStore.getNewProperty.detailAddress !== '' && propertyStore.getNewProperty.extraAddress !== '') {
+    router.push({ name: 'addressConfirm' })
+  } else {
+    alert('주소를 모두 입력해주세요')
+  }
+
+}
 </script>
 
 <template>
   <div class="AddressSearchPage">
-    <div class="address-search-wrapper">
-      <div class="postCode-box">
-        <input type="text" id="postCode" placeholder="우편번호" v-model="postcode" readonly>
-        <input type="button" id="findAddress-btn" @click="openPostcode" value="우편번호 찾기" />
+    <div class="address-search-container">
+      <div class="address-search-wrapper">
+        <div class="postCode-box">
+          <input type="text" id="postCode" placeholder="우편번호" v-model="postcode" readonly>
+          <input type="button" id="findAddress-btn" @click="openPostcode" value="우편번호 찾기" />
+        </div>
+        <div class="address-box">
+          <input type="text" id="address" placeholder="주소" v-model="address" readonly />
+        </div>
+        <div class="detailAddress-box">
+          <input type="text" id="detailAddress" placeholder="상세주소" v-model="detailAddress" />
+          <input type="text" id="extraAddress" placeholder="참고항목" v-model="extraAddress" readonly />
+        </div>
       </div>
-      <div class="address-box">
-        <input type="text" id="address" placeholder="주소" v-model="address" readonly />
-      </div>
-      <div class="detailAddress-box">
-        <input type="text" id="detailAddress" placeholder="상세주소" v-model="detailAddress" />
-        <input type="text" id="extraAddress" placeholder="참고항목" v-model="extraAddress" readonly />
+      <!-- 페이지 내에 보여지는 iframe 방식으로 구현 -->
+      <div v-if="isPostcodeVisible" class="postcode-layer">
+        <VueDaumPostcode :q="''" :animation="true" :no-auto-mapping="true" :auto-close="false" :width="'100%'"
+          :height="'100%'" @complete="handleComplete" />
+        <button class="close-btn" @click="isPostcodeVisible = false">x</button>
       </div>
     </div>
 
-    <!-- 페이지 내에 보여지는 iframe 방식으로 구현 -->
-    <div v-if="isPostcodeVisible" class="postcode-layer">
-      <VueDaumPostcode :q="''" :animation="true" :no-auto-mapping="true" :auto-close="false" :width="'100%'"
-        :height="'100%'" @complete="handleComplete" />
-      <button class="close-btn" @click="isPostcodeVisible = false">x</button>
-    </div>
+    <!-- 다음 경로가 있으면 버튼 활성화 -->
+    <Buttons type="default" label="다음" @click="handleClick" class="nextBtn" />
   </div>
 </template>
 
@@ -92,6 +118,13 @@ const openPostcode = () => {
   height: 90%;
 }
 
+.address-search-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 85%;
+}
+
 .address-search-wrapper {
   display: flex;
   flex-direction: column;
@@ -102,18 +135,19 @@ const openPostcode = () => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 #postCode {
   flex-grow: 2;
-  margin: .2em 0;
-  font-size: 1em;
-  padding: .5em;
+  margin: .2rem 0;
+  font-size: 1rem;
+  padding: .5rem;
   border: 1px solid #ccc;
   border-color: #dbdbdb #d2d2d2 #d0d0d0 #d2d2d3;
-  box-shadow: inset .1em .1em .15em rgba(0, 0, 0, .1);
+  box-shadow: inset .1rem .1rem .15rem rgba(0, 0, 0, .1);
   vertical-align: middle;
-  line-height: 1.25em;
+  line-height: 1.25rem;
   outline: 0;
 }
 
@@ -121,16 +155,18 @@ const openPostcode = () => {
   flex-grow: 1;
   margin-left: 2rem;
   display: inline-block;
-  padding: .5em 1em;
-  margin: .2em .15em;
+  padding: .5rem 1rem;
+  margin-top: .2rem;
+  margin-bottom: .2rem;
+  margin-left: 1rem;
   border: 1px solid #ccc;
   border-color: #dbdbdb #d2d2d2 #b2b2b2 #d2d2d3;
   cursor: pointer;
   color: #464646;
-  border-radius: .2em;
+  border-radius: .2rem;
   vertical-align: middle;
-  font-size: 1em;
-  line-height: 1.25em;
+  font-size: 1rem;
+  line-height: 1.25rem;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#f2f2f2));
   background-image: -moz-linear-gradient(top, #fff, #f2f2f2);
   background-image: -o-gradient(top, #fff, #f2f2f2);
@@ -146,14 +182,14 @@ const openPostcode = () => {
 #address,
 #detailAddress,
 #extraAddress {
-  margin: .2em 0;
-  font-size: 1em;
-  padding: .5em;
+  margin: .2rem 0;
+  font-size: 1rem;
+  padding: .5rem;
   border: 1px solid #ccc;
   border-color: #dbdbdb #d2d2d2 #d0d0d0 #d2d2d3;
-  box-shadow: inset .1em .1em .15em rgba(0, 0, 0, .1);
+  box-shadow: inset .1rem .1rem .15rem rgba(0, 0, 0, .1);
   vertical-align: middle;
-  line-height: 1.25em;
+  line-height: 1.25rem;
   outline: 0;
 }
 
@@ -164,6 +200,7 @@ const openPostcode = () => {
 .detailAddress-box {
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
 
 #detailAddress {
@@ -173,6 +210,33 @@ const openPostcode = () => {
 #extraAddress {
   flex-grow: 1;
   margin-left: 1rem;
+}
+
+@media (max-width: rem(450px)) {
+
+  #postCode {
+    width: 60%;
+    font-size: rem(14px);
+  }
+
+  #findAddress-btn {
+    width: 30%;
+    padding: .2rem .7rem;
+    margin-left: 0.5rem;
+    font-size: rem(14px);
+  }
+
+
+  #detailAddress {
+    width: 50%;
+    font-size: rem(14px);
+  }
+
+  #extraAddress {
+    width: 50%;
+    margin-left: 0.5rem;
+    font-size: rem(14px);
+  }
 }
 
 .postcode-layer {
@@ -195,5 +259,11 @@ const openPostcode = () => {
   color: white;
   border: none;
   cursor: pointer;
+}
+
+.nextBtn {
+  width: 100%;
+  height: rem(50px);
+  margin-bottom: 5rem;
 }
 </style>

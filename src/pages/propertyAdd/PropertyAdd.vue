@@ -1,28 +1,13 @@
 <script setup>
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { computed } from 'vue'
-import Buttons from '@/components/common/buttons/Buttons.vue'
 
 const route = useRoute()
-const router = useRouter()
 
 const currentPage = computed(() => route.meta.page || '')
 const totalPage = computed(() => route.meta.totalPage || '')
 const title = computed(() => route.meta.title || '')
 const subTitle = computed(() => route.meta.subTitle || '')
-
-const handleClick = () => {
-  const path = route.path
-
-  if (path.endsWith('/address')) {
-    router.push({ name: 'addressConfirm' })
-  }
-
-  if (path.endsWith('/confirm')) {
-    router.push({ name: '' })
-  }
-
-}
 
 </script>
 
@@ -39,9 +24,6 @@ const handleClick = () => {
     </div>
     <!-- 각 단계별 화면 구성 -->
     <router-view />
-
-    <!-- 다음 경로가 있으면 버튼 활성화 -->
-    <Buttons type="default" label="다음" @click="handleClick" class="nextBtn" />
   </div>
 </template>
 
@@ -83,11 +65,5 @@ const handleClick = () => {
   font-weight: var(--font-weight-regular);
   color: var(--sub-title-text);
   margin-bottom: rem(34px);
-}
-
-.nextBtn {
-  width: 100%;
-  height: rem(70px);
-  margin-bottom: 5rem;
 }
 </style>
