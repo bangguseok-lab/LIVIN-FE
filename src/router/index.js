@@ -11,6 +11,7 @@ import propertyFavRoutes from './propertyFav'
 import propertySearchRoutes from './propertySearch'
 import componentsRoutes from './components'
 import propertyManageRoutes from './propertyManage'
+import propertyDetailsRoutes from './propertyDetails'
 import PropertyCardRoutes from './propertyCard'
 
 const router = createRouter({
@@ -32,6 +33,7 @@ const router = createRouter({
     ...propertySearchRoutes,
     ...componentsRoutes,
     ...propertyManageRoutes,
+    ...propertyDetailsRoutes,
     ...PropertyCardRoutes,
   ],
   scrollBehavior(to, from, savedPosition) {
