@@ -1,45 +1,74 @@
 <script setup>
 import { usePropertyStore } from '@/stores/property'
-import { defineProps, onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Pagination } from 'swiper/modules'
+import ChecklistModal from './ChecklistModal.vue'
 import 'swiper/css'
-import 'swiper/css/navigation' // 내비게이션 CSS 파일 임포트 확인
+import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/free-mode'
 import sample1 from '../../assets/images/home/sample-img1.png'
 import sample2 from '../../assets/images/home/sample-img2.png'
 import sample3 from '../../assets/images/home/sample-img3.png'
 import badge from '../../assets/images/landing/SecureBadge.png'
-import SampleOption from '../../assets/icons/property/sample-option-icon1.svg'
-const props = defineProps({
-  propertyId: {
-    type: Number,
-    required: true,
-  },
-})
+import FavoriteButton from '@/components/common/buttons/FavoriteButton.vue'
+
+import WasherIcon from '@/assets/icons/property/washing-machine.svg'
+import RefrigeratorIcon from '@/assets/icons/property/refrigerator.svg'
+import AirConditionerIcon from '@/assets/icons/property/air-conditioner.svg'
+import DryerIcon from '@/assets/icons/property/dryer.svg'
+import MicrowaveIcon from '@/assets/icons/property/microwave-oven.svg'
+import GasStoveIcon from '@/assets/icons/property/gas-stove.svg'
+import InductionIcon from '@/assets/icons/property/induction-stove.svg'
+import BedIcon from '@/assets/icons/property/bed.svg'
+import { useRoute } from 'vue-router'
+import api from '@/api/property'
+
+const optionMap = {
+  Washer: { name: '세탁기', iconUrl: WasherIcon },
+  AirConditioner: { name: '에어컨', iconUrl: AirConditionerIcon },
+  Refrigerator: { name: '냉장고', iconUrl: RefrigeratorIcon },
+  Dryer: { name: '건조기', iconUrl: DryerIcon },
+  Microwave: { name: '전자렌지', iconUrl: MicrowaveIcon },
+  GasStove: { name: '가스렌지', iconUrl: GasStoveIcon },
+  Induction: { name: '인덕션', iconUrl: InductionIcon },
+  Bed: { name: '침대', iconUrl: BedIcon },
+}
+
+const isModalOpen = ref(false)
+const openModal = () => {
+  isModalOpen.value = true
+}
+const closeModal = () => {
+  isModalOpen.value = false
+}
 const { kakao } = window
-console.log(kakao)
-const propertyOptions = [
-  { id: 1, name: '에어컨', iconUrl: SampleOption },
-  { id: 2, name: '세탁기', iconUrl: SampleOption },
-  { id: 3, name: '냉장고', iconUrl: SampleOption },
-  { id: 4, name: '옷장', iconUrl: SampleOption },
-  { id: 5, name: 'TV', iconUrl: SampleOption },
-  // { id: 6, name: '침대', iconUrl: SampleOption },
-  // { id: 7, name: '가스레인지', iconUrl: SampleOption },
-  // { id: 8, name: '전자레인지', iconUrl: SampleOption },
-]
+const route = useRoute()
+const propertyId = route.params.id
 
 const chunkedOptions = computed(() => {
-  const options = propertyOptions.length > 0 ? propertyOptions : [] // Use actual store data here
+  const options = property.getPropertyDetails?.options || []
+  const mappedOptions = options
+    .map(optionKey => {
+      return (
+        optionMap[optionKey] || {
+          id: optionKey,
+          name: optionKey,
+          iconUrl: null,
+        }
+      )
+    })
+    .filter(option => option.iconUrl !== null)
+
   const chunks = []
   const chunkSize = 4
-  for (let i = 0; i < options.length; i += chunkSize) {
-    chunks.push(options.slice(i, i + chunkSize))
+  for (let i = 0; i < mappedOptions.length; i += chunkSize) {
+    chunks.push(mappedOptions.slice(i, i + chunkSize))
   }
   return chunks
 })
+
 const imgUrls = [sample1, sample2, sample3]
 const property = usePropertyStore()
 const modules = [Navigation, Pagination]
@@ -56,7 +85,6 @@ const loadKakaoMap = address => {
 
   // 주소로 좌표를 검색
   geocoder.addressSearch(address, (result, status) => {
-    // 정상적으로 검색 완료
     console.log(status)
     if (status === kakao.maps.services.Status.OK) {
       const coords = new kakao.maps.LatLng(result[0].y, result[0].x)
@@ -67,28 +95,83 @@ const loadKakaoMap = address => {
         center: coords,
         level: 3,
       }
-
-      // 지도 생성
       const map = new kakao.maps.Map(mapContainer, mapOption)
-      console.log
-      // 마커 생성 및 지도에 표시
       const marker = new kakao.maps.Marker({
         map: map,
         position: coords,
       })
-
-      // 지도의 중심을 마커 위치로 이동
+      console.log(marker)
       map.setCenter(coords)
     } else {
       console.error('주소 검색 실패:', status)
     }
   })
 }
-onMounted(() => {
-  property.fetchPropertyDetails(props.propertyId)
-  // 지도를 로드하는 함수를 onMounted에서 호출
-  const address = '경기도 안양시 만안구 안양로 168번길 16' // props로 받은 주소 정보를 사용하도록 수정 필요
-  loadKakaoMap(address)
+onMounted(async () => {
+  await property.fetchPropertyDetails(propertyId)
+
+  loadKakaoMap(property.getPropertyDetails.building.roadAddress)
+})
+
+const formatPrice = (price, isRent) => {
+  if (price === null || price === undefined) {
+    return '가격 정보 없음'
+  }
+  const numberPrice = Number(price)
+
+  if (isRent) {
+    return `${numberPrice.toFixed(0)}만`
+  }
+
+  if (numberPrice >= 100000000) {
+    const billionPart = Math.floor(numberPrice / 100000000)
+    const millionPart = Math.floor((numberPrice % 100000000) / 10000)
+
+    let result = `${billionPart}억`
+    if (millionPart > 0) {
+      result += ` ${millionPart}만`
+    }
+    return result
+  } else if (numberPrice >= 10000) {
+    const millionPrice = numberPrice / 10000
+    return `${millionPrice.toFixed(0)}만`
+  } else {
+    return `${numberPrice}원`
+  }
+}
+
+const formattedPrice = computed(() => {
+  const propertyDetails = property.getPropertyDetails
+  if (!propertyDetails || !propertyDetails.transactionType) {
+    return '가격 정보 없음'
+  }
+  const { transactionType, price } = propertyDetails
+  if (transactionType === '전세') {
+    return formatPrice(price, false)
+  } else if (transactionType === '월세') {
+    const [deposit, rent] = price.split('/')
+    return `${formatPrice(deposit, false)}/${formatPrice(rent, true)}`
+  }
+  return '가격 정보 없음'
+})
+const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
+  if (newFavoriteStatus) {
+    await api.addFavoriteProperty(propertyId)
+  } else {
+    await api.removeFavoriteProperty(propertyId)
+  }
+  await property.fetchPropertyDetails(propertyId)
+}
+
+const calculate = computed(() => {
+  const propertyDetails = property.getPropertyDetails
+  const total = propertyDetails.management?.reduce((acc, crr) => {
+    if (crr.managementFee !== null && crr.managementFee !== undefined) {
+      return acc + parseInt(crr.managementFee, 10)
+    }
+    return acc
+  }, 0)
+  return formatPrice(total)
 })
 </script>
 
@@ -111,41 +194,76 @@ onMounted(() => {
     <div class="content-wrap">
       <div class="content-box title-box">
         <div class="property-title">
-          <!-- {{ property.getPropertyDetails.title }} -->
-          이화빌라 201호
-          <img :src="badge" alt="안심매물 뱃지" class="badge-img" />
-          <!-- 매물 안전도에 따른 뱃지 부여 로직 필욘 -->
+          <div class="property-title-inner">
+            {{ property.getPropertyDetails.name }}
+            <img
+              v-if="property.getPropertyDetails.safe"
+              :src="badge"
+              alt="안심매물 뱃지"
+              class="badge-img"
+            />
+          </div>
+          <div class="favorite-btn">
+            <FavoriteButton
+              width="18"
+              height="18"
+              :isFavorite="property.getPropertyDetails.favorite"
+              :propertyId="propertyId"
+              @toggle-favorite="handleFavoriteToggle"
+            />
+          </div>
         </div>
         <div class="property-price">
-          <!-- {{ property.getPropertyDetails.price }} -->
-          월세 월5억/300
+          {{ formattedPrice }}
+          <span
+            class="transaction-type"
+            v-if="property.getPropertyDetails.transactionType == '전세'"
+            >전세금</span
+          >
+          <span
+            class="transaction-type"
+            v-else-if="property.getPropertyDetails.transactionType == '월세'"
+            >보증금/월세 단위:만(원)</span
+          >
         </div>
         <div class="property-addr">
-          <!-- {{ property.getPropertyDetails.addr }} -->
-          서울시 강남구 역삼동
+          {{ property.getPropertyDetails.building?.roadAddress }}
         </div>
         <div class="property-checklist">
-          <button class="checklist-btn">항목 체크하러 가기 ></button>
+          <button class="checklist-btn" @click="openModal">
+            항목 체크하러 가기 >
+          </button>
           <!--클릭 이벤트 추가해서 모달 나오도록-->
         </div>
       </div>
+      <ChecklistModal
+        v-if="isModalOpen"
+        :propertyId="propertyId"
+        @close="closeModal"
+      />
       <div class="content-box">
         <div class="content-title-row">가격 정보</div>
         <div class="content-details">
           <div class="content-details-row">
-            <div class="content-details-row-title">월세</div>
+            <div class="content-details-row-title">
+              {{ property.getPropertyDetails.transactionType }}
+            </div>
             <div class="content-details-row-content">
-              <!-- {{  }} -->
-              5억/300
+              {{ formattedPrice }}
             </div>
           </div>
           <div class="content-details-row">
             <div class="content-details-row-title">관리비</div>
             <div class="content-details-row-content">
-              <!-- {{  }} -->
-              매월 20만원 <br />
-              <br />
-              기타 정보 어쩌구 저쩌구 얄리얄리얄라셩 얄라리얄라
+              매월 {{ calculate }}<br /><br />
+              <div v-for="m in property.getPropertyDetails?.management">
+                {{ m.managementType }}:
+                {{
+                  m.managementFee !== '0'
+                    ? formatPrice(m.managementFee, false)
+                    : '쓴 만큼'
+                }}
+              </div>
             </div>
           </div>
         </div>
@@ -154,31 +272,123 @@ onMounted(() => {
         <div class="content-title-row">상세 정보</div>
         <div class="content-details">
           <div class="content-details-row">
+            <div class="content-details-row-title">상세 주소</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.detailAddress }}
+            </div>
+          </div>
+          <div class="content-details-row">
             <div class="content-details-row-title">종류</div>
             <div class="content-details-row-content">
-              <!-- {{  }} -->
-              오피스텔
+              {{ property.getPropertyDetails.propertyType }}
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">공급/전용면적</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.supplyAreaM2 }}/{{
+                property.getPropertyDetails.exclusiveAreaM2
+              }}
+              m<sup>2</sup>
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">해당층/총층</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.floor }}/{{
+                property.getPropertyDetails.building?.totalFloors
+              }}층
             </div>
           </div>
           <div class="content-details-row">
             <div class="content-details-row-title">방</div>
             <div class="content-details-row-content">
-              <!-- {{  }} -->
-              2
+              {{ property.getPropertyDetails.room }}
             </div>
           </div>
           <div class="content-details-row">
             <div class="content-details-row-title">욕실</div>
             <div class="content-details-row-content">
-              <!-- {{  }} -->
-              2
+              {{ property.getPropertyDetails.bathrooms }}
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">주실 방향</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.direction }}
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">복층 여부</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.duplexStructure ? 'O' : 'X' }}
             </div>
           </div>
           <div class="content-details-row">
             <div class="content-details-row-title">입주시기</div>
             <div class="content-details-row-content">
-              <!-- {{  }} -->
-              즉시 입주 가능
+              {{ property.getPropertyDetails.moveInDate }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="content-box">
+        <div class="content-title-row">단지 정보</div>
+        <div class="content-details">
+          <div class="content-details-row">
+            <div class="content-details-row-title">우편 번호</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.building?.postcode }}
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">도로명 주소</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.building?.roadAddress }}
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">총 층수</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.building?.totalFloors }}층
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">총 세대수</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.building?.totalUnit }}
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">현관 구조</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.building?.entranceStructure }}
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">난방 구조</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.building?.heatingType }}({{
+                property.getPropertyDetails.building?.heatingFuel
+              }})
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">엘리베이터</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.building?.elevator ? 'O' : 'X' }}
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">주차 자리수</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.building?.numParking }}
+            </div>
+          </div>
+          <div class="content-details-row">
+            <div class="content-details-row-title">주차 가능여부</div>
+            <div class="content-details-row-content">
+              {{ property.getPropertyDetails.building?.parking }}
             </div>
           </div>
         </div>
@@ -194,7 +404,7 @@ onMounted(() => {
             >
               <div
                 v-for="option in chunk"
-                :key="option.id"
+                :key="option.name"
                 class="col-sm-6 col-md-3 option-item"
               >
                 <div
@@ -222,10 +432,7 @@ onMounted(() => {
     <div class="content-box">
       <div class="content-title-row">기타 정보</div>
       <div class="content-property-description">
-        어쩌구 저쩌구 얄리얄리얄라셩 얄라리얄라 김수한무 거북이와 두루미
-        삼천갑자 동방삭 치치카포 사리사리센타 워리워리 세브리깡 무두셀라 구름이
-        허리케인에 담벼락 담벼락에 서생원 서생원에 고양이 고양이엔 바둑이
-        바둑이는 돌돌이
+        {{ property.getPropertyDetails.description }}
       </div>
     </div>
   </div>
@@ -312,12 +519,15 @@ onMounted(() => {
   width: 100%;
 }
 .property-title {
-  font-size: rem(24px);
-  font-weight: var(--font-weight-lg);
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   height: rem(30px);
+  width: 100%;
+}
+.property-title-inner {
+  font-size: rem(24px);
+  font-weight: var(--font-weight-lg);
 }
 .property-price {
   font-size: rem(20px);
@@ -374,7 +584,7 @@ onMounted(() => {
 .content-details-row-title {
   font-size: rem(15px);
   font-weight: var(--font-weight-lg);
-  width: 30%;
+  width: 50%;
 }
 .content-details-row-content {
   color: rgba($color: #000000, $alpha: 0.3);
@@ -436,5 +646,9 @@ onMounted(() => {
   width: 100%;
   height: rem(300px);
   border-radius: 20px;
+}
+.transaction-type {
+  font-size: rem(12px);
+  color: var(--grey);
 }
 </style>
