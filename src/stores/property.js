@@ -18,6 +18,7 @@ export const usePropertyStore = defineStore('property', {
       detailAddress: '', // 상세주소 (몇 동 몇 호인지)
       extraAddress: '', // 참고 주소 (아파트 이름 등)
     },
+    propertyDetails: {},
   }),
   actions: {
     async fetchFavoriteProperties(params) {
@@ -64,6 +65,14 @@ export const usePropertyStore = defineStore('property', {
         extraAddress: '', // 참고 주소 (아파트 이름 등)
       }
     },
+    async fetchPropertyDetails(params) {
+      try {
+        const data = await api.getPropertyDetails(params)
+        this.propertyDetails = data
+      } catch (error) {
+        console.error('매물 상세 데이터를 불러오는 데 실패했습니다:', error)
+      }
+    },
   },
   getters: {
     getFavorite: state => state.favoriteProperties,
@@ -71,5 +80,6 @@ export const usePropertyStore = defineStore('property', {
     getAddress: state => state.address,
     // 등록 중인 매물
     getNewProperty: state => state.newProperty,
+    getPropertyDetails: state => state.propertyDetails,
   },
 })
