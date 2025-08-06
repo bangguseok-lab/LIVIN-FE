@@ -8,8 +8,6 @@ import PricePanel from '@/components/panels/PricePanel.vue'
 const props = defineProps({
   mode: String,
   dealType: Array,
-  deposit: Object,
-  monthly: Object,
   regionData: Object,
   region: Object,
 })
@@ -17,10 +15,8 @@ const props = defineProps({
 // 각 패널에서 선택된 값을 v-model 스타일로 상위에 올려줌
 const emit = defineEmits([
   'update:dealType',
-  'update:jeonseDeposit',
-  'update:monthlyDeposit',
-  'update:monthlyRent',
   'update:region',
+  'filterCompleted',
 ])
 
 //상태 관리
@@ -140,12 +136,6 @@ const currentPanelComponent = computed(() => {
         :is="currentPanelComponent"
         :selected="props.dealType"
         @select="val => emit('update:dealType', val)"
-        :jeonseDeposit="props.jeonseDeposit"
-        :monthlyDeposit="props.monthlyDeposit"
-        :monthlyRent="props.monthlyRent"
-        @update:jeonseDeposit="val => emit('update:jeonseDeposit', val)"
-        @update:monthlyDeposit="val => emit('update:monthlyDeposit', val)"
-        @update:monthlyRent="val => emit('update:monthlyRent', val)"
         :cities="props.regionData.cities"
         :districts="props.regionData.districts"
         :parishes="props.regionData.parishes"
