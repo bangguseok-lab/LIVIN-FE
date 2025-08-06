@@ -1,15 +1,17 @@
 <script setup>
-import { defineProps, onMounted, ref } from 'vue'
+import { defineProps, onMounted, ref, nextTick } from 'vue'
 import { useChecklistStore } from '@/stores/checklist'
 import checklistAPI from '@/api/checklist'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import ItemToggleModal from '@/components/modals/checklist/ChecklistToggleModal.vue'
 import CustomChecklistModal from '@/components/modals/checklist/ChecklistCustomModal.vue'
 import ChecklistDeleteSubmitModal from '@/components/modals/checklist/ChecklistDeleteSubmitModal.vue'
+import ChecklistEditSubmitModal from '@/components/modals/checklist/ChecklistEditSubmitModal.vue'
 
-const props = defineProps(['id'])
 const checklistStore = useChecklistStore()
 const checklist = ref(null)
+
+//필터 관련
 const roomItems = ref([])
 const buildingItems = ref([])
 const customItems = ref([])
@@ -17,102 +19,109 @@ const infraItems = ref([])
 const circumstanceItems = ref([])
 const optionItems = ref([])
 
+//모달 관련
 const showModal = ref(false)
 const modalLabel = ref('')
 const modalItems = ref([])
 const showCustomModal = ref(false)
 const showDeleteConfirm = ref(false)
-
 const router = useRouter()
+const route = useRoute()
+const checklistId = route.params.id
+const showEditModal = ref(false)
 
 async function openModal(label, type) {
   modalLabel.value = label
-  modalItems.value = checklistStore.currentChecklistItems.filter(
-    item => item.type === type,
-  )
+  if (Array.isArray(checklistStore.currentChecklistItems)) {
+    modalItems.value = checklistStore.currentChecklistItems
+      .filter(item => item.type === type)
+      .map(item => ({
+        checklistItem_id: item.checklistItemId,
+        keyword: item.keyword,
+        is_active: item.isActive,
+        type: item.type,
+      }))
+  } else {
+    modalItems.value = []
+  }
   showModal.value = true
 }
 
 async function onModalClose() {
   showModal.value = false
-  await checklistStore.loadChecklist(props.id)
-  const items = checklistStore.currentChecklistItems
 
-  roomItems.value = items.filter(item => item.type === 'ROOM' && item.is_active)
-  buildingItems.value = items.filter(
-    item => item.type === 'BUILDING' && item.is_active,
+  // 💡 store 데이터 갱신
+  await checklistStore.loadChecklist(checklistId)
+
+  // ✅ API에서 items를 다시 불러와야 타입별 구조 보장됨
+  const res = await checklistAPI.fetchChecklistById(checklistId)
+  const items = res.items
+
+  roomItems.value = (items.ROOM || []).filter(item => item.isActive)
+  buildingItems.value = (items.BUILDING || []).filter(item => item.isActive)
+  customItems.value = (items.CUSTOM || []).filter(item => item.isActive)
+  infraItems.value = (items.INFRA || []).filter(item => item.isActive)
+  circumstanceItems.value = (items.CIRCUMSTANCE || []).filter(
+    item => item.isActive,
   )
-  customItems.value = items.filter(
-    item => item.type === 'CUSTOM' && item.is_active,
-  )
-  infraItems.value = items.filter(
-    item => item.type === 'INFRA' && item.is_active,
-  )
-  circumstanceItems.value = items.filter(
-    item => item.type === 'CIRCUMSTANCE' && item.is_active,
-  )
-  optionItems.value = items.filter(
-    item => item.type === 'OPTION' && item.is_active,
-  )
+  optionItems.value = (items.OPTION || []).filter(item => item.isActive)
 }
 
 async function handleCustomModalClose() {
   showCustomModal.value = false
-  await checklistStore.loadChecklist(props.id)
+  await checklistStore.loadChecklist(checklistId)
   const items = checklistStore.currentChecklistItems
   customItems.value = items.filter(
-    item => item.type === 'CUSTOM' && item.is_active,
+    item => item.type === 'CUSTOM' && item.isActive,
   )
 }
 
 onMounted(async () => {
-  await checklistStore.loadChecklist(props.id)
+  console.log(checklistId)
+
+  await checklistStore.loadChecklist(checklistId)
   checklist.value = checklistStore.currentChecklist
-  const items = await checklistAPI.fetchChecklistItems(props.id)
+  const res = await checklistAPI.fetchChecklistById(checklistId)
+  console.log(res.items)
 
-  // 필터 시 아래와 같이 조건 추가
-  roomItems.value = items.filter(item => item.type === 'ROOM' && item.is_active)
-  buildingItems.value = items.filter(
-    item => item.type === 'BUILDING' && item.is_active,
+  const items = res.items
+
+  // 타입별 배열 접근 후 is_active 필터
+  roomItems.value = (items.ROOM || []).filter(item => item.isActive)
+  buildingItems.value = (items.BUILDING || []).filter(item => item.isActive)
+  customItems.value = (items.CUSTOM || []).filter(item => item.isActive)
+  infraItems.value = (items.INFRA || []).filter(item => item.isActive)
+  circumstanceItems.value = (items.CIRCUMSTANCE || []).filter(
+    item => item.isActive,
   )
-  customItems.value = items.filter(
-    item => item.type === 'CUSTOM' && item.is_active,
-  )
-  infraItems.value = items.filter(
-    item => item.type === 'INFRA' && item.is_active,
-  )
-  circumstanceItems.value = items.filter(
-    item => item.type === 'CIRCUMSTANCE' && item.is_active,
-  )
-  optionItems.value = items.filter(
-    item => item.type === 'OPTION' && item.is_active,
-  )
+  optionItems.value = (items.OPTION || []).filter(item => item.isActive)
 })
-
-// 🖊️ 상단 버튼 클릭 시: 체크리스트 이름/설명 수정
-function goToEditChecklistInfo() {
-  router.push(`/checklist/${props.id}/edit-info`)
-}
-
-// 📝 하단 버튼 클릭 시: 항목 수정
-function goToEditItems() {
-  router.push(`/checklist/${props.id}/edit-items`)
-}
 
 async function confirmDeleteChecklist() {
   try {
-    await checklistStore.removeChecklist(props.id)
+    await checklistStore.removeChecklist(checklistId)
     router.push('/checklist')
   } catch (err) {
     console.error('삭제 실패:', err)
   }
+}
+
+const updateChecklistInfo = async ({ title, description }) => {
+  await checklistStore.updateChecklist(checklistId, {
+    title,
+    description,
+    type: 'PHYSICAL',
+  })
+  showEditModal.value = false
+  await nextTick() // 렌더링 완료 후
+  location.reload()
 }
 </script>
 
 <template>
   <div class="ChecklistDetail">
     <div class="actions">
-      <div class="icon-wrapper" @click="goToEditChecklistInfo">
+      <div class="icon-wrapper" @click="showEditModal = true">
         <img src="@/assets/edit-icon.svg" />
         <span class="icon-label">수정하기</span>
       </div>
@@ -142,11 +151,7 @@ async function confirmDeleteChecklist() {
       </h5>
 
       <div class="tag-group pb-5">
-        <span
-          v-for="item in roomItems"
-          :key="item.checklistItem_id"
-          class="tag"
-        >
+        <span v-for="item in roomItems" :key="item.checklistItemId" class="tag">
           {{ item.keyword }}
         </span>
       </div>
@@ -163,7 +168,7 @@ async function confirmDeleteChecklist() {
       <div class="tag-group pb-5">
         <span
           v-for="item in buildingItems"
-          :key="item.checklistItem_id"
+          :key="item.checklistItemId"
           class="tag"
         >
           {{ item.keyword }}
@@ -179,7 +184,7 @@ async function confirmDeleteChecklist() {
       <div class="tag-group pb-5">
         <span
           v-for="item in infraItems"
-          :key="item.checklistItem_id"
+          :key="item.checklistItemId"
           class="tag"
         >
           {{ item.keyword }}
@@ -195,7 +200,7 @@ async function confirmDeleteChecklist() {
       <div class="tag-group pb-5">
         <span
           v-for="item in optionItems"
-          :key="item.checklistItem_id"
+          :key="item.checklistItemId"
           class="tag"
         >
           {{ item.keyword }}
@@ -214,7 +219,7 @@ async function confirmDeleteChecklist() {
       <div class="tag-group pb-5">
         <span
           v-for="item in circumstanceItems"
-          :key="item.checklistItem_id"
+          :key="item.checklistItemId"
           class="tag"
         >
           {{ item.keyword }}
@@ -230,7 +235,7 @@ async function confirmDeleteChecklist() {
       <div class="tag-group pb-5">
         <span
           v-for="item in customItems"
-          :key="item.checklistItem_id"
+          :key="item.checklistItemId"
           class="tag"
         >
           {{ item.keyword }}
@@ -245,18 +250,25 @@ async function confirmDeleteChecklist() {
     v-if="showModal"
     :label="modalLabel"
     :items="modalItems"
-    :checklist-id="checklist?.id"
+    :checklist-id="checklistId"
     @close="onModalClose"
   />
   <CustomChecklistModal
     v-if="showCustomModal"
-    :checklist-id="checklist?.id"
+    :checklist-id="checklistId"
     @close="handleCustomModalClose"
   />
   <ChecklistDeleteSubmitModal
     v-if="showDeleteConfirm"
     @confirm="confirmDeleteChecklist"
     @close="showDeleteConfirm = false"
+  />
+  <ChecklistEditSubmitModal
+    v-if="showEditModal"
+    :initTitle="checklist.title"
+    :initDescription="checklist.description"
+    @save="updateChecklistInfo"
+    @close="showEditModal = false"
   />
 </template>
 

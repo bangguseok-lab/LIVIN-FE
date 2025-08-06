@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useChecklistStore } from '@/stores/checklist'
+import checklist from '@/router/checklist'
 
 const checklistStore = useChecklistStore()
 const router = useRouter()
@@ -17,9 +18,8 @@ async function handleSubmit() {
       type: 'PHYSICAL',
     }
     const created = await checklistStore.addChecklist(newChecklist)
-    console.log(created)
-
-    router.push(`/checklist/${created.checklistId}`)
+    const id = created.checklistId
+    router.push(`/checklist/${id}`)
   } catch (error) {
     console.error('체크리스트 생성 실패:', error)
   }
