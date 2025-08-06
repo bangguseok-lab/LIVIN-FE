@@ -1,8 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
+import { usePropertyStore } from '@/stores/property'
+import { storeToRefs } from 'pinia'
 
 const dealType = ref([])
 const jeonseDeposit = ref({ min: null, max: null }) // 전세 보증금
@@ -11,6 +13,8 @@ const monthlyRent = ref({ min: null, max: null }) // 월세
 const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null })
 const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
+const propertyStore = usePropertyStore()
+const { address } = storeToRefs(propertyStore)
 
 // 예시 더미 데이터
 const dummyDistricts = [
@@ -22,6 +26,26 @@ const dummyDistricts = [
   { sido: '부산광역시', sigungu: '해운대구', eupmyeondong: '중동' },
   { sido: '부산광역시', sigungu: '수영구', eupmyeondong: '광안동' },
 ]
+
+onMounted(() => {
+  // fallback 안전처리
+  const fallbackAddress = {
+    sido: '서울특별시',
+    sigungu: '강남구',
+    eupmyendong: '논현동',
+  }
+  const currentAddress =
+    address.value?.sido && address.value?.sigungu
+      ? address.value
+      : fallbackAddress
+  // region 초기화
+  region.value.city = currentAddress.sido
+  region.value.district = currentAddress.sigungu
+  region.value.parish = currentAddress.eupmyendong || null
+  // 매물 불러오기
+  fetchProperties()
+})
+
 const regionData = computed(() => {
   const cities = [...new Set(dummyDistricts.map(d => d.sido))].map(name => ({
     code: name,
@@ -97,7 +121,11 @@ function fetchProperties() {
             class="marker-icon"
         /></span>
         <span>
-          현재 <span class="highlight">서울시 강남구 논현1동</span>에 있어요
+          현재
+          <span class="highlight"
+            >{{ address.sido }} {{ address.sigungu }}
+            {{ address.eupmyendong || '' }}</span
+          >에 있어요
         </span>
       </div>
       <!-- 타이틀 -->
