@@ -9,6 +9,10 @@ export const useUserStore = defineStore('user', {
     error: null,
   }),
 
+  getters: {
+    getNickname: state => state.userInfo?.nickname || '',
+  },
+
   actions: {
     // providerId 저장 (로그인 시 1회만 사용)
     setProviderId(id) {
@@ -118,17 +122,18 @@ export const useUserStore = defineStore('user', {
         this.loading = false
       }
     },
-    async testFetchNickname() {
+
+    // 닉네임만 조회
+    async fetchNickname() {
       try {
-        const nicknameData = await userAPI.fetchNickname()
-        console.log('✅ 닉네임 조회 성공:', nicknameData)
+        const nickname = await userAPI.fetchNickname()
         if (this.userInfo) {
-          this.userInfo.nickname = nicknameData.nickname
+          this.userInfo.nickname = nickname
         } else {
-          this.userInfo = { nickname: nicknameData.nickname }
+          this.userInfo = { nickname }
         }
       } catch (err) {
-        console.error('❌ 닉네임 조회 실패:', err)
+        console.error('닉네임 조회 실패:', err)
       }
     },
 

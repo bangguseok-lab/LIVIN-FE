@@ -12,6 +12,7 @@ import defaultProfileImage from '@/assets/images/profile/test-img.svg'
 
 const router = useRouter()
 const userStore = useUserStore()
+const nickname = computed(() => userStore.getNickname)
 
 // Store의 상태를 직접 참조 (반응성을 유지하기 위해 storeToRefs 사용)
 const { userInfo } = storeToRefs(userStore)
@@ -137,7 +138,6 @@ async function onProfileImageChange(file) {
 // ✅ 마운트 시 사용자 정보 및 프로필 이미지 불러오기
 onMounted(async () => {
   await userStore.fetchUserInfo()
-  await userStore.testFetchNickname()
 })
 </script>
 
@@ -153,9 +153,7 @@ onMounted(async () => {
         </div>
         <div class="text-block">
           <p class="hello">안녕하세요,</p>
-          <p class="nickname">
-            {{ userInfo?.nickname }}<span class="nim">님!</span>
-          </p>
+          <p class="nickname">{{ nickname }}<span class="nim">님!</span></p>
         </div>
       </div>
     </section>
@@ -197,7 +195,7 @@ onMounted(async () => {
               :style="{ color: 'var(--primary-color)' }"
               >{{ tempValue }}</span
             >
-            <span v-else>{{ userInfo?.nickname }}</span>
+            <span v-else>{{ nickname }}</span>
           </span>
           <button
             class="edit-btn"
@@ -393,7 +391,7 @@ onMounted(async () => {
 
 .info-list li {
   display: grid;
-  grid-template-columns: 1.2fr 2fr rem(40px);
+  grid-template-columns: 1.2fr 9fr rem(40px);
   align-items: center;
   border-bottom: rem(1px) solid #eee;
   padding: rem(12px) 0;
@@ -415,6 +413,7 @@ onMounted(async () => {
   gap: rem(6px);
   word-break: break-word;
   font-size: rem(13px);
+  justify-content: center;
 }
 
 .editable-text {

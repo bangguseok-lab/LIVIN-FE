@@ -53,7 +53,7 @@ const userAPI = {
   // 8. 닉네임만 조회
   async fetchNickname() {
     const { data } = await apiClient.get('/users/nickname')
-    return data
+    return data.nickname
   },
 }
 
