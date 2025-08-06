@@ -17,6 +17,7 @@ export const usePropertyStore = defineStore('property', {
       address: '', // 주소
       detailAddress: '', // 상세주소 (몇 동 몇 호인지)
       extraAddress: '', // 참고 주소 (아파트 이름 등)
+      propertyNum: '', // 부동산 고유번호
     },
     propertyDetails: {},
   }),
@@ -63,6 +64,7 @@ export const usePropertyStore = defineStore('property', {
         address: '', // 주소
         detailAddress: '', // 상세주소 (몇 동 몇 호인지)
         extraAddress: '', // 참고 주소 (아파트 이름 등)
+        propertyNum: '', // 부동산 고유번호
       }
     },
     async fetchPropertyDetails(params) {

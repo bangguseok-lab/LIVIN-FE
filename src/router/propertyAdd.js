@@ -38,6 +38,18 @@ export default [
           page: 3,
         },
       },
+      {
+        path: 'property/number/confirm',
+        component: () =>
+          import('@/pages/propertyAdd/PropertyNumConfirmPage.vue'),
+        name: 'propertyNumConfirm',
+        meta: {
+          title: '부동산 고유번호 조회가 완료되었습니다',
+          subTitle: '부동산 정보와 회원정보가 일치하는지 확인해주세요',
+          totalPage: 6,
+          page: 4,
+        },
+      },
     ],
   },
 ]
