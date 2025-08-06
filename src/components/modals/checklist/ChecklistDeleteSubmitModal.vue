@@ -8,10 +8,11 @@ function onConfirm() {
 <template>
   <div class="modal-overlay">
     <div class="modal-content">
-      <p class="message">정말 삭제하시겠습니까?</p>
+      <p class="message">이 체크리스트를 삭제하시겠어요?</p>
+      <p class="sm-message">확인을 누르면 삭제되고, 다시 볼 수 없어요</p>
       <div class="button-group">
-        <button class="cancel-btn" @click="emit('close')">취소</button>
-        <button class="delete-btn" @click="onConfirm">삭제</button>
+        <button class="delete-btn" @click="onConfirm">삭제할래요</button>
+        <button class="cancel-btn" @click="emit('close')">안 할래요</button>
       </div>
     </div>
   </div>
@@ -37,18 +38,24 @@ function onConfirm() {
   border-radius: 1rem;
   text-align: center;
   width: 100%;
-  max-width: rem(600px);
+  max-width: rem(500px);
   min-width: rem(400px);
 }
 
 .message {
   font-size: 1.2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.125rem;
+}
+
+.sm-message {
+  color: #dddddd;
+  font-size: 0.825rem;
+  padding-bottom: 1.5rem;
 }
 
 .button-group {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
 }
 

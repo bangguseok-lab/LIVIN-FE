@@ -5,7 +5,11 @@ import { useChecklistStore } from '@/stores/checklist'
 import Buttons from '@/components/common/buttons/Buttons.vue'
 import ChecklistEditSubmitModal from './ChecklistEditSubmitModal.vue'
 
-const props = defineProps(['label', 'items', 'checklistId'])
+const props = defineProps({
+  label: String,
+  items: Array,
+  checklistId: Number,
+})
 const emit = defineEmits(['close'])
 const store = useChecklistStore()
 
@@ -25,9 +29,13 @@ const toggle = async item => {
 }
 
 const saveChanges = async () => {
-  for (const item of localItems.value) {
-    await store.updateChecklistItem(props.checklistId, item.id, item)
-  }
+  const itemsToUpdate = localItems.value.map(item => ({
+    checklistItemId: item.checklistItem_id,
+    isActive: item.is_active,
+  }))
+
+  await store.updateChecklistItem(props.checklistId, itemsToUpdate) // ✅ payload wrapping
+
   emit('close')
 }
 </script>

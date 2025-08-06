@@ -13,15 +13,21 @@ const customItems = computed(() =>
 const add = async () => {
   if (!keyword.value.trim()) return
   await store.addItemToChecklist(props.checklistId, {
-    keyword: keyword.value,
-    type: 'CUSTOM',
-    is_active: true,
+    customItems: [
+      {
+        keyword: keyword.value,
+        type: 'CUSTOM',
+        isActive: true,
+      },
+    ],
   })
+  await store.loadChecklist(props.checklistId)
   keyword.value = ''
 }
 
 const remove = async itemId => {
   await store.removeItemFromChecklist(props.checklistId, itemId)
+  await store.loadChecklist(props.checklistId)
 }
 
 const handleComplete = () => {
@@ -36,9 +42,15 @@ const handleComplete = () => {
 
       <!-- 항목 리스트 -->
       <div class="tag-group">
-        <span class="tag" v-for="item in customItems" :key="item.id">
+        <span
+          class="tag"
+          v-for="item in customItems"
+          :key="item.checklistItemId"
+        >
           {{ item.keyword }}
-          <button class="remove-btn" @click="remove(item.id)">×</button>
+          <button class="remove-btn" @click="remove(item.checklistItemId)">
+            ×
+          </button>
         </span>
       </div>
 
