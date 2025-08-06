@@ -29,37 +29,21 @@ const modules = [Parallax, Pagination]
       </small>
     </div>
     <div class="favorite-card-box">
-      <swiper
-        :slidesPerView="1"
-        :spaceBetween="20"
-        :parallax="true"
-        :modules="modules"
-        :loop="loop"
-        class="mySwiper"
+      <swiper :slidesPerView="1" :spaceBetween="20" :parallax="true" :modules="modules" :loop="loop" class="mySwiper"
         :breakpoints="{
           450: {
             slidesPerView: 2,
             spaceBetween: 20,
             loop: true,
           },
-        }"
-      >
-        <div
-          class="parallax-bg"
-          slot="container-start"
-          data-swiper-parallax="-23%"
-        ></div>
+        }">
+        <template v-slot:container-start>
+          <div class="parallax-bg" data-swiper-parallax="-23%"></div>
+        </template>
         <swiper-slide v-for="fp in props.favorite" :key="fp.id">
-          <router-link
-            :to="`/favorite/${fp.id}`"
-            class="router-text router-card"
-          >
+          <router-link :to="`/favorite/${fp.id}`" class="router-text router-card">
             <div class="card fp-box">
-              <img
-                :src="fp.image_url"
-                class="card-img-top fp-img"
-                alt="건물 이미지"
-              />
+              <img :src="fp.image_url" class="card-img-top fp-img" alt="건물 이미지" />
               <div class="card-body">
                 <p class="card-text board-text-box">
                   {{ fp.name }} <br />
@@ -76,11 +60,13 @@ const modules = [Parallax, Pagination]
     </div>
   </div>
 </template>
+
 <style lang="scss" scoped>
 .mySwiper {
   width: 100%;
   height: 100%;
 }
+
 .board-text-box {
   font-weight: var(--font-weight-lg);
 }
@@ -88,6 +74,7 @@ const modules = [Parallax, Pagination]
 .lg-text-box {
   font-size: rem(22px);
 }
+
 .favorite-box {
   background-color: var(--white);
   padding: 2rem 0;
@@ -98,12 +85,14 @@ const modules = [Parallax, Pagination]
   margin-bottom: rem(20px);
   justify-content: space-between;
 }
+
 .favorite-card-box {
   height: rem(400px);
   padding-bottom: rem(20px);
   padding-left: 1rem;
   padding-right: 1rem;
 }
+
 @media (max-width: 399px) {
   .fp-box {
     width: 100%;
@@ -111,6 +100,7 @@ const modules = [Parallax, Pagination]
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   }
 }
+
 @media (min-width: 400px) {
   .fp-box {
     width: 100%;
@@ -118,16 +108,20 @@ const modules = [Parallax, Pagination]
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   }
 }
+
 @media (min-width: 449px) {
   .fp-box {
-    width: 100%; /* 컨테이너 너비의 45%로 설정 */
+    width: 100%;
+    /* 컨테이너 너비의 45%로 설정 */
     height: 95%;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   }
 }
+
 .fp-img {
   height: 60%;
 }
+
 .card-text {
   font-size: rem(14px);
 }
@@ -146,6 +140,7 @@ const modules = [Parallax, Pagination]
   -webkit-line-clamp: 3; // 3줄을 넘어가면 말줄임표
   -webkit-box-orient: vertical; // 텍스트 방향을 세로로 설정
 }
+
 .sm-text-box {
   color: var(--grey);
   font-size: rem(12px);
@@ -159,6 +154,7 @@ const modules = [Parallax, Pagination]
   align-items: center;
   justify-content: center;
 }
+
 .router-text {
   text-decoration: none;
   color: var(--grey);
