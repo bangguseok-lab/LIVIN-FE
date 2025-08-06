@@ -41,8 +41,35 @@ function formatNumber(num, index) {
   }
 }
 
+function formatDisplay(num) {
+  const title = props.title
+
+  if (num === '-') {
+    if (title === '월세') return '10만원 이하'
+    if (title === '월세 보증금') return '500만원 이하'
+    return '5천 이하'
+  }
+
+  if (num === '+') {
+    return '10억 이상' // 모두 공통
+  }
+  return formatNumber(num)
+}
+
 // 버튼 클릭 핸들러
 function handleClick(num) {
+  // '최소' 클릭: min = 0
+  if (num === '-') {
+    min.value = 0
+    return
+  }
+
+  // '최대' 클릭: max = 아주 큰 값 (9999999 등)
+  if (num === '+') {
+    max.value = 9999999
+    return
+  }
+
   if (num === min.value || num === max.value) return
   if (min.value === null) {
     min.value = num
@@ -62,9 +89,9 @@ function handleClick(num) {
 // min/max 변경 시 부모에 emit
 watch([min, max], () => {
   emit('updateRange', { min: min.value, max: max.value })
-  // console.log(
-  //   `[RangeSelector] 선택된 범위: min = ${min.value}, max = ${max.value}`,
-  // )
+  console.log(
+    `[RangeSelector] 부모로 emit된 범위: min = ${min.value}, max = ${max.value}`,
+  )
 })
 
 // props 변경 시 내부 상태 반영
@@ -80,6 +107,11 @@ watch(
 
 // 버튼 스타일 반환
 function getButtonClass(num) {
+  // '최소' 선택 여부
+  if (num === '-' && min.value === 0) return 'btn selected'
+  // '최대' 선택 여부
+  if (num === '+' && max.value === 9999999) return 'btn selected'
+
   if (num === min.value || num === max.value) return 'btn selected'
   if (
     min.value !== null &&
@@ -108,18 +140,30 @@ function getButtonClass(num) {
         :class="getButtonClass(num)"
         @click="handleClick(num)"
       >
-        {{ formatNumber(num, idx) }}
+        {{ formatDisplay(num) }}
       </button>
     </div>
 
     <!-- 선택된 최소/최대 값 표시 영역 -->
     <div class="result">
-      <button :disabled="!min" class="display-btn">
-        {{ min !== null ? formatNumber(min, numberList.indexOf(min)) : '최소' }}
+      <button :disabled="!min && min !== 0" class="display-btn">
+        {{
+          min === 0 || min === '-'
+            ? formatDisplay('-')
+            : min !== null
+              ? formatNumber(min, numberList.indexOf(min))
+              : '최소'
+        }}
       </button>
       <span>~</span>
-      <button :disabled="!max" class="display-btn">
-        {{ max !== null ? formatNumber(max, numberList.indexOf(max)) : '최대' }}
+      <button :disabled="!max && max !== 9999999" class="display-btn">
+        {{
+          max === 9999999 || max === '+'
+            ? formatDisplay('+')
+            : max !== null
+              ? formatNumber(max, numberList.indexOf(max))
+              : '최대'
+        }}
       </button>
     </div>
   </div>
