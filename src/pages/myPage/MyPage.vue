@@ -66,7 +66,6 @@ function handleManageClick(buttonTitle) {
   if (user.value.type === '임차인') {
     router.push('/checklist')
   } else {
-    console.log('buttonTitle: ', buttonTitle)
     if (buttonTitle === '내 매물 관리하기') {
       router.push('/propertyManage')
     } else if (buttonTitle === '내 매물 등록하기') {

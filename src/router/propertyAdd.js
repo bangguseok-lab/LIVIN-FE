@@ -27,6 +27,17 @@ export default [
           page: 2,
         },
       },
+      {
+        path: 'property/number',
+        component: () => import('@/pages/propertyAdd/AddPropertyNumPage.vue'),
+        name: 'propertyNum',
+        meta: {
+          title: '부동산 고유번호를 입력해주세요',
+          subTitle: '등록할 매물의 부동산 고유번호를 입력해주세요',
+          totalPage: 6,
+          page: 3,
+        },
+      },
     ],
   },
 ]

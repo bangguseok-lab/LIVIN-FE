@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePropertyStore } from '@/stores/property'
 import Buttons from '@/components/common/buttons/Buttons.vue'
@@ -76,8 +76,27 @@ const handleClick = () => {
   } else {
     alert('주소를 모두 입력해주세요')
   }
-
 }
+
+// 주소를 다시 입력하기 위해 돌아왔을 때, 원래 입력된 값 보이도록 처리
+onMounted(() => {
+  if (propertyStore.getNewProperty.postcode) {
+    postcode.value = propertyStore.getNewProperty.postcode;
+  }
+
+  if (propertyStore.getNewProperty.address) {
+    address.value = propertyStore.getNewProperty.address;
+  }
+
+  if (propertyStore.getNewProperty.detailAddress) {
+    detailAddress.value = propertyStore.getNewProperty.detailAddress;
+  }
+
+  if (propertyStore.getNewProperty.extraAddress) {
+    extraAddress.value = propertyStore.getNewProperty.extraAddress;
+  }
+
+})
 </script>
 
 <template>
