@@ -12,8 +12,9 @@ const props = defineProps({
   selected: String,
   onlySecure: Boolean,
   dealType: Array,
-  deposit: Object,
-  monthly: Object,
+  jeonseDeposit: Object,
+  monthlyDeposit: Object,
+  monthlyRent: Object,
   region: Object,
   regionData: Object,
 })
@@ -22,8 +23,9 @@ const emit = defineEmits([
   'update:selected',
   'update:onlySecure',
   'update:dealType',
-  'update:deposit',
-  'update:monthly',
+  'update:jeonseDeposit',
+  'update:monthlyDeposit',
+  'update:monthlyRent',
   'update:region',
 ])
 
@@ -60,13 +62,15 @@ function selectFavorite() {
     <FilterDropdownSection
       mode="checklist"
       :dealType="props.dealType"
-      :deposit="props.deposit"
-      :monthly="props.monthly"
+      :jeonseDeposit="props.jeonseDeposit"
+      :monthlyDeposit="props.monthlyDeposit"
+      :monthlyRent="props.monthlyRent"
       :region-data="props.regionData"
       :region="props.region"
       @update:dealType="val => emit('update:dealType', val)"
-      @update:deposit="val => emit('update:deposit', val)"
-      @update:monthly="val => emit('update:monthly', val)"
+      @update:jeonseDeposit="val => emit('update:jeonseDeposit', val)"
+      @update:monthlyDeposit="val => emit('update:monthlyDeposit', val)"
+      @update:monthlyRent="val => emit('update:monthlyRent', val)"
       @update:region="val => emit('update:region', val)"
     />
 

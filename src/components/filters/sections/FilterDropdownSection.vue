@@ -17,8 +17,9 @@ const props = defineProps({
 // 각 패널에서 선택된 값을 v-model 스타일로 상위에 올려줌
 const emit = defineEmits([
   'update:dealType',
-  'update:deposit',
-  'update:monthly',
+  'update:jeonseDeposit',
+  'update:monthlyDeposit',
+  'update:monthlyRent',
   'update:region',
 ])
 
@@ -139,15 +140,18 @@ const currentPanelComponent = computed(() => {
         :is="currentPanelComponent"
         :selected="props.dealType"
         @select="val => emit('update:dealType', val)"
-        :deposit="props.deposit"
-        :monthly="props.monthly"
-        @update:deposit="val => emit('update:deposit', val)"
-        @update:monthly="val => emit('update:monthly', val)"
+        :jeonseDeposit="props.jeonseDeposit"
+        :monthlyDeposit="props.monthlyDeposit"
+        :monthlyRent="props.monthlyRent"
+        @update:jeonseDeposit="val => emit('update:jeonseDeposit', val)"
+        @update:monthlyDeposit="val => emit('update:monthlyDeposit', val)"
+        @update:monthlyRent="val => emit('update:monthlyRent', val)"
         :cities="props.regionData.cities"
         :districts="props.regionData.districts"
         :parishes="props.regionData.parishes"
         :selected-region="props.region"
         @updateRegion="handleRegionUpdate"
+        @filterCompleted="$emit('filterCompleted')"
       />
     </div>
   </div>
