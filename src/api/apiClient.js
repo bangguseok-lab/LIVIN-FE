@@ -21,6 +21,7 @@ const processQueue = (error, token = null) => {
   })
   failedQueue = []
 }
+
 // 요청 인터셉터
 apiClient.interceptors.request.use(
   async config => {
@@ -39,7 +40,6 @@ apiClient.interceptors.response.use(
   async error => {
     const originalRequest = error.config
     const status = error.response?.status
-
     const isRefreshUrl = originalRequest.url.includes('/api/users/refresh')
     if (
       (status === 401 || status === 403) &&
@@ -50,14 +50,10 @@ apiClient.interceptors.response.use(
       if (!isRefresh) {
         isRefresh = true
         try {
-          const providerId = sessionStorage.getItem('providerId')
-          if (!providerId) {
-            logout()
-            return Promise.reject(error)
-          }
-
           const accessToken = await refreshAccessToken()
           sessionStorage.setItem('accessToken', accessToken)
+          processQueue(null, accessToken)
+
           originalRequest.headers.Authorization = `Bearer ${accessToken}`
           return apiClient(originalRequest)
         } catch (error) {
@@ -82,6 +78,7 @@ apiClient.interceptors.response.use(
           })
       }
     }
+
     if (status === 401 || (status === 403 && isRefreshUrl)) {
       logout()
       alert('인증이 만료되었습니다. 다시 로그인해주세요.')
@@ -94,24 +91,20 @@ apiClient.interceptors.response.use(
 )
 
 const refreshAccessToken = async () => {
-  const providerId = sessionStorage.getItem('providerId')
-  if (!providerId) {
-    logout()
-    throw new Error()
-  }
-
   const response = await axios.post(
-    `${apiClient.defaults.baseURL}/users/refresh?providerId=${providerId}`,
+    `${apiClient.defaults.baseURL}/users/refresh`,
   )
-  const accessToken = response.headers?.Authorization?.split(' ')[1]
+  const accessToken = response.data
+  // const accessToken = response.headers?.Authorization?.split(' ')[1]
   return accessToken
 }
 
-const logout = () => {
+const logout = async () => {
   sessionStorage.removeItem('accessToken')
-  sessionStorage.removeItem('providerId')
-  // 추가적인 사용자 관련 데이터 삭제
-  // 예: localStorage.removeItem('userProfile');
+  const response = await axios.post(
+    `${apiClient.defaults.baseURL}/users/logout`,
+  )
+  console.log(response)
 }
 
 export default apiClient

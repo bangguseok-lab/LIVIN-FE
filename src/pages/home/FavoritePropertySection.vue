@@ -1,11 +1,11 @@
 <script setup>
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { FreeMode, Pagination } from 'swiper/modules'
+import { Pagination, Parallax } from 'swiper/modules'
 import { RouterLink } from 'vue-router'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
 import 'swiper/css'
-import { defineProps } from 'vue'
+import { defineProps, computed } from 'vue'
 
 const props = defineProps({
   favorite: {
@@ -15,7 +15,10 @@ const props = defineProps({
   },
 })
 
-const modules = [FreeMode, Pagination]
+const getSlidesPerView = computed(() => {
+  return props.favorite.length < 2 ? 1 : 2
+})
+const modules = [Parallax, Pagination]
 </script>
 <template>
   <div class="favorite-box">
@@ -27,15 +30,30 @@ const modules = [FreeMode, Pagination]
     </div>
     <div class="favorite-card-box">
       <swiper
-        :slidesPerView="2"
-        :spaceBetween="170"
-        :freeMode="true"
+        :slidesPerView="1"
+        :spaceBetween="20"
+        :parallax="true"
         :modules="modules"
-        :loop="true"
+        :loop="loop"
         class="mySwiper"
+        :breakpoints="{
+          450: {
+            slidesPerView: 2,
+            spaceBetween: 20,
+            loop: true,
+          },
+        }"
       >
+        <div
+          class="parallax-bg"
+          slot="container-start"
+          data-swiper-parallax="-23%"
+        ></div>
         <swiper-slide v-for="fp in props.favorite" :key="fp.id">
-          <router-link :to="`/favorite/${fp.id}`" class="router-text">
+          <router-link
+            :to="`/favorite/${fp.id}`"
+            class="router-text router-card"
+          >
             <div class="card fp-box">
               <img
                 :src="fp.image_url"
@@ -88,21 +106,21 @@ const modules = [FreeMode, Pagination]
 }
 @media (max-width: 399px) {
   .fp-box {
-    width: rem(230px);
+    width: 100%;
     height: 95%;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   }
 }
 @media (min-width: 400px) {
   .fp-box {
-    width: rem(250px);
+    width: 100%;
     height: 95%;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   }
 }
 @media (min-width: 449px) {
   .fp-box {
-    width: rem(300px);
+    width: 100%; /* 컨테이너 너비의 45%로 설정 */
     height: 95%;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   }
@@ -145,6 +163,11 @@ const modules = [FreeMode, Pagination]
   text-decoration: none;
   color: var(--grey);
 }
+
+.router-card {
+  width: 45%;
+}
+
 .title-box {
   width: 100%;
   height: var(30px);

@@ -1,5 +1,4 @@
 import apiClient from '@/api/apiClient'
-import axios from 'axios'
 
 export default {
   async getFavorite(params) {
@@ -8,7 +7,7 @@ export default {
   },
 
   async getProperties(params) {
-    const { data } = await apiClient.post('/properties', params)
+    const { data } = await apiClient.get('/properties', { params })
     return data
   },
 

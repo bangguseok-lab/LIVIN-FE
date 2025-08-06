@@ -4,8 +4,6 @@ import { FilterDropdownSection, FilterSecureOption } from './FilterBar.js' // �
 // props로 상위에서 전달 받는(FilterView.vue로부터 내려받은) 상태 바인딩
 const props = defineProps({
   dealType: Array,
-  deposit: Object,
-  monthly: Object,
   onlySecure: Boolean,
   region: Object,
   regionData: Object,
@@ -15,10 +13,9 @@ const props = defineProps({
 // 하위 컴포넌트에서 emit된 값을 그대로 상위(FilterView.vue)로 다시 올려주는 역할
 const emit = defineEmits([
   'update:dealType',
-  'update:deposit',
-  'update:monthly',
   'update:onlySecure',
   'update:region',
+  'filterCompleted',
 ])
 </script>
 
@@ -27,14 +24,11 @@ const emit = defineEmits([
     <FilterDropdownSection
       mode="search"
       :dealType="props.dealType"
-      :deposit="props.deposit"
-      :monthly="props.monthly"
       :region-data="props.regionData"
       :region="props.region"
       @update:dealType="val => emit('update:dealType', val)"
-      @update:deposit="val => emit('update:deposit', val)"
-      @update:monthly="val => emit('update:monthly', val)"
       @update:region="val => emit('update:region', val)"
+      @filterCompleted="() => emit('filterCompleted')"
     />
 
     <FilterSecureOption
