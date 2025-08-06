@@ -68,7 +68,7 @@ const searchAddressByCoords = (latitude, longitude) => {
 
 onMounted(() => {
   if (window.kakao && window.kakao.maps) {
-    kakao.maps.load(() => {
+    window.kakao.maps.load(() => {
       isKakaoApiReady.value = true
 
       if (navigator.geolocation) {
