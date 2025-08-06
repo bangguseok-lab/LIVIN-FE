@@ -43,7 +43,7 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    // 역할 변경 (예비임차인 ↔ 임차인)
+    // 역할 변경 (임대인 ↔ 임차인)
     async changeRole(newRole) {
       this.loading = true
       this.error = null
