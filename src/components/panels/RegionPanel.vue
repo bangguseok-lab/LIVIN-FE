@@ -1,7 +1,8 @@
 <script setup>
 import RegionSelector from './RegionSelector.vue'
 import Buttons from '../common/buttons/Buttons.vue'
-import { defineProps, defineEmits, watch } from 'vue'
+import { defineProps, defineEmits } from 'vue'
+// import { watch } from 'vue'
 
 // 지역 리스트는 props로 받고, 선택된 결과만 emit
 const props = defineProps({
@@ -29,21 +30,24 @@ const handleRegionUpdate = region => {
 }
 
 function complete_btn_handler() {
-  props.selectedRegion.final = true
+  const updatedRegion = { ...props.selectedRegion, final: true }
   // console.log('selectedRegion: ', props.selectedRegion)
-  emit('updateRegion', props.selectedRegion)
+  emit('updateRegion', updatedRegion)
+  emit('filterCompleted') // 선택이 완료되었다는 이벤트를 emit
 }
 
 function cancel_btn_handler() {
-  props.selectedRegion.final = false
-  props.selectedRegion.city = null
-  props.selectedRegion.district = null
-  props.selectedRegion.parish = null
+  const resetRegion = {
+    city: null,
+    district: null,
+    parish: null,
+    final: false,
+  }
   // console.log('selectedRegion: ', props.selectedRegion)
-  emit('updateRegion', props.selectedRegion)
+  emit('updateRegion', resetRegion)
 }
 
-// ✅ selectedRegion 값이 바뀔 때마다 로그 찍기
+// selectedRegion 값이 바뀔 때마다 로그 찍기
 // watch(
 //   () => props.selectedRegion,
 //   val => {
