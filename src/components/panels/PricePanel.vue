@@ -6,78 +6,24 @@ import { FreeMode, Pagination } from 'swiper/modules'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
 import 'swiper/css'
-import { defineProps } from 'vue'
+
+import { usePriceStore } from '@/stores/priceStore'
 
 const modules = [FreeMode, Pagination]
+const priceStore = usePriceStore()
 
-// 이벤트 emit 정의
-const emit = defineEmits([
-  'update:jeonseDeposit',
-  'update:monthlyDeposit',
-  'update:monthlyRent',
-])
-
-// 부모로부터 받은 props
-const props = defineProps({
-  isActive: Boolean,
-  jeonseDeposit: Object, // 전세 보증금
-  monthlyDeposit: Object, // 월세 보증금
-  monthlyRent: Object, // 월세
-})
-
-// 가격대 리스팅
-// 전세 보증금 (6천만 ~ 9억)
-const jeonseList = [
-  6000, 7000, 8000, 9000, 10000, 20000, 30000, 40000, 50000, 60000, 70000,
-  80000, 90000,
-]
-const paddedJeonseList = ['-', ...jeonseList, '+']
-
-// 월세 보증금 (6천만 ~ 9억) → 동일한 구조라면 재사용 가능
-const monthlyDepositList = [
-  500, 1000, 2000, 3000, 5000, 7000, 10000, 15000, 20000, 30000, 50000, 70000,
-  100000,
-]
-const paddedMonthlyDepositList = ['-', ...monthlyDepositList, '+']
-
-// 월세 (10만 ~ 60만)
-const monthlyRentList = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400]
-const paddedMonthlyRentList = ['-', ...monthlyRentList, '+']
-
-/* 보증금 범위가 변경되었을 때 상위로 전달 @param {Object} range - { min, max }*/
-const handleJeonseDeposit = range => {
-  range.final = false
-  emit('update:jeonseDeposit', range)
-}
-
-const handleMonthlyDeposit = range => {
-  range.final = false
-  emit('update:monthlyDeposit', range)
-}
-/*월세 범위가 변경되었을 때 상위로 전달 @param {Object} range - { min, max }*/
-const handleMonthlyRent = range => {
-  range.final = false
-  emit('update:monthlyRent', range)
-}
+const emit = defineEmits(['filterCompleted'])
 
 function complete_btn_handler() {
-  if (props.jeonseDeposit) {
-    emit('update:jeonseDeposit', { ...props.jeonseDeposit, final: true })
-  }
-  if (props.monthlyDeposit) {
-    emit('update:monthlyDeposit', { ...props.monthlyDeposit, final: true })
-  }
-  if (props.monthlyRent) {
-    emit('update:monthlyRent', { ...props.monthlyRent, final: true })
-  }
-
+  console.log('[PricePanel] 완료 클릭 - 현재 선택값 ↓')
+  console.log('전세 보증금:', priceStore.states.jeonseDeposit)
+  console.log('월세 보증금:', priceStore.states.monthlyDeposit)
+  console.log('월세:', priceStore.states.monthlyRent)
   emit('filterCompleted')
 }
 
 function cancel_btn_handler() {
-  emit('update:jeonseDeposit', { min: null, max: null, final: false })
-  emit('update:monthlyDeposit', { min: null, max: null, final: false })
-  emit('update:monthlyRent', { min: null, max: null, final: false })
+  priceStore.resetAll()
 }
 </script>
 
@@ -89,49 +35,88 @@ function cancel_btn_handler() {
       :slides-per-view="1"
       class="price-swiper"
     >
+      <!-- 전세 보증금 범위 선택 패널 -->
       <swiper-slide>
-        <!-- 전세 보증금 범위 선택 패널 -->
         <RangeSelector
-          :key="JSON.stringify(jeonseDeposit)"
           title="전세 보증금"
           description="최소 금액과 최대 금액을 순서대로 선택해주세요."
           class="element1"
-          :numberList="paddedJeonseList"
-          :initialMin="jeonseDeposit?.min ?? null"
-          :initialMax="jeonseDeposit?.max ?? null"
-          :visible="isActive"
-          @updateRange="handleJeonseDeposit"
+          :numberList="[
+            '-',
+            6000,
+            7000,
+            8000,
+            9000,
+            10000,
+            20000,
+            30000,
+            40000,
+            50000,
+            60000,
+            70000,
+            80000,
+            90000,
+            '+',
+          ]"
+          type="jeonseDeposit"
         />
       </swiper-slide>
+
+      <!-- 월세 보증금 범위 선택 패널 -->
       <swiper-slide>
-        <!-- 월세 보증금 범위 선택 패널 -->
         <RangeSelector
-          :key="JSON.stringify(monthlyDeposit)"
           title="월세 보증금"
           description="최소 금액과 최대 금액을 순서대로 선택해주세요."
           class="element1"
-          :numberList="paddedMonthlyDepositList"
-          :initialMin="monthlyDeposit?.min ?? null"
-          :initialMax="monthlyDeposit?.max ?? null"
-          :visible="isActive"
-          @updateRange="handleMonthlyDeposit"
+          :numberList="[
+            '-',
+            500,
+            1000,
+            2000,
+            3000,
+            5000,
+            7000,
+            10000,
+            15000,
+            20000,
+            30000,
+            50000,
+            70000,
+            100000,
+            '+',
+          ]"
+          type="monthlyDeposit"
         />
       </swiper-slide>
+
       <!-- 월세 범위 선택 패널 -->
       <swiper-slide>
         <RangeSelector
-          :key="JSON.stringify(monthlyRent)"
           title="월세"
           description="최소 금액과 최대 금액을 순서대로 선택해주세요."
           class="element2"
-          :numberList="paddedMonthlyRentList"
-          :initialMin="monthlyRent?.min ?? null"
-          :initialMax="monthlyRent?.max ?? null"
-          :visible="isActive"
-          @updateRange="handleMonthlyRent"
+          :numberList="[
+            '-',
+            10,
+            20,
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100,
+            200,
+            300,
+            400,
+            '+',
+          ]"
+          type="monthlyRent"
         />
       </swiper-slide>
     </swiper>
+
     <!-- 필터 적용 버튼 -->
     <div class="region-btn-section">
       <Buttons
