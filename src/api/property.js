@@ -13,7 +13,6 @@ export default {
 
   async getPropertyDetails(propertyId) {
     const { data } = await apiClient.get(`/properties/details/${propertyId}`)
-    console.log(data)
     return data
   },
   async addFavoriteProperty(propertyId) {

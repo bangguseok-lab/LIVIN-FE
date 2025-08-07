@@ -34,7 +34,7 @@ const goToLogin = () => {
       </p>
       <div class="hero-image-wrapper">
         <img
-          src="@/assets/images/landing/HeroImage.png"
+          src="@/assets/images/landing/main-mockup.png"
           alt="Hero Image"
           class="hero-image"
         />
@@ -127,7 +127,9 @@ const goToLogin = () => {
   width: 100%;
   min-height: 100vh;
   font-size: 1rem;
-  background-color: var(--primary-color);
+  // background-color: var(--primary-color);
+  background: #7dcdc3;
+  background: radial-gradient(circle, #7dcdc3 75%, var(--primary-color) 100%);
   color: var(--black);
   position: relative;
   margin: 0 auto;
@@ -135,36 +137,37 @@ const goToLogin = () => {
 
 /* Hero section */
 .hero-section {
+  height: 90vh;
   text-align: center;
   margin-bottom: 3rem;
 }
 .hero-title {
-  margin-top: 3rem;
+  margin-top: 3.25rem;
   color: var(--white);
   font-weight: var(--font-weight-bold);
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   // -webkit-text-stroke: 0.4px var(--white);
 }
 .hero-highlight {
-  color: var(--pink);
-  font-weight: var(--font-weight-bold);
+  color: var(--green);
+  font-weight: var(--font-weight-lg);
 }
 .hero-logo {
-  height: 20px;
+  height: 17px;
 }
 .hero-description {
   color: var(--white);
-  font-size: 1rem;
-  margin-top: 3rem;
+  font-size: 0.8rem;
+  margin-top: 1.8rem;
   font-weight: var(--font-weight-light);
   line-height: 1.5;
 }
 .hero-image-wrapper {
-  margin-top: 3.5rem;
+  margin-top: 2rem;
   margin-bottom: 4rem;
 }
 .hero-image {
-  width: 200px;
+  width: 210px;
 }
 
 /* Problem Section */
