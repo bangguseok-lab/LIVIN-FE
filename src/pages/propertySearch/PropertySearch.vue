@@ -5,6 +5,7 @@ import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
 import { usePropertyStore } from '@/stores/property'
 import { storeToRefs } from 'pinia'
+import districtData from '@/assets/data/district.json'
 
 const dealType = ref([])
 const jeonseDeposit = ref({ min: null, max: null }) // 전세 보증금
@@ -17,15 +18,7 @@ const propertyStore = usePropertyStore()
 const { address } = storeToRefs(propertyStore)
 
 // 예시 더미 데이터
-const dummyDistricts = [
-  { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '역삼동' },
-  { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '삼성동' },
-  { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '서교동' },
-  { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '합정동' },
-  { sido: '부산광역시', sigungu: '해운대구', eupmyeondong: '우동' },
-  { sido: '부산광역시', sigungu: '해운대구', eupmyeondong: '중동' },
-  { sido: '부산광역시', sigungu: '수영구', eupmyeondong: '광안동' },
-]
+const dummyDistricts = districtData
 
 onMounted(() => {
   // fallback 안전처리
