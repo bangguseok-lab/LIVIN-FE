@@ -15,13 +15,14 @@ const props = defineProps({ modelValue: Boolean })
 const images = [test1, test2, test3, test4, test5, test6]
 const selectedIndex = ref(null)
 
+// 선택된 이미지 숫자 반환
 const selectImage = index => {
   selectedIndex.value = index
 }
 
 const confirmChange = () => {
   if (selectedIndex.value !== null) {
-    emit('change', images[selectedIndex.value])
+    emit('change', selectedIndex.value + 1)   // 이미지의 번호만 부모 컴포넌트로 넘겨줌
   }
   emit('update:modelValue', false)
 }
