@@ -1,20 +1,22 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import axios from 'axios'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
-import { usePropertyStore } from '@/stores/property'
-import { storeToRefs } from 'pinia'
+import { usePriceStore } from '@/stores/priceStore'
+
+const priceStore = usePriceStore()
 
 const dealType = ref([])
-const jeonseDeposit = ref({ min: null, max: null }) // 전세 보증금
-const monthlyDeposit = ref({ min: null, max: null }) // 월세 보증금
-const monthlyRent = ref({ min: null, max: null }) // 월세
 const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null })
 const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
-const propertyStore = usePropertyStore()
-const { address } = storeToRefs(propertyStore)
+
+const address = ref({
+  sido: sessionStorage.getItem('sido') || '서울특별시',
+  sigungu: sessionStorage.getItem('sigungu') || '강남구',
+  eupmyendong: sessionStorage.getItem('eupmyendong') || '논현동',
+})
 
 // 예시 더미 데이터
 const dummyDistricts = [
@@ -38,6 +40,7 @@ onMounted(() => {
     address.value?.sido && address.value?.sigungu
       ? address.value
       : fallbackAddress
+
   // region 초기화
   region.value.city = currentAddress.sido
   region.value.district = currentAddress.sigungu
@@ -46,6 +49,7 @@ onMounted(() => {
   fetchProperties()
 })
 
+// 지역 선택 옵션 계산
 const regionData = computed(() => {
   const cities = [...new Set(dummyDistricts.map(d => d.sido))].map(name => ({
     code: name,
@@ -77,6 +81,7 @@ const regionData = computed(() => {
   }
 })
 
+// 지역 변경 핸들러
 function handleRegionUpdate(updatedRegion) {
   region.value = updatedRegion
 }
@@ -85,12 +90,12 @@ function handleRegionUpdate(updatedRegion) {
 function fetchProperties() {
   const params = {
     dealType: dealType.value,
-    jeonseDepositMin: jeonseDeposit.value.min,
-    jeonseDepositMax: jeonseDeposit.value.max,
-    monthlyDepositMin: monthlyDeposit.value.min,
-    monthlyDepositMax: monthlyDeposit.value.max,
-    monthlyRentMin: monthlyRent.value.min,
-    monthlyRentMax: monthlyRent.value.max,
+    jeonseDepositMin: priceStore.states.jeonseDeposit.min,
+    jeonseDepositMax: priceStore.states.jeonseDeposit.max,
+    monthlyDepositMin: priceStore.states.monthlyDeposit.min,
+    monthlyDepositMax: priceStore.states.monthlyDeposit.max,
+    monthlyRentMin: priceStore.states.monthlyRent.min,
+    monthlyRentMax: priceStore.states.monthlyRent.max,
     sido: region.value.city,
     sigungu: region.value.district,
     eupmyendong: region.value.parish,
@@ -98,9 +103,12 @@ function fetchProperties() {
     limit: 20,
   }
 
+  console.log('[fetchProperties] 요청 params:', params)
+
   axios
     .get('/api/properties', { params })
     .then(res => {
+      console.log('[fetchProperties] 요청 URL:', res.config.url)
       console.log('매물 결과:', res.data)
       propertyList.value = res.data
     })
@@ -135,16 +143,10 @@ function fetchProperties() {
     <div class="filtering">
       <Filtering
         :deal-type="dealType"
-        :jeonse-deposit="jeonseDeposit"
-        :monthly-deposit="monthlyDeposit"
-        :monthly-rent="monthlyRent"
         :only-secure="onlySecure"
         :region="region"
         :region-data="regionData"
         @update:dealType="val => (dealType.value = val)"
-        @update:jeonseDeposit="val => (jeonseDeposit.value = val)"
-        @update:monthlyDeposit="val => (monthlyDeposit.value = val)"
-        @update:monthlyRent="val => (monthlyRent.value = val)"
         @update:onlySecure="val => (onlySecure.value = val)"
         @update:region="handleRegionUpdate"
         @filterCompleted="fetchProperties"
@@ -158,19 +160,27 @@ function fetchProperties() {
       <PropertyCard
         v-for="item in propertyList"
         :key="item.propertyId"
+        :propertyId="item.propertyId"
+        :transactionType="item.transactionType"
         :price="
           item.transactionType === 'JEONSE'
             ? item.jeonseDeposit
             : item.monthlyDeposit
         "
+        :monthlyRent="
+          item.transactionType === 'JEONSE' ? null : item.monthlyRent
+        "
+        :propertyType="item.propertyType"
         :title="item.name"
-        :area="item.exclusiveAreaM2"
+        :detailAddress="item.detailAddress"
+        :exclusiveArea="item.exclusiveAreaM2"
         :supplyArea="item.supplyAreaM2"
         :floor="item.floor"
         :totalFloors="item.totalFloors"
         :direction="item.mainDirection"
         :address="item.roadAddress"
-        :isWished="item.isFavorite"
+        :isFavorite="item.isFavorite"
+        :isSafe="item.isSafe"
       />
     </div>
   </div>
