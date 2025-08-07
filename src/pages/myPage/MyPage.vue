@@ -110,15 +110,9 @@ const manageButton = computed(() => {
       title: '내 매물 관리하기',
       desc: '내가 올린 매물을 확인하고 관리해요',
     }
-      title: '내 매물 관리하기',
-    desc: '내가 올린 매물을 확인하고 관리해요',
-    }
     : {
-  title: '나만의 체크리스트 관리하기',
-    desc: '내가 찾는 집을 위한',
-    }
-title: '나만의 체크리스트 관리하기',
-  desc: '내가 찾는 집을 위한',
+      title: '나만의 체크리스트 관리하기',
+      desc: '내가 찾는 집을 위한',
     }
 })
 
@@ -242,7 +236,7 @@ onMounted(async () => {
           role === 'LANDLORD' ? '나의 매물 관리' : '나의 체크리스트 관리'
         }}
       </h2>
-      <Buttons v-if="user.type === '임대인'" type="xl" @click="handleManageClick('내 매물 등록하기')" class="create-property-btn">
+      <Buttons v-if="role === 'LANDLORD'" type="xl" @click="handleManageClick('내 매물 등록하기')" class="create-property-btn">
         <div class="top-text">나의 매물을 등록하고 싶어요</div>
         <div class="bottom-text">내 매물 등록하기</div>
       </Buttons>
