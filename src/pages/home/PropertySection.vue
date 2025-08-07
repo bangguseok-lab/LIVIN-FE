@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import { defineProps } from 'vue'
+import { defineProps, onMounted } from 'vue'
 
 const props = defineProps({
   properties: {
@@ -8,6 +8,9 @@ const props = defineProps({
     required: true,
     default: () => [],
   },
+})
+onMounted(() => {
+  console.log(props.properties)
 })
 </script>
 <template>
@@ -22,10 +25,7 @@ const props = defineProps({
       <div class="row-box" v-for="p in props.properties">
         <div class="row-title board-text-box">{{ p.name }}</div>
         <small class="sm-text-box">
-          <router-link
-            :to="`/search/detail/${p.propertiesId}`"
-            class="router-text"
-          >
+          <router-link :to="`/property/${p.propertyId}`" class="router-text">
             자세히 보기
           </router-link>
         </small>
