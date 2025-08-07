@@ -24,7 +24,9 @@ const handleClick = () => {
   // 부동산 고유번호가 비어있지 않을 때
   if (propertyNumValue.value !== '') {
     propertyStore.updateNewProperty('propertyNum', propertyNumValue.value);
-    router.push({ name: 'propertyNumConfirm' })
+    router.push({ name: 'propertyNumberConfirm' })
+  } else {
+    alert('부동산 고유번호를 입력해주세요')
   }
 }
 </script>

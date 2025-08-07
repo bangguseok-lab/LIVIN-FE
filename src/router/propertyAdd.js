@@ -28,7 +28,7 @@ export default [
         },
       },
       {
-        path: 'property/number',
+        path: 'number',
         component: () => import('@/pages/propertyAdd/AddPropertyNumPage.vue'),
         name: 'propertyNum',
         meta: {
@@ -39,10 +39,10 @@ export default [
         },
       },
       {
-        path: 'property/number/confirm',
+        path: 'number/confirm',
         component: () =>
           import('@/pages/propertyAdd/PropertyNumConfirmPage.vue'),
-        name: 'propertyNumConfirm',
+        name: 'propertyNumberConfirm',
         meta: {
           title: '부동산 고유번호 조회가 완료되었습니다',
           subTitle: '부동산 정보와 회원정보가 일치하는지 확인해주세요',
