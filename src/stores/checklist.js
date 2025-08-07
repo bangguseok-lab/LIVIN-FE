@@ -6,6 +6,7 @@ export const useChecklistStore = defineStore('checklist', {
   state: () => ({
     checklists: [],
     currentChecklist: null,
+    currentChecklistItems: [],
     loading: false,
     error: null,
   }),
@@ -27,7 +28,18 @@ export const useChecklistStore = defineStore('checklist', {
     async loadChecklist(id) {
       this.loading = true
       try {
-        this.currentChecklist = await checklistAPI.fetchChecklistById(id)
+        const checklistDetail = await checklistAPI.fetchChecklistById(id)
+        this.currentChecklist = {
+          id: checklistDetail.checklistId,
+          title: checklistDetail.title,
+          description: checklistDetail.description,
+          type: checklistDetail.type,
+          createdAt: checklistDetail.createdAt,
+          updatedAt: checklistDetail.updatedAt,
+        }
+        this.currentChecklistItems = checklistDetail.items
+          ? Object.values(checklistDetail.items).flat()
+          : []
       } catch (err) {
         this.error = err
       } finally {
@@ -40,6 +52,7 @@ export const useChecklistStore = defineStore('checklist', {
       try {
         const newChecklist = await checklistAPI.createChecklist(payload)
         this.checklists.push(newChecklist)
+        return newChecklist
       } catch (err) {
         this.error = err
       }
@@ -51,6 +64,7 @@ export const useChecklistStore = defineStore('checklist', {
         const updated = await checklistAPI.editChecklist(id, payload)
         const index = this.checklists.findIndex(c => c.id === id)
         if (index !== -1) this.checklists[index] = updated
+        this.currentChecklist = updated
       } catch (err) {
         this.error = err
       }
@@ -87,11 +101,10 @@ export const useChecklistStore = defineStore('checklist', {
     },
 
     // 체크리스트 항목 수정
-    async updateChecklistItem(id, itemId, payload) {
+    async updateChecklistItem(checklistId, payload) {
       try {
         const updated = await checklistAPI.editMyChecklistItem(
-          id,
-          itemId,
+          checklistId,
           payload,
         )
         this.currentChecklist = updated

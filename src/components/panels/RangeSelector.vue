@@ -1,5 +1,7 @@
 <script setup>
-import { ref, defineProps, watch } from 'vue'
+import { computed } from 'vue'
+import { defineProps } from 'vue'
+import { usePriceStore } from '@/stores/priceStore'
 
 // props 정의
 const props = defineProps({
@@ -16,20 +18,37 @@ const props = defineProps({
     required: true,
     default: () => Array.from({ length: 15 }, (_, i) => i + 1),
   },
-  initialMin: Number,
-  initialMax: Number,
+  type: {
+    type: String, // 'jeonseDeposit' | 'monthlyDeposit' | 'monthlyRent'
+    required: true,
+  },
 })
 
-// emit 정의
-const emit = defineEmits(['updateRange'])
+// store 연결
+const priceStore = usePriceStore()
 
-// 내부 상태
-const min = ref(props.initialMin ?? null)
-const max = ref(props.initialMax ?? null)
+console.log('[RangeSelector] props.type:', props.type)
+console.log('[RangeSelector] priceStore.states:', priceStore.states)
+// 현재 선택된 범위
+const selectedRange = computed(() => {
+  const selected =
+    props.type === 'jeonseDeposit'
+      ? priceStore.states.jeonseDeposit
+      : props.type === 'monthlyDeposit'
+        ? priceStore.states.monthlyDeposit
+        : props.type === 'monthlyRent'
+          ? priceStore.states.monthlyRent
+          : undefined
+
+  if (selected === undefined) {
+    console.warn(`[RangeSelector] 잘못된 type 전달됨: "${props.type}"`)
+  }
+  return selected ?? { min: null, max: null }
+})
 
 // 숫자 포맷 함수
 function formatNumber(num, index) {
-  const isLast = index === props.numberList.length - 1
+  // const isLast = index === props.numberList.length - 1
   if (num >= 10000) {
     return num % 10000 === 0
       ? `${num / 10000}억`
@@ -41,52 +60,43 @@ function formatNumber(num, index) {
   }
 }
 
+function formatDisplay(num) {
+  const title = props.title
+
+  if (num === '-') {
+    if (title === '월세') return '10만원 이하'
+    if (title === '월세 보증금') return '500만원 이하'
+    return '5천 이하'
+  }
+
+  if (num === '+') {
+    return '10억 이상' // 모두 공통
+  }
+  return formatNumber(num)
+}
+
 // 버튼 클릭 핸들러
 function handleClick(num) {
-  if (num === min.value || num === max.value) return
-  if (min.value === null) {
-    min.value = num
-  } else if (max.value === null) {
-    if (num < min.value) {
-      max.value = min.value
-      min.value = num
-    } else {
-      max.value = num
-    }
-  } else {
-    min.value = num
-    max.value = null
+  if (num === '-') num = 0
+  if (num === '+') num = 9999999
+
+  if (props.type === 'jeonseDeposit') {
+    priceStore.selectJeonseDeposit(num)
+  } else if (props.type === 'monthlyDeposit') {
+    priceStore.selectMonthlyDeposit(num)
+  } else if (props.type === 'monthlyRent') {
+    priceStore.selectMonthlyRent(num)
   }
 }
 
-// min/max 변경 시 부모에 emit
-watch([min, max], () => {
-  emit('updateRange', { min: min.value, max: max.value })
-  // console.log(
-  //   `[RangeSelector] 선택된 범위: min = ${min.value}, max = ${max.value}`,
-  // )
-})
-
-// props 변경 시 내부 상태 반영
-watch(
-  () => [props.initialMin, props.initialMax],
-  ([newMin, newMax]) => {
-    min.value = newMin
-    max.value = newMax
-    // console.log('[RangeSelector] initial 값으로 갱신됨:', newMin, newMax)
-  },
-  { immediate: true },
-)
-
-// 버튼 스타일 반환
+// 버튼 스타일 클래스
 function getButtonClass(num) {
-  if (num === min.value || num === max.value) return 'btn selected'
-  if (
-    min.value !== null &&
-    max.value !== null &&
-    num > min.value &&
-    num < max.value
-  )
+  const { min, max } = selectedRange.value || { min: null, max: null }
+
+  if (num === '-' && min === 0) return 'btn selected'
+  if (num === '+' && max === 9999999) return 'btn selected'
+  if (num === min || num === max) return 'btn selected'
+  if (min !== null && max !== null && num > min && num < max)
     return 'btn in-range'
   return 'btn'
 }
@@ -108,18 +118,30 @@ function getButtonClass(num) {
         :class="getButtonClass(num)"
         @click="handleClick(num)"
       >
-        {{ formatNumber(num, idx) }}
+        {{ formatDisplay(num) }}
       </button>
     </div>
 
     <!-- 선택된 최소/최대 값 표시 영역 -->
     <div class="result">
-      <button :disabled="!min" class="display-btn">
-        {{ min !== null ? formatNumber(min, numberList.indexOf(min)) : '최소' }}
+      <button class="display-btn" :disabled="selectedRange.min == null">
+        {{
+          selectedRange.min === 0
+            ? formatDisplay('-')
+            : selectedRange.min !== null
+              ? formatNumber(selectedRange.min)
+              : '최소'
+        }}
       </button>
       <span>~</span>
-      <button :disabled="!max" class="display-btn">
-        {{ max !== null ? formatNumber(max, numberList.indexOf(max)) : '최대' }}
+      <button class="display-btn" :disabled="selectedRange.max == null">
+        {{
+          selectedRange.max === 9999999
+            ? formatDisplay('+')
+            : selectedRange.max !== null
+              ? formatNumber(selectedRange.max)
+              : '최대'
+        }}
       </button>
     </div>
   </div>

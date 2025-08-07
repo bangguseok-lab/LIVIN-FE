@@ -60,7 +60,7 @@ function goToDetail(id) {
         v-for="(checklist, index) in checklists"
         :key="index"
         class="d-flex align-items-center py-3 border-bottom"
-        @click="goToDetail(checklist.id)"
+        @click="goToDetail(checklist.checklistId)"
         style="cursor: pointer"
       >
         <div
