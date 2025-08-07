@@ -4,7 +4,7 @@ import axios from 'axios'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
 import { usePropertyStore } from '@/stores/property'
-import { storeToRefs } from 'pinia'
+// import { storeToRefs } from 'pinia'
 import districtData from '@/assets/data/district.json'
 
 const dealType = ref([])
@@ -14,8 +14,11 @@ const monthlyRent = ref({ min: null, max: null }) // 월세
 const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null })
 const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
-const propertyStore = usePropertyStore()
-const { address } = storeToRefs(propertyStore)
+// const propertyStore = usePropertyStore()
+// const { address } = storeToRefs(propertyStore)
+const sido = sessionStorage.getItem('sido')
+const sigungu = sessionStorage.getItem('sigungu')
+const eupmyendong = sessionStorage.getItem('eupmyendong')
 
 // 예시 더미 데이터
 const dummyDistricts = districtData
@@ -28,8 +31,8 @@ onMounted(() => {
     eupmyendong: '논현동',
   }
   const currentAddress =
-    address.value?.sido && address.value?.sigungu
-      ? address.value
+    sido && sigungu
+      ? sido + sigungu
       : fallbackAddress
   // region 초기화
   region.value.city = currentAddress.sido
@@ -107,18 +110,11 @@ function fetchProperties() {
     <div class="guide">
       <!-- 현재 위치 -->
       <div class="location">
-        <span class="marker"
-          ><img
-            src="@/assets/images/search/marker.svg"
-            alt="위치 아이콘"
-            class="marker-icon"
-        /></span>
+        <span class="marker"><img src="@/assets/images/search/marker.svg" alt="위치 아이콘" class="marker-icon" /></span>
         <span>
           현재
-          <span class="highlight"
-            >{{ address.sido }} {{ address.sigungu }}
-            {{ address.eupmyendong || '' }}</span
-          >에 있어요
+          <span class="highlight">{{ sido }} {{ sigungu }}
+            {{ eupmyendong || '' }}</span>에 있어요
         </span>
       </div>
       <!-- 타이틀 -->
@@ -126,45 +122,24 @@ function fetchProperties() {
     </div>
 
     <div class="filtering">
-      <Filtering
-        :deal-type="dealType"
-        :jeonse-deposit="jeonseDeposit"
-        :monthly-deposit="monthlyDeposit"
-        :monthly-rent="monthlyRent"
-        :only-secure="onlySecure"
-        :region="region"
-        :region-data="regionData"
-        @update:dealType="val => (dealType.value = val)"
-        @update:jeonseDeposit="val => (jeonseDeposit.value = val)"
+      <Filtering :deal-type="dealType" :jeonse-deposit="jeonseDeposit" :monthly-deposit="monthlyDeposit"
+        :monthly-rent="monthlyRent" :only-secure="onlySecure" :region="region" :region-data="regionData"
+        @update:dealType="val => (dealType.value = val)" @update:jeonseDeposit="val => (jeonseDeposit.value = val)"
         @update:monthlyDeposit="val => (monthlyDeposit.value = val)"
-        @update:monthlyRent="val => (monthlyRent.value = val)"
-        @update:onlySecure="val => (onlySecure.value = val)"
-        @update:region="handleRegionUpdate"
-        @filterCompleted="fetchProperties"
-      />
+        @update:monthlyRent="val => (monthlyRent.value = val)" @update:onlySecure="val => (onlySecure.value = val)"
+        @update:region="handleRegionUpdate" @filterCompleted="fetchProperties" />
     </div>
 
     <!-- 매물 리스트 -->
     <div class="property-list">
       <!-- 매물 카드 컴포넌트 -->
       <!-- 부모에서 이렇게 바꿔줘야 함 -->
-      <PropertyCard
-        v-for="item in propertyList"
-        :key="item.propertyId"
-        :price="
-          item.transactionType === 'JEONSE'
-            ? item.jeonseDeposit
-            : item.monthlyDeposit
-        "
-        :title="item.name"
-        :area="item.exclusiveAreaM2"
-        :supplyArea="item.supplyAreaM2"
-        :floor="item.floor"
-        :totalFloors="item.totalFloors"
-        :direction="item.mainDirection"
-        :address="item.roadAddress"
-        :isWished="item.isFavorite"
-      />
+      <PropertyCard v-for="item in propertyList" :key="item.propertyId" :price="item.transactionType === 'JEONSE'
+        ? item.jeonseDeposit
+        : item.monthlyDeposit
+        " :title="item.name" :area="item.exclusiveAreaM2" :supplyArea="item.supplyAreaM2" :floor="item.floor"
+        :totalFloors="item.totalFloors" :direction="item.mainDirection" :address="item.roadAddress"
+        :isWished="item.isFavorite" />
     </div>
   </div>
 </template>
