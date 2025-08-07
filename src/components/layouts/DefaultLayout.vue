@@ -31,7 +31,10 @@ const visableNav = [
   'propertiesManagement',
   'favorite',
   'checklist',
-  'checkPropertyList',
+  'checklistDetail',
+  'propertyfav',
+  'checklist',
+  'checklistCreate',
   'mypage',
 ]
 
