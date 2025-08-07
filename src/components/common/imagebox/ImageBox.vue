@@ -4,7 +4,7 @@ import SafeBadgeIcon from '@/assets/icons/badge/badge.svg'
 
 const props = defineProps({
   image: String,
-  selected: Boolean,
+  selected: Boolean,  // 현재 선택된 이미지인지 여부
   alt: {
     type: String,
     default: '이미지',
@@ -30,17 +30,9 @@ const handleClick = () => {
 
 <template>
   <div class="ImageBox" :class="typeClass" @click="handleClick">
-    <img
-      v-if="props.type === 'listing-safe'"
-      class="badge-icon"
-      :src="SafeBadgeIcon"
-      alt="안심매물 배지"
-    />
+    <img v-if="props.type === 'listing-safe'" class="badge-icon" :src="SafeBadgeIcon" alt="안심매물 배지" />
 
-    <div
-      class="image-wrapper"
-      :class="{ selected: props.selected && props.type === 'profile' }"
-    >
+    <div class="image-wrapper" :class="{ selected: props.selected && props.type === 'profile' }">
       <img :src="image" :alt="alt" />
     </div>
   </div>
