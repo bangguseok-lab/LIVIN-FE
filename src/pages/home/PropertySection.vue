@@ -9,9 +9,6 @@ const props = defineProps({
     default: () => [],
   },
 })
-onMounted(() => {
-  console.log(props.properties)
-})
 </script>
 <template>
   <div class="property-box">
