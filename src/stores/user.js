@@ -89,14 +89,15 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    // 프로필 이미지 업로드
-    async uploadProfileImage(file) {
+    // 프로필 이미지 업로드, 변경하려는 이미지 숫자를 받아옴
+    async uploadProfileImage(imgNumber) {
       this.loading = true
       this.error = null
       try {
-        const imageUrl = await userAPI.uploadProfileImage(file)
+        await userAPI.uploadProfileImage(imgNumber)
+
         if (this.userInfo) {
-          this.userInfo.profileImageUrl = imageUrl
+          this.userInfo.data.profileImage = imgNumber
         }
       } catch (err) {
         this.error = err

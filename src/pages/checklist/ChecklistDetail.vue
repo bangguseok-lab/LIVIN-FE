@@ -116,6 +116,11 @@ const updateChecklistInfo = async ({ title, description }) => {
   await nextTick() // 렌더링 완료 후
   location.reload()
 }
+
+async function gotoChecklist() {
+  alert('적용되었습니다')
+  router.push('/checklist')
+}
 </script>
 
 <template>
@@ -159,7 +164,7 @@ const updateChecklistInfo = async ({ title, description }) => {
       <h5 class="fw-bold">
         건물 컨디션
         <button
-          @click="() => openModal('방 컨디션', 'BUILDING')"
+          @click="() => openModal('건물 컨디션', 'BUILDING')"
           class="add-img"
         >
           <img src="@/assets/add-btn.svg" />
@@ -177,7 +182,10 @@ const updateChecklistInfo = async ({ title, description }) => {
 
       <h5 class="fw-bold">
         주변 인프라
-        <button @click="() => openModal('방 컨디션', 'INFRA')" class="add-img">
+        <button
+          @click="() => openModal('주변 인프라', 'INFRA')"
+          class="add-img"
+        >
           <img src="@/assets/add-btn.svg" />
         </button>
       </h5>
@@ -242,7 +250,7 @@ const updateChecklistInfo = async ({ title, description }) => {
         </span>
       </div>
       <div class="footer-btn">
-        <button class="edit-btn" @click="goToEditItems">수정하기</button>
+        <button class="edit-btn" @click="gotoChecklist">적용하기</button>
       </div>
     </section>
   </div>
