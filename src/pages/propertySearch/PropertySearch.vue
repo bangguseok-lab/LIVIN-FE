@@ -6,6 +6,7 @@ import PropertyCard from '@/components/cards/PropertyCard.vue'
 import { usePriceStore } from '@/stores/priceStore'
 
 const priceStore = usePriceStore()
+import districtData from '@/assets/data/district.json'
 
 const dealType = ref([])
 const onlySecure = ref(false)
@@ -19,15 +20,7 @@ const address = ref({
 })
 
 // 예시 더미 데이터
-const dummyDistricts = [
-  { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '역삼동' },
-  { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '삼성동' },
-  { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '서교동' },
-  { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '합정동' },
-  { sido: '부산광역시', sigungu: '해운대구', eupmyeondong: '우동' },
-  { sido: '부산광역시', sigungu: '해운대구', eupmyeondong: '중동' },
-  { sido: '부산광역시', sigungu: '수영구', eupmyeondong: '광안동' },
-]
+const dummyDistricts = districtData
 
 onMounted(() => {
   // fallback 안전처리
