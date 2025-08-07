@@ -159,7 +159,7 @@ const updateChecklistInfo = async ({ title, description }) => {
       <h5 class="fw-bold">
         건물 컨디션
         <button
-          @click="() => openModal('방 컨디션', 'BUILDING')"
+          @click="() => openModal('건물 컨디션', 'BUILDING')"
           class="add-img"
         >
           <img src="@/assets/add-btn.svg" />
@@ -177,7 +177,10 @@ const updateChecklistInfo = async ({ title, description }) => {
 
       <h5 class="fw-bold">
         주변 인프라
-        <button @click="() => openModal('방 컨디션', 'INFRA')" class="add-img">
+        <button
+          @click="() => openModal('주변 인프라', 'INFRA')"
+          class="add-img"
+        >
           <img src="@/assets/add-btn.svg" />
         </button>
       </h5>
