@@ -12,10 +12,13 @@ import defaultProfileImage from '@/assets/images/profile/test-img.svg'
 
 const router = useRouter()
 const userStore = useUserStore()
-const nickname = computed(() => userStore.getNickname)
+const { userInfo } = storeToRefs(userStore)
+const nickname = computed(() => userInfo.value?.data?.nickname || '닉네임')
+const name = computed(() => userInfo.value?.data?.name || '이름')
+const birth = computed(() => userInfo.value?.data?.birth || '생년월일')
+const phoneNumber = computed(() => userInfo.value?.data?.phoneNumber || '전화번호')
 
 // Store의 상태를 직접 참조 (반응성을 유지하기 위해 storeToRefs 사용)
-const { userInfo } = storeToRefs(userStore)
 const profileImage = ref(defaultProfileImage)
 
 const editingField = ref(null)
@@ -97,13 +100,13 @@ const manageButton = computed(() => {
 
   return userInfo.value.role === 'OWNER'
     ? {
-        title: '내 매물 관리하기',
-        desc: '내가 올린 매물을 확인하고 관리해요',
-      }
+      title: '내 매물 관리하기',
+      desc: '내가 올린 매물을 확인하고 관리해요',
+    }
     : {
-        title: '나만의 체크리스트 관리하기',
-        desc: '내가 찾는 집을 위한',
-      }
+      title: '나만의 체크리스트 관리하기',
+      desc: '내가 찾는 집을 위한',
+    }
 })
 
 function handleManageClick() {
@@ -146,10 +149,7 @@ onMounted(async () => {
     <section class="greeting-section">
       <div class="greeting-inner">
         <div class="profile-img" @click="openProfileModal">
-          <img
-            :src="userInfo?.profileImageUrl || defaultProfileImage"
-            alt="프로필 이미지"
-          />
+          <img :src="userInfo?.profileImageUrl || defaultProfileImage" alt="프로필 이미지" />
         </div>
         <div class="text-block">
           <p class="hello">안녕하세요,</p>
@@ -162,16 +162,10 @@ onMounted(async () => {
       <div class="info-header">
         <h2>회원 정보</h2>
         <div class="user-type-toggle">
-          <button
-            :class="{ active: userInfo?.role === 'OWNER' }"
-            @click="setUserType('임대인')"
-          >
+          <button :class="{ active: userInfo?.role === 'OWNER' }" @click="setUserType('임대인')">
             임대인
           </button>
-          <button
-            :class="{ active: userInfo?.role === 'TENANT' }"
-            @click="setUserType('임차인')"
-          >
+          <button :class="{ active: userInfo?.role === 'TENANT' }" @click="setUserType('임차인')">
             임차인
           </button>
         </div>
@@ -180,60 +174,42 @@ onMounted(async () => {
       <ul class="info-list">
         <li>
           <span class="label">이름</span>
-          <span class="value">{{ userInfo?.name }}</span>
+          <span class="value">{{ name }}</span>
           <button class="edit-btn invisible">수정</button>
         </li>
 
         <li>
           <span class="label">닉네임</span>
           <span class="value">
-            <span
-              v-if="editingField === 'nickname'"
-              contenteditable="true"
-              class="editable-text"
-              ref="nicknameRef"
-              :style="{ color: 'var(--primary-color)' }"
-              >{{ tempValue }}</span
-            >
+            <span v-if="editingField === 'nickname'" contenteditable="true" class="editable-text" ref="nicknameRef"
+              :style="{ color: 'var(--primary-color)' }">{{ tempValue }}</span>
             <span v-else>{{ nickname }}</span>
           </span>
-          <button
-            class="edit-btn"
-            @click="
-              editingField === 'nickname'
-                ? saveEdit('nickname')
-                : startEdit('nickname')
-            "
-          >
+          <button class="edit-btn" @click="
+            editingField === 'nickname'
+              ? saveEdit('nickname')
+              : startEdit('nickname')
+            ">
             {{ editingField === 'nickname' ? '수정완료' : '수정하기' }}
           </button>
         </li>
 
         <li>
           <span class="label">생년월일</span>
-          <span class="value">{{ userInfo?.birth }}</span>
+          <span class="value">{{ birth }}</span>
           <button class="edit-btn invisible">수정</button>
         </li>
 
         <li>
           <span class="label">연락처</span>
           <span class="value">
-            <span
-              v-if="editingField === 'phone'"
-              contenteditable="true"
-              class="editable-text"
-              ref="phoneRef"
-              :style="{ color: 'var(--primary-color)' }"
-              >{{ tempValue }}</span
-            >
-            <span v-else>{{ userInfo?.phoneNumber }}</span>
+            <span v-if="editingField === 'phone'" contenteditable="true" class="editable-text" ref="phoneRef"
+              :style="{ color: 'var(--primary-color)' }">{{ tempValue }}</span>
+            <span v-else>{{ phoneNumber }}</span>
           </span>
-          <button
-            class="edit-btn"
-            @click="
-              editingField === 'phone' ? saveEdit('phone') : startEdit('phone')
-            "
-          >
+          <button class="edit-btn" @click="
+            editingField === 'phone' ? saveEdit('phone') : startEdit('phone')
+            ">
             {{ editingField === 'phone' ? '수정완료' : '수정하기' }}
           </button>
         </li>
@@ -262,10 +238,7 @@ onMounted(async () => {
       </button>
     </section>
 
-    <ProfileImageModal
-      v-model="showProfileModal"
-      @change="onProfileImageChange"
-    />
+    <ProfileImageModal v-model="showProfileModal" @change="onProfileImageChange" />
   </div>
 
   <Navbar />
@@ -391,7 +364,7 @@ onMounted(async () => {
 
 .info-list li {
   display: grid;
-  grid-template-columns: 1.2fr 9fr rem(40px);
+  grid-template-columns: 1.2fr 3fr 7.5rem;
   align-items: center;
   border-bottom: rem(1px) solid #eee;
   padding: rem(12px) 0;
@@ -413,7 +386,7 @@ onMounted(async () => {
   gap: rem(6px);
   word-break: break-word;
   font-size: rem(13px);
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .editable-text {
