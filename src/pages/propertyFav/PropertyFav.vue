@@ -62,7 +62,7 @@ onMounted(async () => {
 
 <template>
   <div class="PropertyFav">
-    <h2 class="title">찜한 관심매물</h2>
+    <h2 class="title">찜하신 괌심매물이에요</h2>
 
     <!-- 필터바 컴포넌트 -->
     <FilterBarFavorite
