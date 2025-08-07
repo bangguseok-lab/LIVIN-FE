@@ -12,7 +12,6 @@ import propertySearchRoutes from './propertySearch'
 import componentsRoutes from './components'
 import propertyManageRoutes from './propertyManage'
 import propertyDetailsRoutes from './propertyDetails'
-import PropertyCardRoutes from './propertyCard'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,7 +33,6 @@ const router = createRouter({
     ...componentsRoutes,
     ...propertyManageRoutes,
     ...propertyDetailsRoutes,
-    ...PropertyCardRoutes,
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
