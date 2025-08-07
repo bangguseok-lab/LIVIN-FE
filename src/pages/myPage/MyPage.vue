@@ -39,7 +39,7 @@ async function saveEdit(field) {
     try {
       const payload = {
         nickname: field === 'nickname' ? newValue : userInfo.value.nickname,
-        phoneNumber: field === 'phone' ? newValue : userInfo.value.phoneNumber,
+        phone: field === 'phone' ? newValue : userInfo.value.phone,
       }
       await userStore.updateUserInfo(payload)
       console.log(`${field} 수정 성공`)

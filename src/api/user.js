@@ -1,4 +1,4 @@
-import apiClient from '@api/apiClient'
+import apiClient from './apiClient'
 
 const userAPI = {
   // 1. 마이페이지 정보 조회

@@ -64,6 +64,11 @@ const checklistAPI = {
     )
     return data.data
   },
+
+  async propretiesApplyChecklist(payload) {
+    const { data } = await apiClient.post(`/cheklists/property/apply`, payload)
+    return data
+  },
 }
 
 export default checklistAPI
