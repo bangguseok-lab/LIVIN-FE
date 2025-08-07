@@ -10,6 +10,7 @@ const props = defineProps({
 const router = useRouter()
 const route = useRoute()
 const back = () => {
+  console.log(route.name)
   if (route.path.startsWith('/auth/signup')) {
     if (
       confirm(
@@ -19,13 +20,26 @@ const back = () => {
       router.push('/landing')
     }
   }
-  router.back()
+  if (route.name.startsWith('checklistDetail')) {
+    console.log(route.name)
+    router.push('/checklist')
+  } else {
+    router.back()
+  }
 }
 </script>
 <template>
   <div class="back-button-wrap" @click.prevent="back">
-    <img src="../../../assets/icons/header/back-icon-blue.svg" alt="뒤로가기 파란색" v-if="props.icon === 'blue'" />
-    <img src="../../../assets/icons/header/back-icon-white.svg" alt="뒤로가기 하얀색" v-else-if="props.icon === 'white'" />
+    <img
+      src="../../../assets/icons/header/back-icon-blue.svg"
+      alt="뒤로가기 파란색"
+      v-if="props.icon === 'blue'"
+    />
+    <img
+      src="../../../assets/icons/header/back-icon-white.svg"
+      alt="뒤로가기 하얀색"
+      v-else-if="props.icon === 'white'"
+    />
   </div>
 </template>
 <style scoped>

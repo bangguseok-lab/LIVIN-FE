@@ -85,12 +85,9 @@ const loadKakaoMap = address => {
 
   // 주소로 좌표를 검색
   geocoder.addressSearch(address, (result, status) => {
-    console.log(status)
     if (status === kakao.maps.services.Status.OK) {
       const coords = new kakao.maps.LatLng(result[0].y, result[0].x)
-      console.log(coords)
       const mapContainer = document.getElementById('kakaomap')
-      console.log(mapContainer)
       const mapOption = {
         center: coords,
         level: 3,
@@ -100,7 +97,6 @@ const loadKakaoMap = address => {
         map: map,
         position: coords,
       })
-      console.log(marker)
       map.setCenter(coords)
     } else {
       console.error('주소 검색 실패:', status)
@@ -179,7 +175,10 @@ const calculate = computed(() => {
     }
     return acc
   }, 0)
-  return formatPrice(total)
+  if (total === 0) {
+    return '관련 정보 없음'
+  }
+  return '매월' + formatPrice(total)
 })
 </script>
 
@@ -263,7 +262,7 @@ const calculate = computed(() => {
           <div class="content-details-row">
             <div class="content-details-row-title">관리비</div>
             <div class="content-details-row-content">
-              매월 {{ calculate }}<br /><br />
+              {{ calculate }}<br /><br />
               <div v-for="m in property.getPropertyDetails?.management">
                 {{ m.managementType }}:
                 {{

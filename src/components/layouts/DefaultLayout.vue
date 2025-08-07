@@ -29,12 +29,12 @@ const visableNav = [
   'home',
   'propertiesSearch',
   'propertiesManagement',
-  'favorite',
-  'checklist',
-  'checklistDetail',
   'propertyfav',
   'checklist',
+  'checklistDetail',
   'checklistCreate',
+  'checkPropertyList',
+  'propertyDetails',
   'mypage',
 ]
 
