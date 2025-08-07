@@ -116,6 +116,11 @@ const updateChecklistInfo = async ({ title, description }) => {
   await nextTick() // 렌더링 완료 후
   location.reload()
 }
+
+async function gotoChecklist() {
+  alert('적용되었습니다')
+  router.push('/checklist')
+}
 </script>
 
 <template>
@@ -245,7 +250,7 @@ const updateChecklistInfo = async ({ title, description }) => {
         </span>
       </div>
       <div class="footer-btn">
-        <button class="edit-btn" @click="goToEditItems">수정하기</button>
+        <button class="edit-btn" @click="gotoChecklist">적용하기</button>
       </div>
     </section>
   </div>
