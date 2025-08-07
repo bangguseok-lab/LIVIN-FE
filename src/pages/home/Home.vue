@@ -10,6 +10,7 @@ const property = usePropertyStore()
 const user = useUserStore()
 const addressErrorMessage = ref('')
 const isKakaoApiReady = ref(false)
+const propertyMessage = ref('')
 
 const SIDO_MAP = {
   경기: '경기도',
@@ -65,6 +66,8 @@ const searchAddressByCoords = (latitude, longitude) => {
         }
         property.fetchProperties(properties)
         if (property.getPropertiesList.length === 0) {
+          propertyMessage.value = propertyMessage.value =
+            '현재 위치 주변에 매물이 없습니다.\n서울특별시 강남구 대치동의 매물을 보여드릴게요.'
           const initialProperties = {
             limit: 4,
             sido: '서울특별시',
@@ -72,6 +75,8 @@ const searchAddressByCoords = (latitude, longitude) => {
             eupmyendong: '대치동',
           }
           property.fetchProperties(initialProperties)
+        } else {
+          propertyMessage.value = ''
         }
       } else {
         addressErrorMessage.value =
@@ -151,7 +156,10 @@ onMounted(() => {
     <div class="content-wrap">
       <div class="content-box">
         <favorite-property-section :favorite="property.getFavorite" />
-        <property-section :properties="property.getPropertiesList" />
+        <property-section
+          :properties="property.getPropertiesList"
+          :propertyMessage="propertyMessage"
+        />
       </div>
       <div class="checklist-router-box">
         <Buttons type="xl" togo="/checklist" class="checklist-router-btn">

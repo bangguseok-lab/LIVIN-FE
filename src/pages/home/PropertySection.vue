@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import { defineProps, onMounted } from 'vue'
+import { defineProps, onMounted, computed } from 'vue'
 
 const props = defineProps({
   properties: {
@@ -8,6 +8,17 @@ const props = defineProps({
     required: true,
     default: () => [],
   },
+  propertyMessage: {
+    type: String,
+  },
+})
+onMounted(() => {
+  console.log(props.propertyMessage)
+})
+const formattedMessage = computed(() => {
+  return props.propertyMessage
+    ? props.propertyMessage.replace(/\n/g, '<br>')
+    : ''
 })
 </script>
 <template>
@@ -18,7 +29,13 @@ const props = defineProps({
         <router-link to="/search" class="router-text"> 더보기 </router-link>
       </small>
     </div>
+
     <div class="property-table-box mt-2">
+      <p
+        v-if="formattedMessage"
+        class="property-message"
+        v-html="formattedMessage"
+      ></p>
       <div class="row-box" v-for="p in props.properties">
         <div class="row-title board-text-box">{{ p.name }}</div>
         <small class="sm-text-box">
@@ -95,5 +112,12 @@ const props = defineProps({
 }
 .row-box:last-child {
   border-bottom: 1px solid rgba($color: #000000, $alpha: 0.1);
+}
+.property-message {
+  padding: 1rem 1rem;
+  color: var(--primary-color);
+  font-weight: var(--font-weight-bold);
+  font-size: rem(14px);
+  margin: 0;
 }
 </style>
