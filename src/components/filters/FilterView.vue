@@ -3,6 +3,7 @@ import { ref, computed, watch, watchEffect } from 'vue'
 import FilterBarSearch from './FilterBarSearch.vue'
 import FilterBarFavorite from './FilterBarFavorite.vue'
 import FilterBarChecklist from './FilterBarChecklist.vue'
+import districtData from '@/assets/data/district.json'
 
 // 모드 상태
 const selectedMode = ref('search')
@@ -23,38 +24,7 @@ const checklistItems = [
 ]
 
 // 지역 더미 데이터 - 패널 길이 테스트용으로 많이 넣음. dev에 넣을때 좀 뺴서 넣어야됨.
-const dummyDistricts = [
-  { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '역삼동' },
-  { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '삼성동' },
-  { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '서교동' },
-  { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '합정동' },
-  { sido: '부산광역시', sigungu: '해운대구', eupmyeondong: '우동' },
-  { sido: '부산광역시', sigungu: '해운대구', eupmyeondong: '중동' },
-  { sido: '부산광역시', sigungu: '수영구', eupmyeondong: '광안동' },
-  { sido: '경기도', sigungu: '성남시 분당구', eupmyeondong: '정자동' },
-  { sido: '경기도', sigungu: '성남시 분당구', eupmyeondong: '수내동' },
-  { sido: '경기도', sigungu: '고양시 일산서구', eupmyeondong: '주엽동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '고등동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '교동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매산동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매향동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '남수동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '남창동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '북수동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '중동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '지동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '우만동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '인계동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '화서동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '행궁동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로1가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로2가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로3가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로4가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로5가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로6가' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '팔달로7가' },
-]
+const dummyDistricts = districtData
 
 // 지역 상태
 const searchRegion = ref({ city: null, district: null, parish: null })
