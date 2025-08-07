@@ -1,10 +1,9 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import Buttons from '@/components/common/buttons/Buttons.vue'
 import FavoritePropertySection from './FavoritePropertySection.vue'
 import PropertySection from './PropertySection.vue'
 import { usePropertyStore } from '@/stores/property'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 
 const property = usePropertyStore()
@@ -43,19 +42,37 @@ const searchAddressByCoords = (latitude, longitude) => {
     if (status === window.kakao.maps.services.Status.OK) {
       if (result.length > 0) {
         const firstResult = result[0]
-
         const region1 = firstResult.address.region_1depth_name
         const region2 = firstResult.address.region_2depth_name
         const region3 = firstResult.address.region_3depth_name
 
-        property.address.sido = SIDO_MAP[region1.slice(0, 2)] || region1
-
-        if (property.address.sido === '세종특별자치시') {
-          property.address.sigungu = null // 세종시는 시군구 없이 바로 읍면동으로 넘어가는 경우가 많음
+        sessionStorage.setItem('sido', SIDO_MAP[region1.slice(0, 2)] || region1)
+        if (sessionStorage.getItem('sido') === '세종특별자치시') {
+          sessionStorage.setItem('sigungu', null)
         } else {
-          property.address.sigungu = region2 || null
+          sessionStorage.setItem('sigungu', region2 || null)
         }
-        property.address.eupmyendong = region3 ? region3.split(' ')[0] : null
+        sessionStorage.setItem(
+          'eupmyendong',
+          region3 ? region3.split(' ')[0] : null,
+        )
+
+        const properties = {
+          limit: 4,
+          sido: sessionStorage.getItem('sido'),
+          sigungu: sessionStorage.getItem('sigungu'),
+          eupmyendong: sessionStorage.getItem('eupmyendong'),
+        }
+        property.fetchProperties(properties)
+        if (property.getPropertiesList.length === 0) {
+          const initialProperties = {
+            limit: 4,
+            sido: '서울특별시',
+            sigungu: '강남구',
+            eupmyendong: '대치동',
+          }
+          property.fetchProperties(initialProperties)
+        }
       } else {
         addressErrorMessage.value =
           '해당 좌표에 대한 주소 정보를 찾을 수 없습니다.'
@@ -67,16 +84,21 @@ const searchAddressByCoords = (latitude, longitude) => {
 }
 
 onMounted(() => {
+  sessionStorage.setItem('sido', '서울특별시')
+  sessionStorage.setItem('sigungu', '강남구')
+  sessionStorage.setItem('eupmyendong', '대치동')
+  if (property.getPropertiesList.length !== 0) {
+    property.clearProperties()
+  }
+
   if (window.kakao && window.kakao.maps) {
     window.kakao.maps.load(() => {
       isKakaoApiReady.value = true
-
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           position => {
             const latitude = position.coords.latitude
             const longitude = position.coords.longitude
-
             searchAddressByCoords(latitude, longitude)
           },
           error => {
@@ -107,39 +129,13 @@ onMounted(() => {
       '카카오 맵 API 스크립트가 로드되지 않았습니다. public/index.html 파일을 확인해주세요.'
     console.error('Kakao Maps SDK not loaded in index.html.')
   }
+
   const favoriteParams = {
     limit: 3,
   }
   property.fetchFavoriteProperties(favoriteParams)
   user.fetchNickname()
 })
-
-watch(
-  () => property.address,
-  newAddress => {
-    if (newAddress.sido && newAddress.sigungu && newAddress.eupmyendong) {
-      const properties = {
-        limit: 4,
-        sido: newAddress.sido,
-        sigungu: newAddress.sigungu,
-        eupmyendong: newAddress.eupmyendong,
-      }
-      property.fetchProperties(properties)
-    } else if (
-      newAddress.sido &&
-      !newAddress.sigungu &&
-      newAddress.eupmyendong
-    ) {
-      const properties = {
-        limit: 4,
-        sido: newAddress.sido,
-        eupmyendong: newAddress.eupmyendong,
-      }
-      property.fetchProperties(properties)
-    }
-  },
-  { deep: true, immediate: true },
-)
 </script>
 
 <template>

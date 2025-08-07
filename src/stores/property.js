@@ -5,11 +5,6 @@ export const usePropertyStore = defineStore('property', {
   state: () => ({
     favoriteProperties: [],
     properties: [],
-    address: {
-      sido: '서울특별시',
-      sigungu: '강남구',
-      eupmyendong: '대치동',
-    },
     propertyDetails: {},
   }),
   actions: {
@@ -37,6 +32,9 @@ export const usePropertyStore = defineStore('property', {
       } catch (error) {
         console.error('매물 상세 데이터를 불러오는 데 실패했습니다:', error)
       }
+    },
+    clearProperties() {
+      this.properties = []
     },
   },
   getters: {
