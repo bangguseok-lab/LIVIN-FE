@@ -1,7 +1,8 @@
 export default [
   {
     path: '/property/:id',
-    name: 'favorite',
+    name: 'PropertyDetails',
     component: () => import('@/pages/propertyDetails/PropertyDetails.vue'),
+    props: true,
   },
 ]
