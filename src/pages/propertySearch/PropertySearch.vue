@@ -221,6 +221,7 @@ function handleFilterCompleted() {
       <PropertyCard
         v-for="item in propertyList"
         :key="item.propertyId"
+        :propertyId="item.propertyId"
         :transactionType="item.transactionType"
         :price="
           item.transactionType === 'JEONSE'
@@ -230,14 +231,17 @@ function handleFilterCompleted() {
         :monthlyRent="
           item.transactionType === 'JEONSE' ? null : item.monthlyRent
         "
+        :propertyType="item.propertyType"
         :title="item.name"
-        :area="item.exclusiveAreaM2"
+        :detailAddress="item.detailAddress"
+        :exclusiveArea="item.exclusiveAreaM2"
         :supplyArea="item.supplyAreaM2"
         :floor="item.floor"
         :totalFloors="item.totalFloors"
         :direction="item.mainDirection"
         :address="item.roadAddress"
-        :isWished="item.isFavorite"
+        :isFavorite="item.isFavorite"
+        :isSafe="item.isSafe"
       />
 
       <!-- 매물이 없을 경우 -->
@@ -304,6 +308,7 @@ function handleFilterCompleted() {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-bottom: 62px;
 }
 
 .no-result {
