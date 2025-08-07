@@ -81,6 +81,10 @@ const prevSlide = () => {
   currentIndex.value =
     (currentIndex.value - 1 + cardData.length) % cardData.length
 }
+
+const goToIndex = i => {
+  currentIndex.value = i
+}
 </script>
 
 <template>
@@ -90,6 +94,10 @@ const prevSlide = () => {
       <h2>그렇다면, <span class="post-highlight">임대인</span>은요?</h2>
       <p>이제는 단순한 집이 아닌, 신뢰를 등록하세요</p>
     </div>
+
+    <!-- Point 4 라벨 -->
+    <div class="point-label">POINT 4</div>
+
     <!-- 등록 카드 -->
     <transition name="slide-fade" mode="out-in">
       <div
@@ -100,13 +108,9 @@ const prevSlide = () => {
         @mousedown="onMouseDown"
         @mouseup="onMouseUp"
         @mouseleave="isDragging && onMouseUp($event)"
-        @click="goToRegister"
       >
-        <!-- 항상 상단 중앙에 고정될 라벨 -->
-        <div class="point-label">POINT 4</div>
-
         <!-- 텍스트와 이미지만 유연하게 정렬될 영역 -->
-        <div class="landpost-content">
+        <div class="landpost-content" @click="goToRegister">
           <div class="landpost-text">
             <h3>{{ cardData[currentIndex].title }}</h3>
             <p v-html="cardData[currentIndex].subtitle" />
@@ -126,6 +130,7 @@ const prevSlide = () => {
         v-for="(_, i) in cardData"
         :key="i"
         :class="{ active: i === currentIndex }"
+        @click="goToIndex(i)"
       ></span>
     </div>
   </section>

@@ -68,6 +68,10 @@ const nextSlide = () => {
 const prevSlide = () => {
   currentIndex.value = (currentIndex.value - 1 + images.length) % images.length
 }
+
+function goToIndex(i) {
+  currentIndex.value = i
+}
 </script>
 
 <template>
@@ -81,7 +85,6 @@ const prevSlide = () => {
       @mousedown="onMouseDown"
       @mouseup="onMouseUp"
       @mouseleave="isDragging && onMouseUp($event)"
-      @click="goToSearch"
     >
       <!-- 이미지 영역 -->
       <div class="landfav-image-wrapper">
@@ -90,12 +93,14 @@ const prevSlide = () => {
           alt="내 기준 매물 이미지"
           class="landfav-image"
           draggable="false"
+          @click="goToSearch"
         />
         <div class="dots">
           <span
             v-for="(_, i) in images"
             :key="i"
             :class="{ active: i === currentIndex }"
+            @click="goToIndex(i)"
           ></span>
         </div>
       </div>
