@@ -12,14 +12,21 @@ import defaultProfileImage from '@/assets/images/profile/test-img.svg'
 
 const router = useRouter()
 const userStore = useUserStore()
+
+// Store의 상태를 직접 참조 (반응성을 유지하기 위해 storeToRefs 사용)
 const { userInfo } = storeToRefs(userStore)
 const nickname = computed(() => userInfo.value?.data?.nickname || '닉네임')
 const name = computed(() => userInfo.value?.data?.name || '이름')
 const birth = computed(() => userInfo.value?.data?.birth || '생년월일')
-const phoneNumber = computed(() => userInfo.value?.data?.phoneNumber || '전화번호')
+const phoneNumber = computed(() => userInfo.value?.data?.phone || '전화번호')
+const role = computed(() => userInfo.value?.data?.role || 'TENANT')
+const profileImage = computed(() => {
+  const imageNumber = userInfo.value?.data?.profileImage ?? 1
+  return new URL(`../../assets/images/profile/test-${imageNumber}.svg`, import.meta.url).href
+})
 
-// Store의 상태를 직접 참조 (반응성을 유지하기 위해 storeToRefs 사용)
-const profileImage = ref(defaultProfileImage)
+// const { profileImageUrl } = storeToRefs(userStore)
+
 
 const editingField = ref(null)
 const tempValue = ref('')
@@ -57,12 +64,12 @@ async function saveEdit(field) {
 
 // ✅ 역할 토글 변경 처리 (임대인 / 임차인 클릭 시)
 async function setUserType(type) {
-  const newRole = type === '임대인' ? 'OWNER' : 'TENANT'
-  if (userInfo.value?.role === newRole) return
+  const newRole = type === '임대인' ? 'LANDLORD' : 'TENANT'
+  if (role.value === newRole) return
 
   try {
     await userStore.changeRole(newRole)
-    console.log('역할 변경 성공')
+    // console.log('역할 변경 성공')
   } catch (err) {
     console.error('역할 변경 실패', err)
     alert('유형 변경 중 오류가 발생했어요.')
@@ -98,7 +105,7 @@ async function handleWithdraw() {
 const manageButton = computed(() => {
   if (!userInfo.value) return { title: '', desc: '' }
 
-  return userInfo.value.role === 'OWNER'
+  return userInfo.value.role === 'LANDLORD'
     ? {
       title: '내 매물 관리하기',
       desc: '내가 올린 매물을 확인하고 관리해요',
@@ -112,7 +119,7 @@ const manageButton = computed(() => {
 function handleManageClick() {
   if (userInfo.value?.role === 'TENANT') {
     router.push('/checklist')
-  } else if (userInfo.value?.role === 'OWNER') {
+  } else if (userInfo.value?.role === 'LANDLORD') {
     router.push('/propertyManage')
   }
 }
@@ -126,15 +133,15 @@ function openProfileModal() {
   showProfileModal.value = true
 }
 
-async function onProfileImageChange(file) {
+async function onProfileImageChange(imgNumber) {
   try {
-    await userStore.uploadProfileImage(file)
-    console.log('프로필 이미지 업로드 성공')
+    await userStore.uploadProfileImage(imgNumber)
+    // console.log('프로필 이미지 수정 성공')
     // Store에서 이미지 URL을 업데이트하므로, 여기서는 모달만 닫음
     showProfileModal.value = false
   } catch (err) {
-    console.error('프로필 이미지 업로드 실패', err)
-    alert('이미지 업로드 중 오류가 발생했습니다.')
+    console.error('프로필 이미지 수정 실패', err)
+    alert('프로필 이미지 수정 중 오류가 발생했습니다.')
   }
 }
 
@@ -149,7 +156,8 @@ onMounted(async () => {
     <section class="greeting-section">
       <div class="greeting-inner">
         <div class="profile-img" @click="openProfileModal">
-          <img :src="userInfo?.profileImageUrl || defaultProfileImage" alt="프로필 이미지" />
+          <img :src="profileImage || defaultProfileImage" alt="프로필 이미지" />
+          <!-- <img :src="profileImageUrl" alt="프로필 이미지" /> -->
         </div>
         <div class="text-block">
           <p class="hello">안녕하세요,</p>
@@ -162,10 +170,10 @@ onMounted(async () => {
       <div class="info-header">
         <h2>회원 정보</h2>
         <div class="user-type-toggle">
-          <button :class="{ active: userInfo?.role === 'OWNER' }" @click="setUserType('임대인')">
+          <button :class="{ active: role === 'LANDLORD' }" @click="setUserType('임대인')">
             임대인
           </button>
-          <button :class="{ active: userInfo?.role === 'TENANT' }" @click="setUserType('임차인')">
+          <button :class="{ active: role === 'TENANT' }" @click="setUserType('임차인')">
             임차인
           </button>
         </div>
@@ -221,7 +229,7 @@ onMounted(async () => {
     <section class="manage-section">
       <h2 class="manage-title">
         {{
-          userInfo?.role === 'OWNER' ? '나의 매물 관리' : '나의 체크리스트 관리'
+          role === 'LANDLORD' ? '나의 매물 관리' : '나의 체크리스트 관리'
         }}
       </h2>
       <Buttons type="xl" @click="handleManageClick" class="manage-btn">

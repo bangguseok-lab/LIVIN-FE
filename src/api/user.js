@@ -32,14 +32,12 @@ const userAPI = {
   },
 
   // 6. 프로필 이미지 업로드
-  async uploadProfileImage(file) {
-    const formData = new FormData()
-    formData.append('image', file)
+  async uploadProfileImage(imgNumber) {
+    // const formData = new FormData()
+    // formData.append('image', file)
 
-    const { data } = await apiClient.post('/users/profile-image', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    const { data } = await apiClient.put('/users/profile-image', {
+      profileImage: imgNumber,
     })
     return data
   },
