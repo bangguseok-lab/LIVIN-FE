@@ -116,24 +116,32 @@ const formatPrice = (price, isRent) => {
   const numberPrice = Number(price)
 
   if (isRent) {
-    return `${numberPrice.toFixed(0)}만`
-  }
+    const 천 = Math.floor(numberPrice / 1000)
+    const 만 = numberPrice % 1000
 
-  if (numberPrice >= 100000000) {
-    const billionPart = Math.floor(numberPrice / 100000000)
-    const millionPart = Math.floor((numberPrice % 100000000) / 10000)
-
-    let result = `${billionPart}억`
-    if (millionPart > 0) {
-      result += ` ${millionPart}만`
+    let result = ''
+    if (천 > 0) {
+      result += `${천}천`
     }
-    return result
-  } else if (numberPrice >= 10000) {
-    const millionPrice = numberPrice / 10000
-    return `${millionPrice.toFixed(0)}만`
-  } else {
-    return `${numberPrice}원`
+    if (만 > 0) {
+      result += ` ${만}만`
+    }
+
+    return result.trim()
   }
+
+  // ✅ [2] 전세/보증금 포맷 → "x억 y천 z만"
+  const 억 = Math.floor(numberPrice / 100000000)
+  const 나머지 = numberPrice % 100000000
+  const 천 = Math.floor(나머지 / 10000000)
+  const 만 = Math.floor((나머지 % 10000000) / 10000)
+
+  let result = ''
+  if (억 > 0) result += `${억}억`
+  if (천 > 0) result += ` ${천}천`
+  if (만 > 0) result += ` ${만}만`
+
+  return result.trim() || `${numberPrice}원`
 }
 
 const formattedPrice = computed(() => {
@@ -222,7 +230,7 @@ const calculate = computed(() => {
           <span
             class="transaction-type"
             v-else-if="property.getPropertyDetails.transactionType == '월세'"
-            >보증금/월세 단위:만(원)</span
+            >보증금/월세</span
           >
         </div>
         <div class="property-addr">
