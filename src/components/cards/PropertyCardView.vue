@@ -23,6 +23,10 @@ import PropertyCard from '@/components/cards/PropertyCard.vue'
       address="서울특별시 마포구 토정로3길 13"
       :isFavorite="true"
       :isSafe="true"
+      :mortgage="false"
+      :ownerMatch="true"
+      :illegalBuilding="false"
+      :jeonseRate="72.5"
     />
   </div>
 </template>

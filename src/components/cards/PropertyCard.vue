@@ -4,8 +4,12 @@ import FavoriteButton from '@/components/common/buttons/FavoriteButton.vue'
 import badge from '@/assets/images/landing/SecureBadge.png'
 import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import SafePropertyModal from '@/components/modals/SafePropertyModal.vue'
 
 const router = useRouter()
+
+const modalVisible = ref(false)
+
 
 const props = defineProps({
   propertyId: {
@@ -27,6 +31,19 @@ const props = defineProps({
   address: String,
   isFavorite: Boolean,
   isSafe: Boolean,
+  mortgage: Boolean,
+  ownerMatch: Boolean,
+  illegalBuilding: Boolean,
+  jeonseRate: Number,
+})
+
+const propertyInfo = computed(() => {
+  return {
+    mortgage: props.mortgage,
+    ownerMatch: props.ownerMatch,
+    illegalBuilding: props.illegalBuilding,
+    jeonseRate: props.jeonseRate,
+  }
 })
 
 // props에서 초기 상태를 가져와 ref로 설정
@@ -134,6 +151,12 @@ function goToDetail() {
 </script>
 
 <template>
+  <SafePropertyModal
+    v-if="modalVisible"
+    :modelValue="modalVisible"
+    :propertyInfo="propertyInfo"
+    @update:modelValue="modalVisible = $event"
+   />
   <div class="property-card" @click="goToDetail()">
     <div class="image-wrapper">
       <template v-if="imageUrl">
@@ -145,7 +168,7 @@ function goToDetail() {
 
       <!-- 안심 매물 뱃지 -->
       <div class="property-card-badge">
-        <img v-if="isSafe" :src="badge" alt="안심매물 뱃지" class="badge-img" />
+        <img v-if="isSafe" :src="badge" alt="안심매물 뱃지" class="badge-img" @click.stop="modalVisible = true" />
       </div>
     </div>
 
