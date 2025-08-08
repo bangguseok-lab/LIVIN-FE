@@ -2,14 +2,15 @@
 import Buttons from '../common/buttons/Buttons.vue'
 import RangeSelector from './RangeSelector.vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { FreeMode, Pagination } from 'swiper/modules'
+import { FreeMode, Pagination, Navigation } from 'swiper/modules'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
+import 'swiper/css/navigation'
 import 'swiper/css'
 
 import { usePriceStore } from '@/stores/priceStore'
 
-const modules = [FreeMode, Pagination]
+const modules = [FreeMode, Pagination, Navigation]
 const priceStore = usePriceStore()
 
 const emit = defineEmits(['filterCompleted'])
@@ -29,6 +30,7 @@ function cancel_btn_handler() {
       :modules="modules"
       :pagination="{ clickable: true }"
       :slides-per-view="1"
+      :navigation="{ clickable: true }"
       class="price-swiper"
     >
       <!-- 전세 보증금 범위 선택 패널 -->
@@ -62,7 +64,7 @@ function cancel_btn_handler() {
       <swiper-slide>
         <RangeSelector
           title="월세 보증금"
-          description="최소 금액과 최대 금액을 순서대로 선택해주세요."
+          description="최소 금액과 최대 금액을 순서대로 선택해주세요"
           class="element1"
           :numberList="[
             '-',
@@ -89,7 +91,7 @@ function cancel_btn_handler() {
       <swiper-slide>
         <RangeSelector
           title="월세"
-          description="최소 금액과 최대 금액을 순서대로 선택해주세요."
+          description="최소 금액과 최대 금액을 순서대로 선택해주세요"
           class="element2"
           :numberList="[
             '-',
@@ -120,12 +122,14 @@ function cancel_btn_handler() {
         :is-active="true"
         type="md"
         @click="complete_btn_handler"
+        class="complete-btn"
       />
       <Buttons
         label="초기화"
         :is-active="false"
         type="md"
         @click="cancel_btn_handler"
+        class="cancel-btn"
       />
     </div>
   </div>
@@ -143,28 +147,88 @@ function cancel_btn_handler() {
 }
 .element1 {
   padding-bottom: 1.5rem;
-  // border-bottom: 2px solid var(--whitish);
 }
 .element2 {
   padding-bottom: 1.5rem;
 }
+
 .region-btn-section {
-  display: flex; // 버튼들을 가로로 나열
-  justify-content: space-between; // 또는 center, flex-end 등 필요에 맞게 조정
-  gap: rem(10px); // 버튼 사이 간격
-  margin: 1.5rem 1rem 0 1rem;
+  display: flex;
+  justify-content: space-between;
 }
+
+/* Swiper */
 .price-swiper {
   width: 100%;
   height: auto;
   margin-bottom: 1.5rem;
 
-  .swiper-pagination-bullet {
-    background: var(--primary-color);
-    opacity: 0.5;
+  /* 페이지네이션 위치/색 */
+  :deep(.swiper-pagination) {
+    bottom: rem(-6.5px) !important;
   }
-  .swiper-pagination-bullet-active {
+  :deep(.swiper-pagination-bullet) {
+    background: var(--grey);
     opacity: 1;
   }
+  :deep(.swiper-pagination-bullet-active) {
+    background: var(--primary-color);
+    opacity: 1;
+  }
+
+  /* 화살표(내비게이션) */
+  :deep(.swiper-button-prev),
+  :deep(.swiper-button-next) {
+    top: 16%;
+    transform: translateY(-50%);
+    width: rem(36px);
+    height: rem(36px);
+    border-radius: 50%;
+    color: var(--primary-color);
+    z-index: 5;
+    pointer-events: auto;
+  }
+
+  /* 아이콘 크기 */
+  :deep(.swiper-button-prev)::after,
+  :deep(.swiper-button-next)::after {
+    font-size: rem(15px);
+    font-weight: var(--font-weight-lg);
+  }
+
+  /* 비활성 상태 */
+  :deep(.swiper-button-disabled) {
+    color: var(--grey) !important;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* 좌우 여백 */
+  :deep(.swiper-button-prev) {
+    left: rem(-5px);
+  }
+  :deep(.swiper-button-next) {
+    right: rem(-5px);
+  }
+}
+
+/* 공용 버튼 컴포넌트 오버라이드 */
+.complete-btn :deep(button) {
+  background-color: var(--primary-color);
+  color: var(--white);
+  font-weight: var(--font-weight-medium);
+  border-radius: 9px;
+  width: rem(150px);
+  height: rem(33px);
+  font-size: 0.9rem;
+}
+.cancel-btn :deep(button) {
+  background-color: var(--grey);
+  color: var(--white);
+  font-weight: var(--font-weight-medium);
+  border-radius: 9px;
+  width: rem(150px);
+  height: rem(33px);
+  font-size: 0.9rem;
 }
 </style>
