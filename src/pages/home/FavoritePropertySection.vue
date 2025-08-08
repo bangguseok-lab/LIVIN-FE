@@ -5,7 +5,7 @@ import { RouterLink } from 'vue-router'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
 import 'swiper/css'
-import { defineProps } from 'vue'
+import { defineProps, onMounted } from 'vue'
 import Buttons from '@/components/common/buttons/Buttons.vue'
 import SampleImg2 from '@/assets/images/home/sample-img2.png'
 const props = defineProps({
@@ -60,9 +60,9 @@ const modules = [Parallax, Pagination]
           slot="container-start"
           data-swiper-parallax="-23%"
         ></div>
-        <swiper-slide v-for="fp in props.favorite" :key="fp.id">
+        <swiper-slide v-for="fp in props.favorite" :key="fp.propertyId">
           <router-link
-            :to="`/property/${fp.id}`"
+            :to="`/property/${fp.propertyId}`"
             class="router-text router-card"
           >
             <div class="card fp-box">
