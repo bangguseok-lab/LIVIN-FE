@@ -117,6 +117,9 @@ function handleOnlySecureUpdate(val) {
   fetchProperties()
 }
 
+const toWon = v =>
+  v === null || v === undefined || v === '' ? undefined : Number(v) * 10000
+
 // 백엔드 API 요청
 function fetchProperties(isLoadMore = false) {
   if (isLoading.value || (!hasMore.value && isLoadMore)) return
@@ -126,12 +129,12 @@ function fetchProperties(isLoadMore = false) {
 
   const params = {
     transactionType: getMappedTransactionType(dealType.value),
-    jeonseDepositMin: jd.value.min ?? undefined,
-    jeonseDepositMax: jd.value.max ?? undefined,
-    monthlyDepositMin: md.value.min ?? undefined,
-    monthlyDepositMax: md.value.max ?? undefined,
-    monthlyMin: mr.value.min ? Math.floor(mr.value.min / 10000) : undefined,
-    monthlyMax: mr.value.max ? Math.floor(mr.value.max / 10000) : undefined,
+    jeonseDepositMin: toWon(jd.value.min) ?? undefined,
+    jeonseDepositMax: toWon(jd.value.max) ?? undefined,
+    monthlyDepositMin: toWon(md.value.min) ?? undefined,
+    monthlyDepositMax: toWon(md.value.max) ?? undefined,
+    monthlyMin: mr.value.min ?? undefined,
+    monthlyMax: mr.value.max ?? undefined,
 
     sido: region.value.city,
     sigungu: region.value.district,
@@ -215,10 +218,10 @@ function handleFilterCompleted() {
       <!-- 부모에서 이렇게 바꿔줘야 함 -->
       <PropertyCard v-for="item in propertyList" :key="item.propertyId" :propertyId="item.propertyId"
         :transactionType="item.transactionType" :price="item.transactionType === 'JEONSE'
-            ? item.jeonseDeposit
-            : item.monthlyDeposit
+          ? item.jeonseDeposit
+          : item.monthlyDeposit
           " :monthlyRent="item.transactionType === 'JEONSE' ? null : item.monthlyRent
-          " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
+            " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
         :exclusiveArea="item.exclusiveAreaM2" :supplyArea="item.supplyAreaM2" :floor="item.floor"
         :totalFloors="item.totalFloors" :direction="item.mainDirection" :address="item.roadAddress"
         :isFavorite="item.isFavorite" :isSafe="item.isSafe" />
