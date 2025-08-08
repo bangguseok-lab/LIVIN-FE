@@ -88,7 +88,7 @@ const searchAddressByCoords = async (latitude, longitude) => {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
   sessionStorage.setItem('sido', '서울특별시')
   sessionStorage.setItem('sigungu', '강남구')
   sessionStorage.setItem('eupmyendong', '대치동')
@@ -138,8 +138,9 @@ onMounted(() => {
   const favoriteParams = {
     limit: 3,
   }
-  property.fetchFavoriteProperties(favoriteParams)
-  user.fetchNickname()
+  await property.fetchFavoriteProperties(favoriteParams)
+  await user.fetchNickname()
+  console.log(property.getPropertiesList)
 })
 </script>
 
@@ -165,7 +166,7 @@ onMounted(() => {
         <div class="description-box mb-2">
           더 많은 매물이 궁금하시다면, 더보기를 눌러 확인해보세요
         </div>
-        <Buttons type="xl" togo="/checklist" class="checklist-router-btn">
+        <Buttons type="xl" togo="/checklist" class="checklist-router-btn mt-5">
           <div class="top-text">
             나만의 공간을 위한 모든 준비, 지금 여기서 시작하세요
           </div>
