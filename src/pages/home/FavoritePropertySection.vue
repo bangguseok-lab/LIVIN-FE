@@ -62,7 +62,7 @@ const modules = [Parallax, Pagination]
         ></div>
         <swiper-slide v-for="fp in props.favorite" :key="fp.id">
           <router-link
-            :to="`/favorite/${fp.id}`"
+            :to="`/property/${fp.id}`"
             class="router-text router-card"
           >
             <div class="card fp-box">

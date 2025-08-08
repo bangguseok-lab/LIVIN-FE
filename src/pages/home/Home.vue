@@ -28,7 +28,7 @@ const SIDO_MAP = {
   대전: '대전광역시',
 }
 
-const searchAddressByCoords = (latitude, longitude) => {
+const searchAddressByCoords = async (latitude, longitude) => {
   addressErrorMessage.value = ''
 
   if (!window.kakao || !window.kakao.maps || !window.kakao.maps.services) {
@@ -39,7 +39,7 @@ const searchAddressByCoords = (latitude, longitude) => {
 
   const geocoder = new window.kakao.maps.services.Geocoder()
 
-  geocoder.coord2Address(longitude, latitude, (result, status) => {
+  geocoder.coord2Address(longitude, latitude, async (result, status) => {
     if (status === window.kakao.maps.services.Status.OK) {
       if (result.length > 0) {
         const firstResult = result[0]
@@ -64,7 +64,7 @@ const searchAddressByCoords = (latitude, longitude) => {
           sigungu: sessionStorage.getItem('sigungu'),
           eupmyendong: sessionStorage.getItem('eupmyendong'),
         }
-        property.fetchProperties(properties)
+        await property.fetchProperties(properties)
         if (property.getPropertiesList.length === 0) {
           propertyMessage.value = propertyMessage.value =
             '현재 위치 주변에 매물이 없습니다.\n서울특별시 강남구 대치동의 매물을 보여드릴게요.'
@@ -74,7 +74,7 @@ const searchAddressByCoords = (latitude, longitude) => {
             sigungu: '강남구',
             eupmyendong: '대치동',
           }
-          property.fetchProperties(initialProperties)
+          await property.fetchProperties(initialProperties)
         } else {
           propertyMessage.value = ''
         }
@@ -162,6 +162,9 @@ onMounted(() => {
         />
       </div>
       <div class="checklist-router-box">
+        <div class="description-box mb-2">
+          더 많은 매물이 궁금하시다면, 더보기를 눌러 확인해보세요
+        </div>
         <Buttons type="xl" togo="/checklist" class="checklist-router-btn">
           <div class="top-text">
             나만의 공간을 위한 모든 준비, 지금 여기서 시작하세요
@@ -224,5 +227,13 @@ onMounted(() => {
 
 .checklist-router-btn {
   height: rem(100px);
+}
+.description-box {
+  color: var(--grey);
+  font-size: rem(12px);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

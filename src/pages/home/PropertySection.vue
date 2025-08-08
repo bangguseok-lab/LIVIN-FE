@@ -45,9 +45,6 @@ const formattedMessage = computed(() => {
         </small>
       </div>
     </div>
-    <div class="description-box">
-      더 많은 매물이 궁금하시다면, 더보기를 눌러 확인해보세요
-    </div>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -63,12 +60,12 @@ const formattedMessage = computed(() => {
   padding: 2rem 0;
   display: flex;
   flex-direction: column;
-  height: rem(420px);
+  height: auto;
   padding: 2rem 0 1.5rem 0;
 }
 .property-table-box {
   width: 100%;
-  height: rem(300px);
+  height: auto;
   padding-bottom: rem(20px);
   padding: 0 1rem;
 }
@@ -88,14 +85,6 @@ const formattedMessage = computed(() => {
   font-size: rem(12px);
 }
 
-.description-box {
-  color: var(--grey);
-  font-size: rem(12px);
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .router-text {
   text-decoration: none;
   color: var(--grey);
