@@ -15,10 +15,6 @@ const priceStore = usePriceStore()
 const emit = defineEmits(['filterCompleted'])
 
 function complete_btn_handler() {
-  console.log('[PricePanel] 완료 클릭 - 현재 선택값 ↓')
-  console.log('전세 보증금:', priceStore.states.jeonseDeposit)
-  console.log('월세 보증금:', priceStore.states.monthlyDeposit)
-  console.log('월세:', priceStore.states.monthlyRent)
   emit('filterCompleted')
 }
 
