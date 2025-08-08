@@ -117,6 +117,7 @@ function handleOnlySecureUpdate(val) {
   fetchProperties()
 }
 
+
 const toWon = v =>
   v === null || v === undefined || v === '' ? undefined : Number(v) * 10000
 
@@ -135,6 +136,7 @@ function fetchProperties(isLoadMore = false) {
     monthlyDepositMax: toWon(md.value.max) ?? undefined,
     monthlyMin: mr.value.min ?? undefined,
     monthlyMax: mr.value.max ?? undefined,
+
 
     sido: region.value.city,
     sigungu: region.value.district,
