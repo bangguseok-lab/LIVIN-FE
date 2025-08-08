@@ -125,9 +125,9 @@ const manageButton = computed(() => {
 })
 
 function handleManageClick() {
-  if (userInfo.value?.role === 'TENANT') {
+  if (role.value === 'TENANT') {
     router.push('/checklist')
-  } else if (userInfo.value?.role === 'LANDLORD') {
+  } else if (role.value === 'LANDLORD') {
     router.push('/propertyManage')
   }
 }
