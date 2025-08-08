@@ -22,7 +22,6 @@ function scrollToTop() {
 const getUserNickname = async () => {
   try {
     const response = await userAPI.fetchMyPageInfo();
-    console.log(response.data.nickname);
     user.value = response.data.nickname;
   } catch (error) {
     this.error = error
@@ -65,6 +64,10 @@ function goToDetail(id) {
 
     <!-- 리스트 -->
     <div class="list-group border-top Checklist-list">
+      <div v-if="checklists.length === 0" class="no-checklist-box">
+        <p>현재 체크리스트가 없습니다.</p>
+        <p><span class="nickname-text">{{ user }}</span> 님만의 체크리스트를 추가해보세요!</p>
+      </div>
       <div v-for="(checklist, index) in checklists" :key="index" class="d-flex align-items-center py-3 border-bottom"
         @click="goToDetail(checklist.checklistId)" style="cursor: pointer">
         <div class="bg-light rounded me-3" style="width: 8.75rem; height: 6.25rem"></div>
@@ -90,6 +93,24 @@ function goToDetail(id) {
 
 .Checklist-list {
   border-radius: 0 !important;
+}
+
+.no-checklist-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-top: 10rem;
+}
+
+.no-checklist-box>p {
+  font-weight: var(--font-weight-bold);
+}
+
+.nickname-text {
+  color: var(--primary-color);
+  font-weight: var(--font-weight-bold);
 }
 
 .title-bold {
