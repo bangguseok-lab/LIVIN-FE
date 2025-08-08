@@ -81,6 +81,11 @@ const handleRegionUpdate = region => {
   emit('update:region', region)
 }
 
+function handleFilterCompleted() {
+  activePanel.value = null // 패널 닫기
+  emit('filterCompleted') // 상위로도 이벤트 전달
+}
+
 const currentPanelComponent = computed(() => {
   switch (activePanel.value) {
     case 'deal':
@@ -141,7 +146,7 @@ const currentPanelComponent = computed(() => {
         :parishes="props.regionData.parishes"
         :selected-region="props.region"
         @updateRegion="handleRegionUpdate"
-        @filterCompleted="$emit('filterCompleted')"
+        @filterCompleted="handleFilterCompleted"
       />
     </div>
   </div>

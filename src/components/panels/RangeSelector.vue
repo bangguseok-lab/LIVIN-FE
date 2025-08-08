@@ -27,8 +27,6 @@ const props = defineProps({
 // store 연결
 const priceStore = usePriceStore()
 
-console.log('[RangeSelector] props.type:', props.type)
-console.log('[RangeSelector] priceStore.states:', priceStore.states)
 // 현재 선택된 범위
 const selectedRange = computed(() => {
   const selected =
