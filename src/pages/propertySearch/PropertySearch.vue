@@ -4,9 +4,7 @@ import axios from 'axios'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
 
-import { usePropertyStore } from '@/stores/property'
 import { usePriceStore } from '@/stores/priceStore'
-import { storeToRefs } from 'pinia'
 
 import districtData from '@/assets/data/district.json'
 
@@ -15,15 +13,12 @@ const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null })
 const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
 
-
 const address = ref({
   sido: sessionStorage.getItem('sido') || '서울특별시',
   sigungu: sessionStorage.getItem('sigungu') || '강남구',
   eupmyendong: sessionStorage.getItem('eupmyendong') || '논현동',
 })
 
-const propertyStore = usePropertyStore()
-// const { address } = storeToRefs(propertyStore)
 const priceStore = usePriceStore()
 const isLoading = ref(false)
 const hasMore = ref(true)
@@ -38,7 +33,6 @@ const mr = computed(
   () => priceStore.states.monthlyRent ?? { min: null, max: null },
 )
 
-
 // 예시 더미 데이터
 const dummyDistricts = districtData
 
@@ -49,8 +43,8 @@ onMounted(() => {
     eupmyendong: '대치동',
   }
   const currentAddress =
-    sido && sigungu
-      ? sido + sigungu
+    address.value?.sido && address.value?.sigungu
+      ? address.value
       : fallbackAddress
 
   // region 초기화
@@ -107,7 +101,6 @@ function handleRegionUpdate(updatedRegion) {
   region.value = updatedRegion
 }
 
-
 function updateDealType(val) {
   dealType.value = [...val]
 }
@@ -125,26 +118,14 @@ function handleOnlySecureUpdate(val) {
 }
 
 // 백엔드 API 요청
-function fetchProperties() {
-  const params = {
-    transactionType: getMappedTransactionType(dealType.value),
-    jeonseDepositMin: priceStore.states.jeonseDeposit.min,
-    jeonseDepositMax: priceStore.states.jeonseDeposit.max,
-    monthlyDepositMin: priceStore.states.monthlyDeposit.min,
-    monthlyDepositMax: priceStore.states.monthlyDeposit.max,
-    monthlyRentMin: priceStore.states.monthlyRent.min,
-    monthlyRentMax: priceStore.states.monthlyRent.max,
-
-    function fetchProperties(isLoadMore = false) {
-      if (isLoading.value || (!hasMore.value && isLoadMore)) return
+function fetchProperties(isLoadMore = false) {
+  if (isLoading.value || (!hasMore.value && isLoadMore)) return
   isLoading.value = true
 
   const lastItem = propertyList.value[propertyList.value.length - 1]
 
   const params = {
-    transactionType: dealType.value.length
-      ? dealType.value.join(',')
-      : undefined,
+    transactionType: getMappedTransactionType(dealType.value),
     jeonseDepositMin: jd.value.min ?? undefined,
     jeonseDepositMax: jd.value.max ?? undefined,
     monthlyDepositMin: md.value.min ?? undefined,
@@ -214,8 +195,8 @@ function handleFilterCompleted() {
         <span class="marker"><img src="@/assets/images/search/marker.svg" alt="위치 아이콘" class="marker-icon" /></span>
         <span>
           현재
-          <span class="highlight">{{ sido }} {{ sigungu }}
-            {{ eupmyendong || '' }}</span>에 있어요
+          <span class="highlight">{{ address.sido }} {{ address.sigungu }}
+            {{ address.eupmyendong || '' }}</span>에 있어요
         </span>
       </div>
       <!-- 타이틀 -->
@@ -234,10 +215,10 @@ function handleFilterCompleted() {
       <!-- 부모에서 이렇게 바꿔줘야 함 -->
       <PropertyCard v-for="item in propertyList" :key="item.propertyId" :propertyId="item.propertyId"
         :transactionType="item.transactionType" :price="item.transactionType === 'JEONSE'
-          ? item.jeonseDeposit
-          : item.monthlyDeposit
+            ? item.jeonseDeposit
+            : item.monthlyDeposit
           " :monthlyRent="item.transactionType === 'JEONSE' ? null : item.monthlyRent
-            " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
+          " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
         :exclusiveArea="item.exclusiveAreaM2" :supplyArea="item.supplyAreaM2" :floor="item.floor"
         :totalFloors="item.totalFloors" :direction="item.mainDirection" :address="item.roadAddress"
         :isFavorite="item.isFavorite" :isSafe="item.isSafe" />
