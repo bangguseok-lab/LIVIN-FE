@@ -3,19 +3,26 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
+
 import { usePropertyStore } from '@/stores/property'
 import { usePriceStore } from '@/stores/priceStore'
 import { storeToRefs } from 'pinia'
+
 import districtData from '@/assets/data/district.json'
 
 const dealType = ref([])
-const jeonseDeposit = ref({ min: null, max: null }) // 전세 보증금
-const monthlyDeposit = ref({ min: null, max: null }) // 월세 보증금
-const monthlyRent = ref({ min: null, max: null }) // 월세
 const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null })
 const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
-// const propertyStore = usePropertyStore()
+
+
+const address = ref({
+  sido: sessionStorage.getItem('sido') || '서울특별시',
+  sigungu: sessionStorage.getItem('sigungu') || '강남구',
+  eupmyendong: sessionStorage.getItem('eupmyendong') || '논현동',
+})
+
+const propertyStore = usePropertyStore()
 // const { address } = storeToRefs(propertyStore)
 const priceStore = usePriceStore()
 const isLoading = ref(false)
@@ -30,9 +37,7 @@ const md = computed(
 const mr = computed(
   () => priceStore.states.monthlyRent ?? { min: null, max: null },
 )
-const sido = sessionStorage.getItem('sido')
-const sigungu = sessionStorage.getItem('sigungu')
-const eupmyendong = sessionStorage.getItem('eupmyendong')
+
 
 // 예시 더미 데이터
 const dummyDistricts = districtData
@@ -47,6 +52,8 @@ onMounted(() => {
     sido && sigungu
       ? sido + sigungu
       : fallbackAddress
+
+  // region 초기화
 
   region.value.city = currentAddress.sido
   region.value.district = currentAddress.sigungu
@@ -63,6 +70,7 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
 
+// 지역 선택 옵션 계산
 const regionData = computed(() => {
   const cities = [...new Set(dummyDistricts.map(d => d.sido))].map(name => ({
     code: name,
@@ -94,12 +102,41 @@ const regionData = computed(() => {
   }
 })
 
+// 지역 변경 핸들러
 function handleRegionUpdate(updatedRegion) {
   region.value = updatedRegion
 }
 
-function fetchProperties(isLoadMore = false) {
-  if (isLoading.value || (!hasMore.value && isLoadMore)) return
+
+function updateDealType(val) {
+  dealType.value = [...val]
+}
+
+function getMappedTransactionType(selectedList) {
+  if (selectedList.length === 1) {
+    return selectedList[0] === '전세' ? 'JEONSE' : 'MONTHLY_RENT'
+  }
+  return null
+}
+
+function handleOnlySecureUpdate(val) {
+  onlySecure.value = val
+  fetchProperties()
+}
+
+// 백엔드 API 요청
+function fetchProperties() {
+  const params = {
+    transactionType: getMappedTransactionType(dealType.value),
+    jeonseDepositMin: priceStore.states.jeonseDeposit.min,
+    jeonseDepositMax: priceStore.states.jeonseDeposit.max,
+    monthlyDepositMin: priceStore.states.monthlyDeposit.min,
+    monthlyDepositMax: priceStore.states.monthlyDeposit.max,
+    monthlyRentMin: priceStore.states.monthlyRent.min,
+    monthlyRentMax: priceStore.states.monthlyRent.max,
+
+    function fetchProperties(isLoadMore = false) {
+      if (isLoading.value || (!hasMore.value && isLoadMore)) return
   isLoading.value = true
 
   const lastItem = propertyList.value[propertyList.value.length - 1]
@@ -114,6 +151,7 @@ function fetchProperties(isLoadMore = false) {
     monthlyDepositMax: md.value.max ?? undefined,
     monthlyMin: mr.value.min ? Math.floor(mr.value.min / 10000) : undefined,
     monthlyMax: mr.value.max ? Math.floor(mr.value.max / 10000) : undefined,
+
     sido: region.value.city,
     sigungu: region.value.district,
     eupmyendong: region.value.parish,
@@ -185,11 +223,8 @@ function handleFilterCompleted() {
     </div>
 
     <div class="filtering">
-      <Filtering :deal-type="dealType" :jeonse-deposit="jeonseDeposit" :monthly-deposit="monthlyDeposit"
-        :monthly-rent="monthlyRent" :only-secure="onlySecure" :region="region" :region-data="regionData"
-        @update:dealType="val => (dealType.value = val)" @update:jeonseDeposit="val => (jeonseDeposit.value = val)"
-        @update:monthlyDeposit="val => (monthlyDeposit.value = val)"
-        @update:monthlyRent="val => (monthlyRent.value = val)" @update:onlySecure="val => (onlySecure.value = val)"
+      <Filtering :deal-type="dealType" :only-secure="onlySecure" :region="region" :region-data="regionData"
+        @update:dealType="updateDealType" @update:onlySecure="handleOnlySecureUpdate"
         @update:region="handleRegionUpdate" @filterCompleted="handleFilterCompleted" />
     </div>
 
@@ -199,10 +234,10 @@ function handleFilterCompleted() {
       <!-- 부모에서 이렇게 바꿔줘야 함 -->
       <PropertyCard v-for="item in propertyList" :key="item.propertyId" :propertyId="item.propertyId"
         :transactionType="item.transactionType" :price="item.transactionType === 'JEONSE'
-            ? item.jeonseDeposit
-            : item.monthlyDeposit
+          ? item.jeonseDeposit
+          : item.monthlyDeposit
           " :monthlyRent="item.transactionType === 'JEONSE' ? null : item.monthlyRent
-          " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
+            " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
         :exclusiveArea="item.exclusiveAreaM2" :supplyArea="item.supplyAreaM2" :floor="item.floor"
         :totalFloors="item.totalFloors" :direction="item.mainDirection" :address="item.roadAddress"
         :isFavorite="item.isFavorite" :isSafe="item.isSafe" />
