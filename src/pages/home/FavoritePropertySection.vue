@@ -5,9 +5,9 @@ import { RouterLink } from 'vue-router'
 import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
 import 'swiper/css'
-import { defineProps, computed } from 'vue'
+import { defineProps } from 'vue'
 import Buttons from '@/components/common/buttons/Buttons.vue'
-
+import SampleImg2 from '@/assets/images/home/sample-img2.png'
 const props = defineProps({
   favorite: {
     type: Array,
@@ -62,12 +62,12 @@ const modules = [Parallax, Pagination]
         ></div>
         <swiper-slide v-for="fp in props.favorite" :key="fp.id">
           <router-link
-            :to="`/favorite/${fp.id}`"
+            :to="`/property/${fp.id}`"
             class="router-text router-card"
           >
             <div class="card fp-box">
               <img
-                :src="fp.image_url"
+                :src="SampleImg2"
                 class="card-img-top fp-img"
                 alt="건물 이미지"
               />
