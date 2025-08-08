@@ -55,8 +55,11 @@ async function saveEdit(field) {
   if (newValue !== '') {
     try {
       const payload = {
-        nickname: field === 'nickname' ? newValue : userInfo.value.nickname,
-        phone: field === 'phone' ? newValue : userInfo.value.phone,
+        // 기존 userInfo 객체의 data 속성에 접근하도록 수정
+        nickname:
+          field === 'nickname' ? newValue : userInfo.value.data.nickname,
+        phone: field === 'phone' ? newValue : userInfo.value.data.phone,
+        profileImage: userInfo.value.data.profileImage,
       }
       await userStore.updateUserInfo(payload)
       console.log(`${field} 수정 성공`)
