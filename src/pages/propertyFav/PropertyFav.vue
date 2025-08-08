@@ -4,6 +4,7 @@ import PropertyCard from '@/components/cards/PropertyCard.vue'
 import FilterBarFavorite from '@/components/filters/FilterBarFavorite.vue'
 // import { getFavProperties } from '@/api/property'
 import apiClient from '@/api/apiClient'
+import Navbar from '@/components/layouts/Navbar.vue'
 
 // 필터 상태 정의
 const favOnlySecure = ref(false)
@@ -93,6 +94,7 @@ onMounted(async () => {
     <div v-else class="no-data">
       관심 매물이 없습니다.
     </div>
+    <Navbar />
   </div>
 </template>
 
