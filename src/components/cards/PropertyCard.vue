@@ -129,7 +129,7 @@ const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
 function goToDetail() {
   console.log('[goToDetail] propertyId:', props.propertyId)
 
-  router.push({ name: 'PropertyDetails', params: { id: props.propertyId } })
+  router.push({ name: 'propertyDetails', params: { id: props.propertyId } })
 }
 </script>
 

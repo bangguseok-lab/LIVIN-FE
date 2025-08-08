@@ -88,7 +88,7 @@ const searchAddressByCoords = async (latitude, longitude) => {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
   sessionStorage.setItem('sido', '서울특별시')
   sessionStorage.setItem('sigungu', '강남구')
   sessionStorage.setItem('eupmyendong', '대치동')
@@ -138,8 +138,9 @@ onMounted(() => {
   const favoriteParams = {
     limit: 3,
   }
-  property.fetchFavoriteProperties(favoriteParams)
-  user.fetchNickname()
+  await property.fetchFavoriteProperties(favoriteParams)
+  await user.fetchNickname()
+  console.log(property.getPropertiesList)
 })
 </script>
 
