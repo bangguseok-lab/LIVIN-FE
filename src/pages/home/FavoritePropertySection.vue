@@ -16,10 +16,6 @@ const props = defineProps({
   },
 })
 
-onMounted(() => {
-  console.log(props)
-})
-
 const modules = [Parallax, Pagination]
 </script>
 <template>
