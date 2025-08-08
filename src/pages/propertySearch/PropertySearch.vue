@@ -117,6 +117,7 @@ function handleOnlySecureUpdate(val) {
   fetchProperties()
 }
 
+
 const toWon = v =>
   v === null || v === undefined || v === '' ? undefined : Number(v) * 10000
 
@@ -135,6 +136,7 @@ function fetchProperties(isLoadMore = false) {
     monthlyDepositMax: toWon(md.value.max) ?? undefined,
     monthlyMin: mr.value.min ?? undefined,
     monthlyMax: mr.value.max ?? undefined,
+
 
     sido: region.value.city,
     sigungu: region.value.district,
@@ -195,18 +197,11 @@ function handleFilterCompleted() {
     <div class="guide">
       <!-- 현재 위치 -->
       <div class="location">
-        <span class="marker"
-          ><img
-            src="@/assets/images/search/marker.svg"
-            alt="위치 아이콘"
-            class="marker-icon"
-        /></span>
+        <span class="marker"><img src="@/assets/images/search/marker.svg" alt="위치 아이콘" class="marker-icon" /></span>
         <span>
           현재
-          <span class="highlight"
-            >{{ address.sido }} {{ address.sigungu }}
-            {{ address.eupmyendong || '' }}</span
-          >에 있어요
+          <span class="highlight">{{ address.sido }} {{ address.sigungu }}
+            {{ address.eupmyendong || '' }}</span>에 있어요
         </span>
       </div>
       <!-- 타이틀 -->
@@ -214,47 +209,24 @@ function handleFilterCompleted() {
     </div>
 
     <div class="filtering">
-      <Filtering
-        :deal-type="dealType"
-        :only-secure="onlySecure"
-        :region="region"
-        :region-data="regionData"
-        @update:dealType="updateDealType"
-        @update:onlySecure="handleOnlySecureUpdate"
-        @update:region="handleRegionUpdate"
-        @filterCompleted="handleFilterCompleted"
-      />
+      <Filtering :deal-type="dealType" :only-secure="onlySecure" :region="region" :region-data="regionData"
+        @update:dealType="updateDealType" @update:onlySecure="handleOnlySecureUpdate"
+        @update:region="handleRegionUpdate" @filterCompleted="handleFilterCompleted" />
     </div>
 
     <!-- 매물 리스트 -->
     <div class="property-list">
       <!-- 매물 카드 컴포넌트 -->
       <!-- 부모에서 이렇게 바꿔줘야 함 -->
-      <PropertyCard
-        v-for="item in propertyList"
-        :key="item.propertyId"
-        :propertyId="item.propertyId"
-        :transactionType="item.transactionType"
-        :price="
-          item.transactionType === 'JEONSE'
-            ? item.jeonseDeposit
-            : item.monthlyDeposit
-        "
-        :monthlyRent="
-          item.transactionType === 'JEONSE' ? null : item.monthlyRent
-        "
-        :propertyType="item.propertyType"
-        :title="item.name"
-        :detailAddress="item.detailAddress"
-        :exclusiveArea="item.exclusiveAreaM2"
-        :supplyArea="item.supplyAreaM2"
-        :floor="item.floor"
-        :totalFloors="item.totalFloors"
-        :direction="item.mainDirection"
-        :address="item.roadAddress"
-        :isFavorite="item.isFavorite"
-        :isSafe="item.isSafe"
-      />
+      <PropertyCard v-for="item in propertyList" :key="item.propertyId" :propertyId="item.propertyId"
+        :transactionType="item.transactionType" :price="item.transactionType === 'JEONSE'
+          ? item.jeonseDeposit
+          : item.monthlyDeposit
+          " :monthlyRent="item.transactionType === 'JEONSE' ? null : item.monthlyRent
+            " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
+        :exclusiveArea="item.exclusiveAreaM2" :supplyArea="item.supplyAreaM2" :floor="item.floor"
+        :totalFloors="item.totalFloors" :direction="item.mainDirection" :address="item.roadAddress"
+        :isFavorite="item.isFavorite" :isSafe="item.isSafe" />
 
       <!-- 매물이 없을 경우 -->
       <div v-if="!propertyList.length && !isLoading" class="no-result">

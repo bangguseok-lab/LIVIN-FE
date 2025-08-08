@@ -17,7 +17,12 @@ const userStore = useUserStore()
 const { userInfo } = storeToRefs(userStore)
 const nickname = computed(() => userInfo.value?.data?.nickname || '닉네임')
 const name = computed(() => userInfo.value?.data?.name || '이름')
-const birth = computed(() => userInfo.value?.data?.birth || '생년월일')
+const birth = computed(() => {
+  const year = userInfo.value?.data?.birthDate[0]
+  const month = userInfo.value?.data?.birthDate[1]
+  const day = userInfo.value?.data?.birthDate[2]
+  return year + '년 ' + month + '월 ' + day + '일'
+})
 const phoneNumber = computed(() => userInfo.value?.data?.phone || '전화번호')
 const role = computed(() => userInfo.value?.data?.role || 'TENANT')
 const profileImage = computed(() => {

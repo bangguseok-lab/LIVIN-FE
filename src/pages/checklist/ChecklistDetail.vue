@@ -163,38 +163,24 @@ async function gotoChecklist() {
 
       <h5 class="fw-bold">
         건물 컨디션
-        <button
-          @click="() => openModal('건물 컨디션', 'BUILDING')"
-          class="add-img"
-        >
+        <button @click="() => openModal('건물 컨디션', 'BUILDING')" class="add-img">
           <img src="@/assets/add-btn.svg" />
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span
-          v-for="item in buildingItems"
-          :key="item.checklistItemId"
-          class="tag"
-        >
+        <span v-for="item in buildingItems" :key="item.checklistItemId" class="tag">
           {{ item.keyword }}
         </span>
       </div>
 
       <h5 class="fw-bold">
         주변 인프라
-        <button
-          @click="() => openModal('주변 인프라', 'INFRA')"
-          class="add-img"
-        >
+        <button @click="() => openModal('주변 인프라', 'INFRA')" class="add-img">
           <img src="@/assets/add-btn.svg" />
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span
-          v-for="item in infraItems"
-          :key="item.checklistItemId"
-          class="tag"
-        >
+        <span v-for="item in infraItems" :key="item.checklistItemId" class="tag">
           {{ item.keyword }}
         </span>
       </div>
@@ -206,30 +192,19 @@ async function gotoChecklist() {
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span
-          v-for="item in optionItems"
-          :key="item.checklistItemId"
-          class="tag"
-        >
+        <span v-for="item in optionItems" :key="item.checklistItemId" class="tag">
           {{ item.keyword }}
         </span>
       </div>
 
       <h5 class="fw-bold">
         주변 환경
-        <button
-          @click="() => openModal('주변 환경', 'CIRCUMSTANCE')"
-          class="add-img"
-        >
+        <button @click="() => openModal('주변 환경', 'CIRCUMSTANCE')" class="add-img">
           <img src="@/assets/add-btn.svg" />
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span
-          v-for="item in circumstanceItems"
-          :key="item.checklistItemId"
-          class="tag"
-        >
+        <span v-for="item in circumstanceItems" :key="item.checklistItemId" class="tag">
           {{ item.keyword }}
         </span>
       </div>
@@ -241,11 +216,7 @@ async function gotoChecklist() {
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span
-          v-for="item in customItems"
-          :key="item.checklistItemId"
-          class="tag"
-        >
+        <span v-for="item in customItems" :key="item.checklistItemId" class="tag">
           {{ item.keyword }}
         </span>
       </div>
@@ -254,30 +225,13 @@ async function gotoChecklist() {
       </div>
     </section>
   </div>
-  <ItemToggleModal
-    v-if="showModal"
-    :label="modalLabel"
-    :items="modalItems"
-    :checklist-id="checklistId"
-    @close="onModalClose"
-  />
-  <CustomChecklistModal
-    v-if="showCustomModal"
-    :checklist-id="checklistId"
-    @close="handleCustomModalClose"
-  />
-  <ChecklistDeleteSubmitModal
-    v-if="showDeleteConfirm"
-    @confirm="confirmDeleteChecklist"
-    @close="showDeleteConfirm = false"
-  />
-  <ChecklistEditSubmitModal
-    v-if="showEditModal"
-    :initTitle="checklist.title"
-    :initDescription="checklist.description"
-    @save="updateChecklistInfo"
-    @close="showEditModal = false"
-  />
+  <ItemToggleModal v-if="showModal" :label="modalLabel" :items="modalItems" :checklist-id="checklistId"
+    @close="onModalClose" />
+  <CustomChecklistModal v-if="showCustomModal" :checklist-id="checklistId" @close="handleCustomModalClose" />
+  <ChecklistDeleteSubmitModal v-if="showDeleteConfirm" @confirm="confirmDeleteChecklist"
+    @close="showDeleteConfirm = false" />
+  <ChecklistEditSubmitModal v-if="showEditModal" :initTitle="checklist.title" :initDescription="checklist.description"
+    @save="updateChecklistInfo" @close="showEditModal = false" />
 </template>
 
 <style scoped>
@@ -286,6 +240,7 @@ async function gotoChecklist() {
   width: 100%;
   background-color: #007bff;
 }
+
 .card-2 {
   display: flex;
   justify-content: space-between;
@@ -295,6 +250,7 @@ async function gotoChecklist() {
   color: white;
   position: relative;
 }
+
 .image-box {
   width: 5.125rem;
   height: 4rem;
@@ -302,14 +258,17 @@ async function gotoChecklist() {
   border-radius: 0.5rem;
   margin-right: 1rem;
 }
+
 .title {
   font-size: 1.2rem;
   font-weight: bold;
 }
+
 .desc {
   font-size: 0.9rem;
   opacity: 0.9;
 }
+
 .actions {
   position: absolute;
   margin-bottom: 1rem;
@@ -318,22 +277,26 @@ async function gotoChecklist() {
   display: flex;
   gap: 0.5rem;
 }
+
 .section {
-  min-height: 100%;
+  /* min-height: 100%; */
   border-radius: 2rem 0 0 0;
   padding: 1.5rem;
   background-color: white;
 }
+
 .section h3 {
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
+
 .tag-group {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
+
 .tag {
   /* background-color: #e5f0ff;
   color: #007bff; */
@@ -343,12 +306,15 @@ async function gotoChecklist() {
   border-radius: 0.625rem;
   font-size: 0.9rem;
 }
+
 .footer-btn {
   width: 100%;
   padding: 1rem;
   padding-bottom: 2rem;
   background-color: white;
+  margin-bottom: 2rem;
 }
+
 .edit-btn {
   width: 100%;
   background-color: #007bff;
@@ -359,6 +325,7 @@ async function gotoChecklist() {
   font-weight: bold;
   border: none;
 }
+
 .card-content {
   display: flex;
   align-items: center;
