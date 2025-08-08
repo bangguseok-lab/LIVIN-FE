@@ -15,7 +15,7 @@ const handleClick = () => {
 
 onMounted(() => {
   inputAddress.value = propertyStore.getNewProperty.address + propertyStore.getNewProperty.detailAddress + propertyStore.getNewProperty.extraAddress;
-  console.log(inputAddress.value)
+  // console.log(inputAddress.value)
 })
 </script>
 
