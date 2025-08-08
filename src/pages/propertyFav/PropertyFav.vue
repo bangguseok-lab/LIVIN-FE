@@ -2,7 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
 import FilterBarFavorite from '@/components/filters/FilterBarFavorite.vue'
-import { getFavProperties } from '@/api/property'
+// import { getFavProperties } from '@/api/property'
+import apiClient from '@/api/apiClient'
 
 // 필터 상태 정의
 const favOnlySecure = ref(false)
@@ -52,7 +53,7 @@ const getRegionData = computed(() => {
 // 관심 매물 리스트 불러오기
 onMounted(async () => {
   try {
-    const res = await getFavProperties()
+    const res = await apiClient.getFavProperties()
     propertyList.value = res.data
   } catch (err) {
     console.error('관심 매물 조회 실패:', err)
