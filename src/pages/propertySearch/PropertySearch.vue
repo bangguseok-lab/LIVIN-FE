@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
@@ -79,10 +79,26 @@ function handleRegionUpdate(updatedRegion) {
   region.value = updatedRegion
 }
 
+function updateDealType(val) {
+  dealType.value = [...val]
+}
+
+function getMappedTransactionType(selectedList) {
+  if (selectedList.length === 1) {
+    return selectedList[0] === '전세' ? 'JEONSE' : 'MONTHLY_RENT'
+  }
+  return null
+}
+
+function handleOnlySecureUpdate(val) {
+  onlySecure.value = val
+  fetchProperties()
+}
+
 // 백엔드 API 요청
 function fetchProperties() {
   const params = {
-    dealType: dealType.value,
+    transactionType: getMappedTransactionType(dealType.value),
     jeonseDepositMin: priceStore.states.jeonseDeposit.min,
     jeonseDepositMax: priceStore.states.jeonseDeposit.max,
     monthlyDepositMin: priceStore.states.monthlyDeposit.min,
@@ -96,12 +112,9 @@ function fetchProperties() {
     limit: 20,
   }
 
-  console.log('[fetchProperties] 요청 params:', params)
-
   axios
     .get('/api/properties', { params })
     .then(res => {
-      console.log('[fetchProperties] 요청 URL:', res.config.url)
       console.log('매물 결과:', res.data)
       propertyList.value = res.data
     })
@@ -139,8 +152,8 @@ function fetchProperties() {
         :only-secure="onlySecure"
         :region="region"
         :region-data="regionData"
-        @update:dealType="val => (dealType.value = val)"
-        @update:onlySecure="val => (onlySecure.value = val)"
+        @update:dealType="updateDealType"
+        @update:onlySecure="handleOnlySecureUpdate"
         @update:region="handleRegionUpdate"
         @filterCompleted="fetchProperties"
       />

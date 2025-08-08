@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, watch, onMounted, onUpdated } from 'vue'
+import { reactive, watch } from 'vue'
 
 // emit 정의
 // 상위 컴포넌트에 선택된 지역 정보를 전달하기 위한 emit 함수 선언 (이벤트 이름: updateRegion)
@@ -38,14 +38,10 @@ const selected = reactive({
 watch(
   () => props.selectedRegion,
   val => {
-    // console.log('[watch:selectedRegion] 감지됨:', val)
     if (!val) return
     selected.city = val.city || null
     selected.district = val.district || null
     selected.parish = val.parish || null
-    // console.log('[watch:selectedRegion] 내부 selected 변경 완료:', {
-    //   ...selected,
-    // })
   },
   { immediate: true, deep: true }, // 이 부분 중요!
 )
@@ -71,13 +67,6 @@ function selectParish(code) {
   selected.parish = code
   emit('updateRegion', { ...selected })
 }
-// onMounted(() => {
-//   console.log('[onMounted] 초기 selected 상태:', { ...selected })
-// })
-
-// onUpdated(() => {
-//   console.log('[onUpdated] 업데이트 후 selected 상태:', { ...selected })
-// })
 </script>
 
 <template>
