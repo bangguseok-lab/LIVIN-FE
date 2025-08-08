@@ -63,6 +63,7 @@ apiClient.interceptors.response.use(
 
           alert('인증이 만료되었습니다. 다시 로그인해주세요.')
           window.location.href = '/landing'
+          sessionStorage.clear()
           return Promise.reject(error)
         }
       } else {
