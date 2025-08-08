@@ -6,6 +6,15 @@ export const usePropertyStore = defineStore('property', {
     favoriteProperties: [],
     properties: [],
     propertyDetails: {},
+
+    // 매물 등록용 state 추가 (지우면 안 됩니다! 매물 등록 시 사용 됩니다.)
+    newProperty: {
+      postcode: '', // 우편번호
+      address: '', // 주소
+      detailAddress: '', // 상세주소 (몇 동 몇 호인지)
+      extraAddress: '', // 참고 주소 (아파트 이름 등)
+      propertyNum: '', // 부동산 고유번호
+    },
   }),
   actions: {
     async fetchFavoriteProperties(params) {
