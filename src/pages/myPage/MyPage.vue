@@ -27,11 +27,13 @@ const phoneNumber = computed(() => userInfo.value?.data?.phone || '전화번호'
 const role = computed(() => userInfo.value?.data?.role || 'TENANT')
 const profileImage = computed(() => {
   const imageNumber = userInfo.value?.data?.profileImage ?? 1
-  return new URL(`../../assets/images/profile/test-${imageNumber}.svg`, import.meta.url).href
+  return new URL(
+    `../../assets/images/profile/test-${imageNumber}.svg`,
+    import.meta.url,
+  ).href
 })
 
 // const { profileImageUrl } = storeToRefs(userStore)
-
 
 const editingField = ref(null)
 const tempValue = ref('')
@@ -67,14 +69,15 @@ async function saveEdit(field) {
   editingField.value = null
 }
 
-// ✅ 역할 토글 변경 처리 (임대인 / 임차인 클릭 시)
 async function setUserType(type) {
   const newRole = type === '임대인' ? 'LANDLORD' : 'TENANT'
   if (role.value === newRole) return
 
   try {
     await userStore.changeRole(newRole)
-    // console.log('역할 변경 성공')
+    if (userInfo.value?.data) {
+      userInfo.value.data.role = newRole
+    }
   } catch (err) {
     console.error('역할 변경 실패', err)
     alert('유형 변경 중 오류가 발생했어요.')
@@ -108,17 +111,17 @@ async function handleWithdraw() {
 
 // 버튼 내용 다르게 보여주기
 const manageButton = computed(() => {
-  if (!userInfo.value) return { title: '', desc: '' }
+  if (!userInfo.value?.data) return { title: '', desc: '' }
 
-  return userInfo.value.role === 'LANDLORD'
+  return role.value === 'LANDLORD'
     ? {
-      title: '내 매물 관리하기',
-      desc: '내가 올린 매물을 확인하고 관리해요',
-    }
+        title: '내 매물 관리하기',
+        desc: '내가 올린 매물을 확인하고 관리해요',
+      }
     : {
-      title: '나만의 체크리스트 관리하기',
-      desc: '내가 찾는 집을 위한',
-    }
+        title: '나만의 체크리스트 관리하기',
+        desc: '내가 찾는 집을 위한',
+      }
 })
 
 function handleManageClick() {
@@ -175,10 +178,16 @@ onMounted(async () => {
       <div class="info-header">
         <h2>회원 정보</h2>
         <div class="user-type-toggle">
-          <button :class="{ active: role === 'LANDLORD' }" @click="setUserType('임대인')">
+          <button
+            :class="{ active: role === 'LANDLORD' }"
+            @click="setUserType('임대인')"
+          >
             임대인
           </button>
-          <button :class="{ active: role === 'TENANT' }" @click="setUserType('임차인')">
+          <button
+            :class="{ active: role === 'TENANT' }"
+            @click="setUserType('임차인')"
+          >
             임차인
           </button>
         </div>
@@ -194,15 +203,24 @@ onMounted(async () => {
         <li>
           <span class="label">닉네임</span>
           <span class="value">
-            <span v-if="editingField === 'nickname'" contenteditable="true" class="editable-text" ref="nicknameRef"
-              :style="{ color: 'var(--primary-color)' }">{{ tempValue }}</span>
+            <span
+              v-if="editingField === 'nickname'"
+              contenteditable="true"
+              class="editable-text"
+              ref="nicknameRef"
+              :style="{ color: 'var(--primary-color)' }"
+              >{{ tempValue }}</span
+            >
             <span v-else>{{ nickname }}</span>
           </span>
-          <button class="edit-btn" @click="
-            editingField === 'nickname'
-              ? saveEdit('nickname')
-              : startEdit('nickname')
-            ">
+          <button
+            class="edit-btn"
+            @click="
+              editingField === 'nickname'
+                ? saveEdit('nickname')
+                : startEdit('nickname')
+            "
+          >
             {{ editingField === 'nickname' ? '수정완료' : '수정하기' }}
           </button>
         </li>
@@ -216,13 +234,22 @@ onMounted(async () => {
         <li>
           <span class="label">연락처</span>
           <span class="value">
-            <span v-if="editingField === 'phone'" contenteditable="true" class="editable-text" ref="phoneRef"
-              :style="{ color: 'var(--primary-color)' }">{{ tempValue }}</span>
+            <span
+              v-if="editingField === 'phone'"
+              contenteditable="true"
+              class="editable-text"
+              ref="phoneRef"
+              :style="{ color: 'var(--primary-color)' }"
+              >{{ tempValue }}</span
+            >
             <span v-else>{{ phoneNumber }}</span>
           </span>
-          <button class="edit-btn" @click="
-            editingField === 'phone' ? saveEdit('phone') : startEdit('phone')
-            ">
+          <button
+            class="edit-btn"
+            @click="
+              editingField === 'phone' ? saveEdit('phone') : startEdit('phone')
+            "
+          >
             {{ editingField === 'phone' ? '수정완료' : '수정하기' }}
           </button>
         </li>
@@ -233,9 +260,7 @@ onMounted(async () => {
 
     <section class="manage-section">
       <h2 class="manage-title">
-        {{
-          role === 'LANDLORD' ? '나의 매물 관리' : '나의 체크리스트 관리'
-        }}
+        {{ role === 'LANDLORD' ? '나의 매물 관리' : '나의 체크리스트 관리' }}
       </h2>
       <Buttons type="xl" @click="handleManageClick" class="manage-btn">
         <div class="top-text">{{ manageButton.desc }}</div>
@@ -251,7 +276,10 @@ onMounted(async () => {
       </button>
     </section>
 
-    <ProfileImageModal v-model="showProfileModal" @change="onProfileImageChange" />
+    <ProfileImageModal
+      v-model="showProfileModal"
+      @change="onProfileImageChange"
+    />
   </div>
 
   <Navbar />
