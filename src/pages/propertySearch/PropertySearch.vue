@@ -1,11 +1,13 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
-import { usePriceStore } from '@/stores/priceStore'
 
-const priceStore = usePriceStore()
+import { usePropertyStore } from '@/stores/property'
+import { usePriceStore } from '@/stores/priceStore'
+import { storeToRefs } from 'pinia'
+
 import districtData from '@/assets/data/district.json'
 
 const dealType = ref([])
@@ -13,21 +15,38 @@ const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null })
 const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
 
+
 const address = ref({
   sido: sessionStorage.getItem('sido') || '서울특별시',
   sigungu: sessionStorage.getItem('sigungu') || '강남구',
   eupmyendong: sessionStorage.getItem('eupmyendong') || '논현동',
 })
 
+const propertyStore = usePropertyStore()
+// const { address } = storeToRefs(propertyStore)
+const priceStore = usePriceStore()
+const isLoading = ref(false)
+const hasMore = ref(true)
+
+const jd = computed(
+  () => priceStore.states.jeonseDeposit ?? { min: null, max: null },
+)
+const md = computed(
+  () => priceStore.states.monthlyDeposit ?? { min: null, max: null },
+)
+const mr = computed(
+  () => priceStore.states.monthlyRent ?? { min: null, max: null },
+)
+
+
 // 예시 더미 데이터
 const dummyDistricts = districtData
 
 onMounted(() => {
-  // fallback 안전처리
   const fallbackAddress = {
     sido: '서울특별시',
     sigungu: '강남구',
-    eupmyendong: '논현동',
+    eupmyendong: '대치동',
   }
   const currentAddress =
     address.value?.sido && address.value?.sigungu
@@ -35,11 +54,20 @@ onMounted(() => {
       : fallbackAddress
 
   // region 초기화
+
   region.value.city = currentAddress.sido
   region.value.district = currentAddress.sigungu
   region.value.parish = currentAddress.eupmyendong || null
-  // 매물 불러오기
+
+  propertyList.value = []
+  hasMore.value = true
   fetchProperties()
+
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 
 // 지역 선택 옵션 계산
@@ -79,6 +107,7 @@ function handleRegionUpdate(updatedRegion) {
   region.value = updatedRegion
 }
 
+
 function updateDealType(val) {
   dealType.value = [...val]
 }
@@ -105,20 +134,74 @@ function fetchProperties() {
     monthlyDepositMax: priceStore.states.monthlyDeposit.max,
     monthlyRentMin: priceStore.states.monthlyRent.min,
     monthlyRentMax: priceStore.states.monthlyRent.max,
+
+function fetchProperties(isLoadMore = false) {
+  if (isLoading.value || (!hasMore.value && isLoadMore)) return
+  isLoading.value = true
+
+  const lastItem = propertyList.value[propertyList.value.length - 1]
+
+  const params = {
+    transactionType: dealType.value.length
+      ? dealType.value.join(',')
+      : undefined,
+    jeonseDepositMin: jd.value.min ?? undefined,
+    jeonseDepositMax: jd.value.max ?? undefined,
+    monthlyDepositMin: md.value.min ?? undefined,
+    monthlyDepositMax: md.value.max ?? undefined,
+    monthlyMin: mr.value.min ? Math.floor(mr.value.min / 10000) : undefined,
+    monthlyMax: mr.value.max ? Math.floor(mr.value.max / 10000) : undefined,
+
     sido: region.value.city,
     sigungu: region.value.district,
     eupmyendong: region.value.parish,
-    onlySecure: onlySecure.value,
+    onlySecure: onlySecure.value ? true : undefined,
     limit: 20,
+    lastId: isLoadMore ? lastItem?.propertyId : undefined,
   }
 
+  const filteredParams = Object.fromEntries(
+    Object.entries(params).filter(([_, v]) => v !== null && v !== undefined),
+  )
+
+  console.log('[PropertySearch] API 요청 ↓', filteredParams)
+
   axios
-    .get('/api/properties', { params })
+    .get('/api/properties', { params: filteredParams })
     .then(res => {
       console.log('매물 결과:', res.data)
-      propertyList.value = res.data
+      const newData = res.data
+
+      if (isLoadMore) {
+        propertyList.value.push(...newData)
+      } else {
+        propertyList.value = newData
+      }
+
+      if (newData.length < 20) {
+        hasMore.value = false
+      }
     })
     .catch(err => console.error('매물 요청 실패:', err))
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+function handleScroll() {
+  const scrollTop = window.scrollY
+  const windowHeight = window.innerHeight
+  const documentHeight = document.body.offsetHeight
+
+  if (scrollTop + windowHeight >= documentHeight - 200) {
+    fetchProperties(true)
+  }
+}
+
+function handleFilterCompleted() {
+  propertyList.value = []
+  hasMore.value = true
+  fetchProperties()
 }
 </script>
 
@@ -155,7 +238,7 @@ function fetchProperties() {
         @update:dealType="updateDealType"
         @update:onlySecure="handleOnlySecureUpdate"
         @update:region="handleRegionUpdate"
-        @filterCompleted="fetchProperties"
+        @filterCompleted="handleFilterCompleted"
       />
     </div>
 
@@ -188,6 +271,11 @@ function fetchProperties() {
         :isFavorite="item.isFavorite"
         :isSafe="item.isSafe"
       />
+
+      <!-- 매물이 없을 경우 -->
+      <div v-if="!propertyList.length && !isLoading" class="no-result">
+        조건에 맞는 매물이 없어요
+      </div>
     </div>
   </div>
 </template>
@@ -248,5 +336,14 @@ function fetchProperties() {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-bottom: 62px;
+}
+
+.no-result {
+  padding: 7rem;
+  text-align: center;
+  color: var(--grey);
+  font-size: 1rem;
+  font-weight: var(--font-weight-sm);
 }
 </style>
