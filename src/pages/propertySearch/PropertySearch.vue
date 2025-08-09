@@ -321,6 +321,7 @@ function handleFilterCompleted() {
   flex-direction: column;
   gap: 12px;
   padding-bottom: 62px;
+  cursor: pointer;
 }
 
 .no-result {
