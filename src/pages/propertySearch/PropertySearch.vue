@@ -36,6 +36,26 @@ const regionData = computed(() => {
   return { cities, districts, parishes }
 })
 
+// 사용자의 현재 위치(세션). 없으면 null로 처리
+const safe = v => (v && v !== 'null' && v !== 'undefined' ? v : null)
+const userAddress = {
+  sido: safe(sessionStorage.getItem('sido')),
+  sigungu: safe(sessionStorage.getItem('sigungu')),
+  eupmyendong: safe(sessionStorage.getItem('eupmyendong')),
+}
+
+// 표시 여부
+const hasUserAddress = computed(
+  () => !!(userAddress.sido || userAddress.sigungu || userAddress.eupmyendong),
+)
+
+// 표시 문자열
+const currentAddressText = computed(() =>
+  [userAddress.sido, userAddress.sigungu, userAddress.eupmyendong]
+    .filter(Boolean)
+    .join(' '),
+)
+
 onMounted(async () => {
   const isRegionApplied = !!(
     s.appliedRegion.city ||
@@ -112,33 +132,70 @@ function onClearFilter(chip) {
   <div class="PropertySearch">
     <!-- 현재 위치와 타이틀 -->
     <div class="guide">
-      <!-- 현재 위치 -->
-      <div class="location">
-        <span class="marker"><img src="@/assets/images/search/marker.svg" alt="위치 아이콘" class="marker-icon" /></span>
-        <!-- <span>
-          현재
-          <span class="highlight">{{ sido }} {{ sigungu }}
-            {{ eupmyendong || '' }}</span>에 있어요
-        </span> -->
+      <div class="location" v-if="hasUserAddress">
+        <!-- 현재 위치 -->
+        <span class="marker"
+          ><img
+            src="@/assets/images/search/marker.svg"
+            alt="위치 아이콘"
+            class="marker-icon"
+        /></span>
+        <span>
+          현재 <span class="highlight">{{ currentAddressText }}</span
+          >에 있어요</span
+        >
       </div>
-      <!-- 타이틀 -->
+
       <h1 class="title">원하는 매물을 검색해보세요</h1>
     </div>
-    <Filtering :deal-type="s.dealType" :only-secure="s.onlySecure" :region="s.region" :region-data="regionData"
-      @update:dealType="updateDealType" @update:onlySecure="handleOnlySecureUpdate" @update:region="handleRegionUpdate"
-      @filterCompleted="handleFilterCompleted" />
-    <SearchSummary :deal-type="s.dealType" :region="s.appliedRegion" :only-secure="s.onlySecure"
-      :total-count="s.totalCount" :loaded-count="s.list.length" :show-loaded="true" @clear="onClearFilter" />
+
+    <Filtering
+      :deal-type="s.dealType"
+      :only-secure="s.onlySecure"
+      :region="s.region"
+      :region-data="regionData"
+      @update:dealType="updateDealType"
+      @update:onlySecure="handleOnlySecureUpdate"
+      @update:region="handleRegionUpdate"
+      @filterCompleted="handleFilterCompleted"
+    />
+
+    <SearchSummary
+      :deal-type="s.dealType"
+      :region="s.appliedRegion"
+      :only-secure="s.onlySecure"
+      :total-count="s.totalCount"
+      :loaded-count="s.list.length"
+      :show-loaded="true"
+      @clear="onClearFilter"
+    />
+
     <div class="property-list">
-      <PropertyCard v-for="item in s.list" :key="item.propertyId" :propertyId="item.propertyId"
-        :transactionType="item.transactionType" :price="item.transactionType === 'JEONSE'
-          ? item.jeonseDeposit
-          : item.monthlyDeposit
-          " :monthlyRent="item.transactionType === 'JEONSE' ? null : item.monthlyRent
-              " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
-        :exclusiveArea="item.exclusiveAreaM2" :supplyArea="item.supplyAreaM2" :floor="item.floor"
-        :totalFloors="item.totalFloors" :direction="item.mainDirection" :address="item.roadAddress"
-        :isFavorite="item.isFavorite" :isSafe="item.isSafe" />
+      <PropertyCard
+        v-for="item in s.list"
+        :key="item.propertyId"
+        :propertyId="item.propertyId"
+        :transactionType="item.transactionType"
+        :price="
+          item.transactionType === 'JEONSE'
+            ? item.jeonseDeposit
+            : item.monthlyDeposit
+        "
+        :monthlyRent="
+          item.transactionType === 'JEONSE' ? null : item.monthlyRent
+        "
+        :propertyType="item.propertyType"
+        :title="item.name"
+        :detailAddress="item.detailAddress"
+        :exclusiveArea="item.exclusiveAreaM2"
+        :supplyArea="item.supplyAreaM2"
+        :floor="item.floor"
+        :totalFloors="item.totalFloors"
+        :direction="item.mainDirection"
+        :address="item.roadAddress"
+        :isFavorite="item.isFavorite"
+        :isSafe="item.isSafe"
+      />
       <div v-if="!s.list.length && !s.isLoading" class="no-result">
         조건에 맞는 매물이 없어요
       </div>
