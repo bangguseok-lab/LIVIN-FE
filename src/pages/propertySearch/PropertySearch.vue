@@ -1,237 +1,139 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import axios from 'axios'
+import { computed, onMounted, onUnmounted } from 'vue'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
-
-import { usePriceStore } from '@/stores/priceStore'
-
+import SearchSummary from '@/components/common/SearchSummary.vue'
 import districtData from '@/assets/data/district.json'
+import { usePropertySearchStore } from '@/stores/propertySearch'
 
-const dealType = ref([])
-const onlySecure = ref(false)
-const region = ref({ city: null, district: null, parish: null })
-const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
+defineOptions({ name: 'PropertySearch' })
 
-const address = ref({
-  sido: sessionStorage.getItem('sido') || '서울특별시',
-  sigungu: sessionStorage.getItem('sigungu') || '강남구',
-  eupmyendong: sessionStorage.getItem('eupmyendong') || '논현동',
-})
+const s = usePropertySearchStore()
 
-const priceStore = usePriceStore()
-const isLoading = ref(false)
-const hasMore = ref(true)
-
-const jd = computed(
-  () => priceStore.states.jeonseDeposit ?? { min: null, max: null },
-)
-const md = computed(
-  () => priceStore.states.monthlyDeposit ?? { min: null, max: null },
-)
-const mr = computed(
-  () => priceStore.states.monthlyRent ?? { min: null, max: null },
-)
-
-// 예시 더미 데이터
-const dummyDistricts = districtData
-
-onMounted(() => {
-  const fallbackAddress = {
-    sido: '서울특별시',
-    sigungu: '강남구',
-    eupmyendong: '대치동',
-  }
-  const currentAddress =
-    address.value?.sido && address.value?.sigungu
-      ? address.value
-      : fallbackAddress
-
-  // region 초기화
-
-  region.value.city = currentAddress.sido
-  region.value.district = currentAddress.sigungu
-  region.value.parish = currentAddress.eupmyendong || null
-
-  propertyList.value = []
-  hasMore.value = true
-  fetchProperties()
-
-  window.addEventListener('scroll', handleScroll)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
-
-// 지역 선택 옵션 계산
+// 지역 옵션은 s.region(임시) 기준
 const regionData = computed(() => {
-  const cities = [...new Set(dummyDistricts.map(d => d.sido))].map(name => ({
+  const cities = [...new Set(districtData.map(d => d.sido))].map(name => ({
     code: name,
     name,
   }))
-  const currentCity = region.value.city
-  const currentDistrict = region.value.district
+  const currentCity = s.region.city
+  const currentDistrict = s.region.district
 
-  const districts = dummyDistricts
-    .filter(d => d.sido === currentCity)
-    .map(d => d.sigungu)
-  const uniqueDistricts = [...new Set(districts)].map(name => ({
-    code: name,
-    name,
-  }))
+  const districts = [
+    ...new Set(
+      districtData.filter(d => d.sido === currentCity).map(d => d.sigungu),
+    ),
+  ].map(name => ({ code: name, name }))
 
-  const parishes = dummyDistricts
-    .filter(d => d.sido === currentCity && d.sigungu === currentDistrict)
-    .map(d => d.eupmyeondong)
-  const uniqueParishes = [...new Set(parishes)].map(name => ({
-    code: name,
-    name,
-  }))
+  const parishes = [
+    ...new Set(
+      districtData
+        .filter(d => d.sido === currentCity && d.sigungu === currentDistrict)
+        .map(d => d.eupmyeondong),
+    ),
+  ].map(name => ({ code: name, name }))
 
-  return {
-    cities,
-    districts: uniqueDistricts,
-    parishes: uniqueParishes,
-  }
+  return { cities, districts, parishes }
 })
 
-// 지역 변경 핸들러
-function handleRegionUpdate(updatedRegion) {
-  region.value = updatedRegion
-}
-
-function updateDealType(val) {
-  dealType.value = [...val]
-}
-
-function getMappedTransactionType(selectedList) {
-  if (selectedList.length === 1) {
-    return selectedList[0] === '전세' ? 'JEONSE' : 'MONTHLY_RENT'
-  }
-  return null
-}
-
-function handleOnlySecureUpdate(val) {
-  onlySecure.value = val
-  fetchProperties()
-}
-
-const toWon = v =>
-  v === null || v === undefined || v === '' ? undefined : Number(v) * 10000
-
-// 백엔드 API 요청
-function fetchProperties(isLoadMore = false) {
-  if (isLoading.value || (!hasMore.value && isLoadMore)) return
-  isLoading.value = true
-
-  const lastItem = propertyList.value[propertyList.value.length - 1]
-
-  const params = {
-    transactionType: getMappedTransactionType(dealType.value),
-    jeonseDepositMin: toWon(jd.value.min) ?? undefined,
-    jeonseDepositMax: toWon(jd.value.max) ?? undefined,
-    monthlyDepositMin: toWon(md.value.min) ?? undefined,
-    monthlyDepositMax: toWon(md.value.max) ?? undefined,
-    monthlyMin: mr.value.min ?? undefined,
-    monthlyMax: mr.value.max ?? undefined,
-
-    sido: region.value.city,
-    sigungu: region.value.district,
-    eupmyendong: region.value.parish,
-    onlySecure: onlySecure.value ? true : undefined,
-    limit: 20,
-    lastId: isLoadMore ? lastItem?.propertyId : undefined,
-  }
-
-  const filteredParams = Object.fromEntries(
-    Object.entries(params).filter(([_, v]) => v !== null && v !== undefined),
+onMounted(async () => {
+  const isRegionApplied = !!(
+    s.appliedRegion.city ||
+    s.appliedRegion.district ||
+    s.appliedRegion.parish
   )
+  const hasFilters = s.dealType.length > 0 || s.onlySecure || isRegionApplied
+  if (!hasFilters && !s.list.length) {
+    const safe = v => (v && v !== 'null' && v !== 'undefined' ? v : null)
+    const sido = safe(sessionStorage.getItem('sido'))
+    const sigungu = safe(sessionStorage.getItem('sigungu'))
+    const eupmyendong = safe(sessionStorage.getItem('eupmyendong'))
+    if (sido || sigungu || eupmyendong) {
+      s.region = { city: sido, district: sigungu, parish: eupmyendong }
+      s.appliedRegion = { ...s.region } // 칩/요청 기준값 동기화
+    }
+  }
 
-  console.log('[PropertySearch] API 요청 ↓', filteredParams)
+  if (!s.list.length) {
+    await s.fetchTotalCount()
+    await s.fetchList(false)
+  }
 
-  axios
-    .get('/api/properties', { params: filteredParams })
-    .then(res => {
-      console.log('매물 결과:', res.data)
-      const newData = res.data
-
-      if (isLoadMore) {
-        propertyList.value.push(...newData)
-      } else {
-        propertyList.value = newData
-      }
-
-      if (newData.length < 20) {
-        hasMore.value = false
-      }
-    })
-    .catch(err => console.error('매물 요청 실패:', err))
-    .finally(() => {
-      isLoading.value = false
-    })
-}
+  attachScroll()
+})
 
 function handleScroll() {
   const scrollTop = window.scrollY
   const windowHeight = window.innerHeight
-  const documentHeight = document.body.offsetHeight
+  const documentHeight = document.documentElement.scrollHeight
+  if (scrollTop + windowHeight >= documentHeight - 200) s.fetchList(true)
+}
 
-  if (scrollTop + windowHeight >= documentHeight - 200) {
-    fetchProperties(true)
+let scrollAttached = false
+function attachScroll() {
+  if (!scrollAttached) {
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    scrollAttached = true
+  }
+}
+function detachScroll() {
+  if (scrollAttached) {
+    window.removeEventListener('scroll', handleScroll)
+    scrollAttached = false
   }
 }
 
+onUnmounted(detachScroll)
+
+// 패널 이벤트
+function handleRegionUpdate(updated) {
+  s.region = updated
+}
 function handleFilterCompleted() {
-  propertyList.value = []
-  hasMore.value = true
-  fetchProperties()
+  s.applyRegion()
+  s.resetAndReload()
+}
+function handleOnlySecureUpdate(v) {
+  s.onlySecure = v
+  s.resetAndReload()
+}
+function updateDealType(v) {
+  s.dealType = [...v]
+}
+
+// 칩 해제
+function onClearFilter(chip) {
+  s.clearChip(chip)
+  s.resetAndReload()
 }
 </script>
 
 <template>
   <div class="PropertySearch">
-    <!-- 현재 위치와 타이틀 -->
-    <div class="guide">
-      <!-- 현재 위치 -->
-      <div class="location">
-        <span class="marker"
-          ><img
-            src="@/assets/images/search/marker.svg"
-            alt="위치 아이콘"
-            class="marker-icon"
-        /></span>
-        <span>
-          현재
-          <span class="highlight"
-            >{{ address.sido }} {{ address.sigungu }}
-            {{ address.eupmyendong || '' }}</span
-          >에 있어요
-        </span>
-      </div>
-      <!-- 타이틀 -->
-      <h1 class="title">원하는 매물을 검색해보세요</h1>
-    </div>
+    <Filtering
+      :deal-type="s.dealType"
+      :only-secure="s.onlySecure"
+      :region="s.region"
+      :region-data="regionData"
+      @update:dealType="updateDealType"
+      @update:onlySecure="handleOnlySecureUpdate"
+      @update:region="handleRegionUpdate"
+      @filterCompleted="handleFilterCompleted"
+    />
 
-    <div class="filtering">
-      <Filtering
-        :deal-type="dealType"
-        :only-secure="onlySecure"
-        :region="region"
-        :region-data="regionData"
-        @update:dealType="updateDealType"
-        @update:onlySecure="handleOnlySecureUpdate"
-        @update:region="handleRegionUpdate"
-        @filterCompleted="handleFilterCompleted"
-      />
-    </div>
+    <SearchSummary
+      :deal-type="s.dealType"
+      :region="s.appliedRegion"
+      :only-secure="s.onlySecure"
+      :total-count="s.totalCount"
+      :loaded-count="s.list.length"
+      :show-loaded="true"
+      @clear="onClearFilter"
+    />
 
-    <!-- 매물 리스트 -->
     <div class="property-list">
-      <!-- 매물 카드 컴포넌트 -->
-      <!-- 부모에서 이렇게 바꿔줘야 함 -->
       <PropertyCard
-        v-for="item in propertyList"
+        v-for="item in s.list"
         :key="item.propertyId"
         :propertyId="item.propertyId"
         :transactionType="item.transactionType"
@@ -255,9 +157,7 @@ function handleFilterCompleted() {
         :isFavorite="item.isFavorite"
         :isSafe="item.isSafe"
       />
-
-      <!-- 매물이 없을 경우 -->
-      <div v-if="!propertyList.length && !isLoading" class="no-result">
+      <div v-if="!s.list.length && !s.isLoading" class="no-result">
         조건에 맞는 매물이 없어요
       </div>
     </div>

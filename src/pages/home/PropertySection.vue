@@ -1,7 +1,7 @@
 <script setup>
-import { RouterLink } from 'vue-router'
-import { defineProps, onMounted, computed } from 'vue'
-
+import { defineProps, computed } from 'vue'
+import PropertyCard from '@/components/cards/PropertyCard.vue'
+import SampleImg1 from '@/assets/images/home/sample-img1.png'
 const props = defineProps({
   properties: {
     type: Array,
@@ -12,9 +12,7 @@ const props = defineProps({
     type: String,
   },
 })
-onMounted(() => {
-  console.log(props.propertyMessage)
-})
+
 const formattedMessage = computed(() => {
   return props.propertyMessage
     ? props.propertyMessage.replace(/\n/g, '<br>')
@@ -37,12 +35,24 @@ const formattedMessage = computed(() => {
         v-html="formattedMessage"
       ></p>
       <div class="row-box" v-for="p in props.properties">
-        <div class="row-title board-text-box">{{ p.name }}</div>
-        <small class="sm-text-box">
-          <router-link :to="`/property/${p.propertyId}`" class="router-text">
-            자세히 보기
-          </router-link>
-        </small>
+        <PropertyCard
+          :propertyId="p.propertyId"
+          :transactionType="p.transactionType"
+          :price="p.jeonseDeposit ? p.jeonseDeposit : p.monthlyDeposit"
+          :monthlyRent="p.monthlyRent"
+          :title="p.name"
+          :imageUrls="SampleImg1"
+          :propertyType="p.propertyType"
+          :detailAddress="p.detailAddress"
+          :exclusiveArea="p.exclusiveAreaM2"
+          :supplyArea="p.supplyAreaM2"
+          :floor="p.floor"
+          :totalFloors="p.totalFloors"
+          :direction="p.direction"
+          :address="p.address"
+          :isFavorite="p.isFavorite"
+          :isSafe="p.isSafe"
+        />
       </div>
     </div>
   </div>
@@ -91,16 +101,8 @@ const formattedMessage = computed(() => {
 }
 .row-box {
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: rem(70px);
-  border-top: 1px solid rgba($color: #000000, $alpha: 0.1);
-
+  height: auto;
   padding: 0 2rem;
-}
-.row-box:last-child {
-  border-bottom: 1px solid rgba($color: #000000, $alpha: 0.1);
 }
 .property-message {
   padding: 1rem 1rem;

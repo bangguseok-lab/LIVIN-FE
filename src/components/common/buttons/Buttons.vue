@@ -191,7 +191,7 @@ const iconComponent = computed(() => {
 
 .btn-sm :deep(.option-text) {
   font-size: rem(12px);
-  font-weight: var(--font-weight-lg);
+  font-weight: var(--font-weight-regular);
 }
 
 

@@ -6,9 +6,19 @@ export default {
     return data
   },
 
+  async getFavProperties(params) {
+    const { data } = await apiClient.get('/properties/favorite', { params })
+    return data
+  },
+
   async getProperties(params) {
     const { data } = await apiClient.get('/properties', { params })
     return data
+  },
+
+  async countProperties(params) {
+    const { data } = await apiClient.get('/properties/count', { params })
+    return Number(data ?? 0)
   },
 
   async getPropertyDetails(propertyId) {
