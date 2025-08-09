@@ -33,8 +33,6 @@ const profileImage = computed(() => {
   ).href
 })
 
-// const { profileImageUrl } = storeToRefs(userStore)
-
 const editingField = ref(null)
 const tempValue = ref('')
 
@@ -143,11 +141,15 @@ const manageButton = computed(() => {
       }
 })
 
-function handleManageClick() {
-  if (role.value === 'TENANT') {
+function handleManageClick(buttonTitle) {
+  if (userInfo.value?.role === 'TENANT') {
     router.push('/checklist')
-  } else if (role.value === 'LANDLORD') {
-    router.push('/propertyManage')
+  } else {
+    if (buttonTitle === '내 매물 관리하기') {
+      router.push('/propertyManage')
+    } else if (buttonTitle === '내 매물 등록하기') {
+      router.push({ name: 'propertyAdd' })
+    }
   }
 }
 
@@ -305,7 +307,20 @@ onMounted(async () => {
       <h2 class="manage-title">
         {{ role === 'LANDLORD' ? '나의 매물 관리' : '나의 체크리스트 관리' }}
       </h2>
-      <Buttons type="xl" @click="handleManageClick" class="manage-btn">
+      <Buttons
+        v-if="role === 'LANDLORD'"
+        type="xl"
+        @click="handleManageClick('내 매물 등록하기')"
+        class="create-property-btn"
+      >
+        <div class="top-text">나의 매물을 등록하고 싶어요</div>
+        <div class="bottom-text">내 매물 등록하기</div>
+      </Buttons>
+      <Buttons
+        type="xl"
+        @click="handleManageClick(manageButton.title)"
+        class="manage-btn"
+      >
         <div class="top-text">{{ manageButton.desc }}</div>
         <div class="bottom-text">{{ manageButton.title }}</div>
       </Buttons>
@@ -535,6 +550,11 @@ onMounted(async () => {
 
 .manage-btn {
   height: rem(100px);
+}
+
+.create-property-btn {
+  height: rem(100px);
+  margin-bottom: 1rem;
 }
 
 .account-section {
