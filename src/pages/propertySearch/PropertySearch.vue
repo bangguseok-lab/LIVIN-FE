@@ -6,7 +6,7 @@ import PropertyCard from '@/components/cards/PropertyCard.vue'
 
 import { usePriceStore } from '@/stores/priceStore'
 
-import districtData from '@/assets/data/district.json'
+import districtData from '@/assets/data/order-district.json'
 
 const dealType = ref([])
 const onlySecure = ref(false)

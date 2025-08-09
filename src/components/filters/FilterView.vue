@@ -3,7 +3,7 @@ import { ref, computed, watch, watchEffect } from 'vue'
 import FilterBarSearch from './FilterBarSearch.vue'
 import FilterBarFavorite from './FilterBarFavorite.vue'
 import FilterBarChecklist from './FilterBarChecklist.vue'
-import districtData from '@/assets/data/district.json'
+import districtData from '@/assets/data/order-district.json'
 
 // 모드 상태
 const selectedMode = ref('search')
@@ -102,22 +102,13 @@ const checklistSelectedChecklist = ref('일반 매물')
 
     <!-- 모드 버튼 -->
     <div class="mode-buttons">
-      <button
-        :class="{ active: selectedMode === 'search' }"
-        @click="selectedMode = 'search'"
-      >
+      <button :class="{ active: selectedMode === 'search' }" @click="selectedMode = 'search'">
         Search
       </button>
-      <button
-        :class="{ active: selectedMode === 'favorite' }"
-        @click="selectedMode = 'favorite'"
-      >
+      <button :class="{ active: selectedMode === 'favorite' }" @click="selectedMode = 'favorite'">
         Favorite
       </button>
-      <button
-        :class="{ active: selectedMode === 'checklist' }"
-        @click="selectedMode = 'checklist'"
-      >
+      <button :class="{ active: selectedMode === 'checklist' }" @click="selectedMode = 'checklist'">
         Checklist
       </button>
     </div>
@@ -125,19 +116,11 @@ const checklistSelectedChecklist = ref('일반 매물')
     <!-- 모드별 렌더링 -->
     <!-- search -->
     <div v-if="selectedMode === 'search'" class="debug-box">
-      <FilterBarSearch
-        :dealType="selectedDealTypes"
-        :deposit="depositRange"
-        :monthly="monthlyRange"
-        :onlySecure="searchOnlySecure"
-        :region="searchRegion"
-        :region-data="getRegionData"
-        @update:dealType="val => (selectedDealTypes = val)"
-        @update:deposit="val => (depositRange = val)"
-        @update:monthly="val => (monthlyRange = val)"
-        @update:onlySecure="val => (searchOnlySecure = val)"
-        @update:region="handleRegionUpdate"
-      />
+      <FilterBarSearch :dealType="selectedDealTypes" :deposit="depositRange" :monthly="monthlyRange"
+        :onlySecure="searchOnlySecure" :region="searchRegion" :region-data="getRegionData"
+        @update:dealType="val => (selectedDealTypes = val)" @update:deposit="val => (depositRange = val)"
+        @update:monthly="val => (monthlyRange = val)" @update:onlySecure="val => (searchOnlySecure = val)"
+        @update:region="handleRegionUpdate" />
 
       <!-- v-if 처리에서 .final이 true일 때 백으로 매물 정보 요청 보내기. -->
       <h3>🔍 Search 모드 상태</h3>
@@ -160,38 +143,22 @@ const checklistSelectedChecklist = ref('일반 매물')
     </div>
 
     <div v-else-if="selectedMode === 'favorite'">
-      <FilterBarFavorite
-        :checklist-items="checklistItems"
-        :selected="favSelectedChecklist"
-        :onlySecure="favOnlySecure"
-        :region="favRegion"
-        :region-data="getRegionData"
-        @update:selected="val => (favSelectedChecklist = val)"
-        @update:onlySecure="val => (favOnlySecure = val)"
-        @update:region="handleRegionUpdate"
-      />
+      <FilterBarFavorite :checklist-items="checklistItems" :selected="favSelectedChecklist" :onlySecure="favOnlySecure"
+        :region="favRegion" :region-data="getRegionData" @update:selected="val => (favSelectedChecklist = val)"
+        @update:onlySecure="val => (favOnlySecure = val)" @update:region="handleRegionUpdate" />
       <div style="margin-top: 2rem">
         선택된 체크리스트: {{ favSelectedChecklist || '전체' }}
       </div>
     </div>
 
     <div v-else-if="selectedMode === 'checklist'">
-      <FilterBarChecklist
-        :checklist-items="checklistItems"
-        :selected="checklistSelectedChecklist"
-        :onlySecure="checklistOnlySecure"
-        :dealType="selectedDealTypes"
-        :deposit="depositRange"
-        :monthly="monthlyRange"
-        :region="checklistRegion"
-        :region-data="getRegionData"
+      <FilterBarChecklist :checklist-items="checklistItems" :selected="checklistSelectedChecklist"
+        :onlySecure="checklistOnlySecure" :dealType="selectedDealTypes" :deposit="depositRange" :monthly="monthlyRange"
+        :region="checklistRegion" :region-data="getRegionData"
         @update:selected="val => (checklistSelectedChecklist = val)"
-        @update:onlySecure="val => (checklistOnlySecure = val)"
-        @update:dealType="val => (selectedDealTypes = val)"
-        @update:deposit="val => (depositRange = val)"
-        @update:monthly="val => (monthlyRange = val)"
-        @update:region="handleRegionUpdate"
-      />
+        @update:onlySecure="val => (checklistOnlySecure = val)" @update:dealType="val => (selectedDealTypes = val)"
+        @update:deposit="val => (depositRange = val)" @update:monthly="val => (monthlyRange = val)"
+        @update:region="handleRegionUpdate" />
 
       <h3>🔍 Checklist 모드 상태</h3>
       <p>
