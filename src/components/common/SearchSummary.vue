@@ -87,8 +87,8 @@ const chips = computed(() => {
   margin: 10px 0 16px 0;
 }
 .applied-title {
-  font-size: 12px;
-  color: #9aa0a6;
+  font-size: 0.8rem;
+  color: var(--grey);
   margin-bottom: 8px;
 }
 .chips {
@@ -99,11 +99,11 @@ const chips = computed(() => {
 }
 .chip {
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: 7px;
   background: rgba(66, 133, 244, 0.18);
-  color: #1a73e8;
+  color: var(--primary-color);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 0.8rem;
   border: none;
   cursor: pointer;
 }
@@ -118,7 +118,7 @@ const chips = computed(() => {
 }
 .summary-divider {
   height: 1px;
-  background: #eaecef;
+  background: var(--whitish);
   margin: 8px 0 10px;
 }
 .total {

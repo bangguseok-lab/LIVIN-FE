@@ -251,7 +251,7 @@ function onClearFilter(chip) {
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: #777;
+  color: var(--grey);
   margin-bottom: 16px;
 }
 
