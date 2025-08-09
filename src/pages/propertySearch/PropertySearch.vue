@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted } from 'vue'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
 import SearchSummary from '@/components/common/SearchSummary.vue'
-import districtData from '@/assets/data/district.json'
+import districtData from '@/assets/data/order-district.json'
 import { usePropertySearchStore } from '@/stores/propertySearch'
 
 defineOptions({ name: 'PropertySearch' })
@@ -35,6 +35,26 @@ const regionData = computed(() => {
 
   return { cities, districts, parishes }
 })
+
+// 사용자의 현재 위치(세션). 없으면 null로 처리
+const safe = v => (v && v !== 'null' && v !== 'undefined' ? v : null)
+const userAddress = {
+  sido: safe(sessionStorage.getItem('sido')),
+  sigungu: safe(sessionStorage.getItem('sigungu')),
+  eupmyendong: safe(sessionStorage.getItem('eupmyendong')),
+}
+
+// 표시 여부
+const hasUserAddress = computed(
+  () => !!(userAddress.sido || userAddress.sigungu || userAddress.eupmyendong),
+)
+
+// 표시 문자열
+const currentAddressText = computed(() =>
+  [userAddress.sido, userAddress.sigungu, userAddress.eupmyendong]
+    .filter(Boolean)
+    .join(' '),
+)
 
 onMounted(async () => {
   const isRegionApplied = !!(
@@ -110,6 +130,25 @@ function onClearFilter(chip) {
 
 <template>
   <div class="PropertySearch">
+    <!-- 현재 위치와 타이틀 -->
+    <div class="guide">
+      <div class="location" v-if="hasUserAddress">
+        <!-- 현재 위치 -->
+        <span class="marker"
+          ><img
+            src="@/assets/images/search/marker.svg"
+            alt="위치 아이콘"
+            class="marker-icon"
+        /></span>
+        <span>
+          현재 <span class="highlight">{{ currentAddressText }}</span
+          >에 있어요</span
+        >
+      </div>
+
+      <h1 class="title">원하는 매물을 검색해보세요</h1>
+    </div>
+
     <Filtering
       :deal-type="s.dealType"
       :only-secure="s.onlySecure"
