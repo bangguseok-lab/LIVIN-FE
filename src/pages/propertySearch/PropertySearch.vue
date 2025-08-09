@@ -110,20 +110,32 @@ function onClearFilter(chip) {
 
 <template>
   <div class="PropertySearch">
+    <!-- 현재 위치와 타이틀 -->
+    <div class="guide">
+      <!-- 현재 위치 -->
+      <div class="location">
+        <span class="marker"><img src="@/assets/images/search/marker.svg" alt="위치 아이콘" class="marker-icon" /></span>
+        <!-- <span>
+          현재
+          <span class="highlight">{{ sido }} {{ sigungu }}
+            {{ eupmyendong || '' }}</span>에 있어요
+        </span> -->
+      </div>
+      <!-- 타이틀 -->
+      <h1 class="title">원하는 매물을 검색해보세요</h1>
+    </div>
     <Filtering :deal-type="s.dealType" :only-secure="s.onlySecure" :region="s.region" :region-data="regionData"
       @update:dealType="updateDealType" @update:onlySecure="handleOnlySecureUpdate" @update:region="handleRegionUpdate"
       @filterCompleted="handleFilterCompleted" />
-
     <SearchSummary :deal-type="s.dealType" :region="s.appliedRegion" :only-secure="s.onlySecure"
       :total-count="s.totalCount" :loaded-count="s.list.length" :show-loaded="true" @clear="onClearFilter" />
-
     <div class="property-list">
       <PropertyCard v-for="item in s.list" :key="item.propertyId" :propertyId="item.propertyId"
         :transactionType="item.transactionType" :price="item.transactionType === 'JEONSE'
-            ? item.jeonseDeposit
-            : item.monthlyDeposit
+          ? item.jeonseDeposit
+          : item.monthlyDeposit
           " :monthlyRent="item.transactionType === 'JEONSE' ? null : item.monthlyRent
-          " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
+              " :propertyType="item.propertyType" :title="item.name" :detailAddress="item.detailAddress"
         :exclusiveArea="item.exclusiveAreaM2" :supplyArea="item.supplyAreaM2" :floor="item.floor"
         :totalFloors="item.totalFloors" :direction="item.mainDirection" :address="item.roadAddress"
         :isFavorite="item.isFavorite" :isSafe="item.isSafe" />
