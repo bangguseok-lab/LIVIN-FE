@@ -142,7 +142,7 @@ const manageButton = computed(() => {
 })
 
 function handleManageClick(buttonTitle) {
-  if (userInfo.value?.role === 'TENANT') {
+  if (role.value === 'TENANT') {
     router.push('/checklist')
   } else {
     if (buttonTitle === '내 매물 관리하기') {
