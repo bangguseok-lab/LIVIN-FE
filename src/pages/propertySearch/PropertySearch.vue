@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import axios from 'axios'
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
@@ -14,6 +14,7 @@ import SearchSummary from '@/components/common/SearchSummary.vue'
 const dealType = ref([])
 const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null })
+const appliedRegion = ref({ city: null, district: null, parish: null })
 const propertyList = ref([]) // 백엔드에서 받아온 응답 결과(매물 데이터)를 저장할 상태
 const totalCount = ref(0)
 
@@ -56,6 +57,9 @@ onMounted(() => {
   region.value.city = currentAddress.sido
   region.value.district = currentAddress.sigungu
   region.value.parish = currentAddress.eupmyendong || null
+
+  // 초기 진입 시 확정값도 동일하게 세팅
+  appliedRegion.value = { ...region.value }
 
   propertyList.value = []
   hasMore.value = true
@@ -161,9 +165,9 @@ function buildBaseParams() {
     monthlyMin: mr.value.min ?? undefined,
     monthlyMax: mr.value.max ?? undefined,
 
-    sido: region.value.city,
-    sigungu: region.value.district,
-    eupmyendong: region.value.parish,
+    sido: appliedRegion.value.city,
+    sigungu: appliedRegion.value.district,
+    eupmyendong: appliedRegion.value.parish,
     onlySecure: onlySecure.value ? true : undefined,
   })
 }
@@ -230,6 +234,36 @@ function handleScroll() {
 }
 
 function handleFilterCompleted() {
+  appliedRegion.value = { ...region.value }
+  propertyList.value = []
+  hasMore.value = true
+  totalCount.value = 0
+  fetchTotalCount()
+  fetchProperties()
+}
+
+function onClearFilter(chip) {
+  if (chip.type === 'dealType') {
+    dealType.value = dealType.value.filter(t => t !== chip.payload.value)
+  } else if (chip.type === 'onlySecure') {
+    onlySecure.value = false
+  } else if (chip.type === 'region') {
+    if (chip.payload.level === 'city') {
+      const next = { city: null, district: null, parish: null }
+      appliedRegion.value = next
+      region.value = { ...next } // 패널 다시 열 때도 일치
+    } else if (chip.payload.level === 'district') {
+      const next = { ...appliedRegion.value, district: null, parish: null }
+      appliedRegion.value = next
+      region.value = { ...next }
+    } else if (chip.payload.level === 'parish') {
+      const next = { ...appliedRegion.value, parish: null }
+      appliedRegion.value = next
+      region.value = { ...next }
+    }
+  }
+
+  // 재조회
   propertyList.value = []
   hasMore.value = true
   totalCount.value = 0
@@ -277,11 +311,12 @@ function handleFilterCompleted() {
 
     <SearchSummary
       :deal-type="dealType"
-      :region="region"
+      :region="appliedRegion"
       :only-secure="onlySecure"
       :total-count="totalCount"
       :loaded-count="propertyList.length"
       :show-loaded="true"
+      @clear="onClearFilter"
     />
 
     <!-- 매물 리스트 -->
