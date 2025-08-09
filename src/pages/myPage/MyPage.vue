@@ -43,19 +43,34 @@ const phoneRef = ref(null)
 
 const showProfileModal = ref(false)
 
-// ✅ 닉네임/연락처 수정 저장
+const isNicknameValid = ref(true)
+const isPhoneValid = ref(true)
+
+function validateNickname(value) {
+  const nicknameRegex = /^[\w가-힣]{2,12}$/
+  isNicknameValid.value = nicknameRegex.test(value)
+}
+
+function validatePhone(value) {
+  const phoneRegex = /^010-\d{4}-\d{4}$/
+  isPhoneValid.value = phoneRegex.test(value)
+}
+
 async function saveEdit(field) {
+  // tempValue를 업데이트하고 유효성 검사
   if (field === 'nickname' && nicknameRef.value) {
     tempValue.value = nicknameRef.value.innerText
+    validateNickname(tempValue.value)
   } else if (field === 'phone' && phoneRef.value) {
     tempValue.value = phoneRef.value.innerText
+    validatePhone(tempValue.value)
   }
 
   const newValue = tempValue.value.trim()
-  if (newValue !== '') {
+
+  if (newValue !== '' && isNicknameValid.value && isPhoneValid.value) {
     try {
       const payload = {
-        // 기존 userInfo 객체의 data 속성에 접근하도록 수정
         nickname:
           field === 'nickname' ? newValue : userInfo.value.data.nickname,
         phone: field === 'phone' ? newValue : userInfo.value.data.phone,
@@ -63,13 +78,14 @@ async function saveEdit(field) {
       }
       await userStore.updateUserInfo(payload)
       console.log(`${field} 수정 성공`)
+      editingField.value = null
     } catch (err) {
       console.error(`${field} 수정 실패`, err)
       alert('수정 중 오류가 발생했어요.')
     }
+  } else {
+    alert('입력 형식이 올바르지 않습니다.')
   }
-
-  editingField.value = null
 }
 
 async function setUserType(type) {
@@ -137,7 +153,15 @@ function handleManageClick() {
 
 function startEdit(field) {
   editingField.value = field
-  tempValue.value = userInfo.value[field === 'phone' ? 'phoneNumber' : field]
+  // 수정 시작 시 유효성 상태 초기화
+  isNicknameValid.value = true
+  isPhoneValid.value = true
+
+  if (field === 'nickname') {
+    tempValue.value = userInfo.value.data.nickname
+  } else if (field === 'phone') {
+    tempValue.value = userInfo.value.data.phone
+  }
 }
 
 function openProfileModal() {
@@ -205,16 +229,25 @@ onMounted(async () => {
 
         <li>
           <span class="label">닉네임</span>
-          <span class="value">
+          <span class="value-container">
             <span
               v-if="editingField === 'nickname'"
               contenteditable="true"
               class="editable-text"
               ref="nicknameRef"
-              :style="{ color: 'var(--primary-color)' }"
+              :style="{
+                color: isNicknameValid ? 'var(--primary-color)' : 'red',
+              }"
+              @input="validateNickname($event.target.innerText)"
               >{{ tempValue }}</span
             >
             <span v-else>{{ nickname }}</span>
+            <span
+              v-if="editingField === 'nickname' && !isNicknameValid"
+              class="error-message"
+            >
+              (닉네임은 2~12자 이내, 특수문자 제외입니다.)
+            </span>
           </span>
           <button
             class="edit-btn"
@@ -236,16 +269,23 @@ onMounted(async () => {
 
         <li>
           <span class="label">연락처</span>
-          <span class="value">
+          <span class="value-container">
             <span
               v-if="editingField === 'phone'"
               contenteditable="true"
               class="editable-text"
               ref="phoneRef"
-              :style="{ color: 'var(--primary-color)' }"
+              :style="{ color: isPhoneValid ? 'var(--primary-color)' : 'red' }"
+              @input="validatePhone($event.target.innerText)"
               >{{ tempValue }}</span
             >
             <span v-else>{{ phoneNumber }}</span>
+            <span
+              v-if="editingField === 'phone' && !isPhoneValid"
+              class="error-message"
+            >
+              (연락처는 '010-xxxx-xxxx' 형식이어야 합니다.)
+            </span>
           </span>
           <button
             class="edit-btn"
@@ -404,14 +444,30 @@ onMounted(async () => {
   padding: 0;
   margin: 0;
   width: 100%;
+  gap: rem(6px);
 }
 
 .info-list li {
   display: grid;
-  grid-template-columns: 1.2fr 3fr 7.5rem;
+  grid-template-columns: 1.2fr 9fr rem(40px);
   align-items: center;
   border-bottom: rem(1px) solid #eee;
   padding: rem(12px) 0;
+}
+
+.value-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: rem(4px);
+  font-size: rem(13px);
+  color: var(--black);
+  font-weight: 500;
+}
+
+.value-container > span {
+  font-weight: 500;
 }
 
 .label {
@@ -430,7 +486,7 @@ onMounted(async () => {
   gap: rem(6px);
   word-break: break-word;
   font-size: rem(13px);
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .editable-text {
@@ -447,6 +503,12 @@ onMounted(async () => {
   font-size: rem(10px);
   color: var(--grey);
   cursor: pointer;
+}
+
+.error-message {
+  font-size: rem(10px);
+  color: #888;
+  white-space: nowrap;
 }
 
 .invisible {
@@ -466,7 +528,7 @@ onMounted(async () => {
 
 .manage-title {
   font-size: rem(16px);
-  font-weight: 600;
+  font-weight: 800;
   margin-bottom: rem(24px);
   padding-top: rem(16px);
 }
