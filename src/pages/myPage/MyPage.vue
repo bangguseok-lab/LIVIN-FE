@@ -507,7 +507,8 @@ onMounted(async () => {
 .editable-text {
   outline: none;
   min-width: rem(50px);
-  display: inline-block;
+  display: flex;
+  justify-content: center;
   cursor: text;
 }
 
