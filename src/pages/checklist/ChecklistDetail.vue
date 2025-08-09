@@ -123,7 +123,7 @@ async function gotoChecklist() {
 }
 
 function goToAppliedList() {
-  router.push({ name: 'checklistProperties', params: { id: checklistId } })
+  router.push({ name: 'checklistProperty', params: { id: checklistId } })
 }
 </script>
 
