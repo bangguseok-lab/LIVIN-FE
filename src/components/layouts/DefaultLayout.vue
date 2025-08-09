@@ -36,6 +36,7 @@ const visableNav = [
   'checkPropertyList',
   'propertyDetails',
   'mypage',
+  'checklistProperty',
 ]
 
 const showHeader = computed(() => !pathHide.includes(route.name))
