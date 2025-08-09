@@ -64,32 +64,21 @@ onMounted(async () => {
 
 <template>
   <div class="PropertyFav">
-    <h2 class="title">찜하신 괌심매물이에요</h2>
+    <h2 class="title">찜하신 관심매물이에요</h2>
 
     <!-- 필터바 컴포넌트 -->
-    <FilterBarFavorite
-      :checklist-items="[
-        '체크리스트A',
-        '체크리스트B',
-        '체크리스트C',
-        '체크리스트D'
-      ]"
-      :selected="favSelectedChecklist"
-      :onlySecure="favOnlySecure"
-      :region="favRegion"
-      :region-data="getRegionData"
-      @update:selected="val => (favSelectedChecklist = val)"
-      @update:onlySecure="val => (favOnlySecure = val)"
-      @update:region="val => (favRegion = val)"
-    />
+    <FilterBarFavorite :checklist-items="[
+      '체크리스트A',
+      '체크리스트B',
+      '체크리스트C',
+      '체크리스트D'
+    ]" :selected="favSelectedChecklist" :onlySecure="favOnlySecure" :region="favRegion" :region-data="getRegionData"
+      @update:selected="val => (favSelectedChecklist = val)" @update:onlySecure="val => (favOnlySecure = val)"
+      @update:region="val => (favRegion = val)" />
 
     <!-- 관심 매물 카드 리스트 -->
     <div class="card-list" v-if="propertyList.length">
-      <PropertyCard
-        v-for="property in propertyList"
-        :key="property.id"
-        v-bind="property"
-      />
+      <PropertyCard v-for="property in propertyList" :key="property.id" v-bind="property" />
     </div>
     <div v-else class="no-data">
       관심 매물이 없습니다.
@@ -105,17 +94,20 @@ onMounted(async () => {
   padding-top: 6rem;
   background-color: #fff;
 }
+
 .title {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
 }
+
 .card-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-top: 1.5rem;
 }
+
 .no-data {
   text-align: center;
   color: #aaa;
