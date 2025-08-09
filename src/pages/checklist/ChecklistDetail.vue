@@ -121,6 +121,10 @@ async function gotoChecklist() {
   alert('적용되었습니다')
   router.push('/checklist')
 }
+
+function goToAppliedList() {
+  router.push({ name: 'checklistProperties', params: { id: checklistId } })
+}
 </script>
 
 <template>
@@ -142,6 +146,13 @@ async function gotoChecklist() {
         <div class="text-box">
           <h2 class="title">{{ checklist?.title }}</h2>
           <p class="desc">{{ checklist?.description }}</p>
+          <div class="cta-wrap">
+            <!-- router-link 써도 되고, 클릭이벤트로 이동해도 됨 -->
+            <button class="cta-btn" @click="goToAppliedList">
+              적용된 목록 보러가기
+              <span class="chev">›</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -163,24 +174,38 @@ async function gotoChecklist() {
 
       <h5 class="fw-bold">
         건물 컨디션
-        <button @click="() => openModal('건물 컨디션', 'BUILDING')" class="add-img">
+        <button
+          @click="() => openModal('건물 컨디션', 'BUILDING')"
+          class="add-img"
+        >
           <img src="@/assets/add-btn.svg" />
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span v-for="item in buildingItems" :key="item.checklistItemId" class="tag">
+        <span
+          v-for="item in buildingItems"
+          :key="item.checklistItemId"
+          class="tag"
+        >
           {{ item.keyword }}
         </span>
       </div>
 
       <h5 class="fw-bold">
         주변 인프라
-        <button @click="() => openModal('주변 인프라', 'INFRA')" class="add-img">
+        <button
+          @click="() => openModal('주변 인프라', 'INFRA')"
+          class="add-img"
+        >
           <img src="@/assets/add-btn.svg" />
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span v-for="item in infraItems" :key="item.checklistItemId" class="tag">
+        <span
+          v-for="item in infraItems"
+          :key="item.checklistItemId"
+          class="tag"
+        >
           {{ item.keyword }}
         </span>
       </div>
@@ -192,19 +217,30 @@ async function gotoChecklist() {
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span v-for="item in optionItems" :key="item.checklistItemId" class="tag">
+        <span
+          v-for="item in optionItems"
+          :key="item.checklistItemId"
+          class="tag"
+        >
           {{ item.keyword }}
         </span>
       </div>
 
       <h5 class="fw-bold">
         주변 환경
-        <button @click="() => openModal('주변 환경', 'CIRCUMSTANCE')" class="add-img">
+        <button
+          @click="() => openModal('주변 환경', 'CIRCUMSTANCE')"
+          class="add-img"
+        >
           <img src="@/assets/add-btn.svg" />
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span v-for="item in circumstanceItems" :key="item.checklistItemId" class="tag">
+        <span
+          v-for="item in circumstanceItems"
+          :key="item.checklistItemId"
+          class="tag"
+        >
           {{ item.keyword }}
         </span>
       </div>
@@ -216,7 +252,11 @@ async function gotoChecklist() {
         </button>
       </h5>
       <div class="tag-group pb-5">
-        <span v-for="item in customItems" :key="item.checklistItemId" class="tag">
+        <span
+          v-for="item in customItems"
+          :key="item.checklistItemId"
+          class="tag"
+        >
           {{ item.keyword }}
         </span>
       </div>
@@ -225,13 +265,30 @@ async function gotoChecklist() {
       </div>
     </section>
   </div>
-  <ItemToggleModal v-if="showModal" :label="modalLabel" :items="modalItems" :checklist-id="checklistId"
-    @close="onModalClose" />
-  <CustomChecklistModal v-if="showCustomModal" :checklist-id="checklistId" @close="handleCustomModalClose" />
-  <ChecklistDeleteSubmitModal v-if="showDeleteConfirm" @confirm="confirmDeleteChecklist"
-    @close="showDeleteConfirm = false" />
-  <ChecklistEditSubmitModal v-if="showEditModal" :initTitle="checklist.title" :initDescription="checklist.description"
-    @save="updateChecklistInfo" @close="showEditModal = false" />
+  <ItemToggleModal
+    v-if="showModal"
+    :label="modalLabel"
+    :items="modalItems"
+    :checklist-id="checklistId"
+    @close="onModalClose"
+  />
+  <CustomChecklistModal
+    v-if="showCustomModal"
+    :checklist-id="checklistId"
+    @close="handleCustomModalClose"
+  />
+  <ChecklistDeleteSubmitModal
+    v-if="showDeleteConfirm"
+    @confirm="confirmDeleteChecklist"
+    @close="showDeleteConfirm = false"
+  />
+  <ChecklistEditSubmitModal
+    v-if="showEditModal"
+    :initTitle="checklist.title"
+    :initDescription="checklist.description"
+    @save="updateChecklistInfo"
+    @close="showEditModal = false"
+  />
 </template>
 
 <style scoped>
@@ -378,5 +435,22 @@ async function gotoChecklist() {
 
 .add-img {
   all: unset;
+}
+
+.cta-btn {
+  border: none;
+  outline: none;
+  background: #fff;
+  color: #1b73ff; /* 파란 텍스트 */
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px; /* 알약 모양 */
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  white-space: nowrap;
 }
 </style>

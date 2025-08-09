@@ -1,4 +1,6 @@
+import ChecklistProperty from '@/pages/checklist/ChecklistProperty.vue'
 import apiClient from './apiClient'
+import property from './property'
 
 const checklistAPI = {
   // 체크리스트 전체 조회
@@ -67,6 +69,11 @@ const checklistAPI = {
 
   async propretiesApplyChecklist(payload) {
     const { data } = await apiClient.post(`/cheklists/property/apply`, payload)
+    return data
+  },
+
+  async ChecklistProperties(checklistId) {
+    const { data } = await apiClient.get(`/checklists/{checklistId}/properties`)
     return data
   },
 }

@@ -16,4 +16,10 @@ export default [
     component: () => import('@/pages/checklist/ChecklistAdd.vue'),
     props: true,
   },
+  {
+    path: '/checklist/:id/properties',
+    name: 'checklistProperties',
+    component: () => import('@/pages/checklist/ChecklistProperty.vue'),
+    props: true,
+  },
 ]
