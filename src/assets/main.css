@@ -1,5 +1,6 @@
 @charset 'utf-8';
-
+/* Pretendard 폰트 설정 */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 @font-face {
   font-family: 'Pretendard-Regular';
   src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff')
@@ -7,7 +8,6 @@
   font-weight: 400; /*800,400 사용*/
   font-style: normal;
 }
-
 /* 사용 예시 -> background-color: var(--Primary-Color); */
 :root {
   --primary-color: #177dfa;
@@ -22,24 +22,33 @@
   --purple: #9dbbff;
   --grey: #c6c6c8;
   --whitish: #f7f7f7;
-
-  --font-weight-lg: 800;
+  --title-text: #444444;
+  --sub-title-text: #b3b3b3;
+  --light-grey: #e1e1e1;
+  /* font */
+  --font-family: 'Pretendard', sans-serif;
+  --font-weight-light: 300;
   --font-weight-sm: 400;
-
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-lg: 800;
+  --font-weight-extra-bold: 800;
   --font-size: 16px;
+  --title-size: 20px;
+  --sub-title-size: 13px;
 }
-
 * {
-  font-family: 'Pretendard-Regular';
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-regular);
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 li {
   list-style: none;
 }
-
 #app {
   display: flex;
   justify-content: center;

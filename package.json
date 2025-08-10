@@ -16,7 +16,9 @@
     "bootstrap-icons": "^1.11.3",
     "moment": "^2.30.1",
     "pinia": "^3.0.1",
+    "swiper": "^11.2.10",
     "vue": "^3.5.13",
+    "vue-daum-postcode": "^1.2.1",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
@@ -26,6 +28,7 @@
     "eslint": "^9.21.0",
     "eslint-plugin-vue": "~10.0.0",
     "globals": "^16.0.0",
+    "json-server": "^0.17.4",
     "prettier": "3.5.3",
     "sass-embedded": "^1.89.2",
     "vite": "^6.2.1",

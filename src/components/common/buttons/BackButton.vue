@@ -1,5 +1,5 @@
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   icon: {
@@ -8,8 +8,24 @@ const props = defineProps({
   },
 })
 const router = useRouter()
+const route = useRoute()
 const back = () => {
-  router.back()
+  console.log(route.name)
+  if (route.path.startsWith('/auth/signup')) {
+    if (
+      confirm(
+        '작성하신 내용이 저장되지 않습니다. \n괜찮으시다면 "확인"을 눌러주세요.',
+      )
+    ) {
+      router.push('/landing')
+    }
+  }
+  if (route.name.startsWith('checklistDetail')) {
+    console.log(route.name)
+    router.push('/checklist')
+  } else {
+    router.back()
+  }
 }
 </script>
 <template>
