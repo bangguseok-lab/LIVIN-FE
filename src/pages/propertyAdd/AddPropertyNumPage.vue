@@ -23,6 +23,7 @@ const handleGotoSearch = () => {
 const handleClick = () => {
   // 부동산 고유번호가 비어있지 않을 때
   if (propertyNumValue.value !== '') {
+    // todo: 부동산 고유번호가 유효한 지 검색하고, 스토어에 그 정보를 저장해야 함.
     propertyStore.updateNewProperty('propertyNum', propertyNumValue.value);
     router.push({ name: 'propertyNumberConfirm' })
   } else {
