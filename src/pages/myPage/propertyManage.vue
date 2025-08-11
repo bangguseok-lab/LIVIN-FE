@@ -1,31 +1,28 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
-import { ref, computed, onMounted } from 'vue' // ref, computed, onMounted 추가
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 import PropertyManageCard from '@/components/cards/PropertyManageCard.vue'
 import Navbar from '@/components/layouts/Navbar.vue'
 
-// todo: 전체 리스트 개수 가져오기
 const router = useRouter()
+const userStore = useUserStore() // Pinia 스토어 사용
 
-// 내가 등록한 매물 목록을 저장할 상태
 const myPropertyList = ref([])
 
-// 총 매물 수를 계산하는 computed 속성
+const nickname = computed(() => userStore.getNickname)
+
 const totalCount = computed(() => myPropertyList.value.length)
 
-// 매물 등록 페이지로 이동하는 함수
 const goToAppliedList = () => {
-  // 실제 매물 등록 페이지의 라우트 이름 또는 경로로 수정하세요.
   router.push({ name: 'propertyAdd' })
 }
 
-// 내가 등록한 매물 목록을 가져오는 함수 (실제 API 호출 로직으로 교체해야 함)
 const fetchMyProperties = async () => {
   // 실제 API 호출 로직을 여기에 구현합니다.
   // 예시: const response = await fetch('/api/my-properties');
-  //       myPropertyList.value = await response.json();
+  //       myPropertyList.value = await response.json();
 
   // 임시 데이터 (API가 준비되기 전까지 사용)
   myPropertyList.value = [
@@ -127,16 +124,16 @@ const fetchMyProperties = async () => {
   ]
 }
 
-// 컴포넌트가 마운트될 때 매물 목록을 가져옵니다.
 onMounted(() => {
   fetchMyProperties()
+  userStore.fetchNickname()
 })
 </script>
 
 <template>
   <div class="PropertyManage">
     <div class="propertyManage-title">
-      <p>닉네임님이</p>
+      <p>{{ nickname }}님이</p>
       <p>등록하신 매물 정보예요</p>
     </div>
 
@@ -145,12 +142,10 @@ onMounted(() => {
         매물 등록하러 가기
         <span class="chev">›</span>
       </button>
-      <!-- 총 매물 수를 동적으로 표시합니다 -->
       <p class="propertyManage-list-count">총 {{ totalCount }}건</p>
     </div>
 
     <div class="propertyManage-list-container">
-      <!-- myPropertyList에 저장된 데이터를 반복하여 PropertyCard를 렌더링합니다. -->
       <div v-if="myPropertyList.length > 0">
         <PropertyManageCard
           v-for="item in myPropertyList"
@@ -158,7 +153,6 @@ onMounted(() => {
           v-bind="item"
         />
       </div>
-      <!-- 매물이 없을 때 표시할 내용 -->
       <div v-else class="no-property-message">
         <p>등록하신 매물이 없어요.</p>
         <p>지금 바로 매물을 등록해 보세요!</p>
