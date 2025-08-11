@@ -1,5 +1,6 @@
 // src/api/apiClient.js
 import axios from 'axios'
+import router from '@/router'
 
 const apiClient = axios.create({
   baseURL: '/api',
@@ -41,11 +42,18 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config
     const status = error.response?.status
     const isRefreshUrl = originalRequest.url.includes('/api/users/refresh')
-    if (
-      (status === 401 || status === 403) &&
-      !originalRequest._retry &&
-      !isRefreshUrl
-    ) {
+
+    if (status === 403 && !isRefreshUrl) {
+      try {
+        await router.replace({
+          name: 'Forbidden',
+          query: { from: router.currentRoute.value.fullPath },
+        })
+      } catch {}
+      return Promise.reject(err)
+    }
+
+    if (status === 401 && !originalRequest._retry && !isRefreshUrl) {
       originalRequest._retry = true
       if (!isRefresh) {
         isRefresh = true
