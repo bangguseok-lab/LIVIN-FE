@@ -54,7 +54,7 @@ const handleClick = () => {
   if (moneyStr.value) {
     const numDeposit = Number(moneyStr.value.replace(/,/g, '') + '0000')
     propertyStore.updateNewProperty('propertyDeposit', numDeposit)
-    // router.push({ name: 'junsePage' })
+    router.push({ name: 'riskAnalysisDone' })
   } else {
     router.push({ name: 'wolsePage' })
   }
@@ -209,7 +209,7 @@ onBeforeUnmount(() => {
 
 .nextBtn {
   width: 100%;
-  height: rem(50px);
+  height: rem(60px);
   margin: 5rem 0;
 }
 </style>

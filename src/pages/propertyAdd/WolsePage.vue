@@ -17,11 +17,6 @@ const wolseRentStr = ref('')  // 월세 금액 변수
 const onlyDigits = (s) => s.replace(/[^\d]/g, '')
 const withCommas = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 
-
-// 새로고침 여부에 대한 플래그
-const FLAG = 'redirect_to_address'
-
-
 // 단위별 , 찍기
 const onWolseNumberInput = () => {
   const wolseDigits = onlyDigits(wolseStr.value).replace(/^0+(?=\d)/, '')
@@ -80,6 +75,7 @@ const wolseRentPrettyAmount = computed(() => getPrettyAmount(wolseRentAmount.val
 const jeonsePrettyAmount = computed(() => getPrettyAmount(jeonseAmount.value))
 
 
+
 // 다음 페이지로 이동
 const handleClick = () => {
   // 부동산 고유번호가 비어있지 않을 때
@@ -87,11 +83,15 @@ const handleClick = () => {
     const numDeposit = Number(jeonseStr.value.replace(/,/g, '') + '0000')
     // console.log("월세 전환금액:", numDeposit)
     propertyStore.updateNewProperty('propertyDeposit', numDeposit)
-    // router.push({ name: 'junsePage' })
+    router.push({ name: 'riskAnalysisDone' })
   } else {
     router.push({ name: 'wolsePage' })
   }
 }
+
+
+// 새로고침 여부에 대한 플래그
+const FLAG = 'redirect_to_address'
 
 // 사용자가 F5나 Ctrl+R / Cmd+R로 새로고침하려 할 때 막고, 확인창을 띄움.
 const handleKeyRefresh = (e) => {
@@ -291,7 +291,7 @@ onBeforeUnmount(() => {
 
 .nextBtn {
   width: 100%;
-  height: rem(50px);
+  height: rem(60px);
   margin-top: 5rem;
 }
 </style>

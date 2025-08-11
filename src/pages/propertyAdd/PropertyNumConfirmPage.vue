@@ -180,6 +180,6 @@ onMounted(async () => {
 .nextBtn {
   width: 100%;
   height: rem(50px);
-  margin: 5rem 0;
+  margin: 2rem 0;
 }
 </style>
