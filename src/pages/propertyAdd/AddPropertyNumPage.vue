@@ -10,6 +10,8 @@ const propertyNumValue = ref('')
 // 매물 등록에 사용될 스토어
 const propertyStore = usePropertyStore()
 
+const errorMessage = ref('')
+
 
 // 부동산 고유번호를 모를 때, 새로운 페이지 열리면서 외부 페이지로 이동
 const handleGotoSearch = () => {
@@ -17,6 +19,15 @@ const handleGotoSearch = () => {
 
   if (isOk) {
     window.open('https://www.iros.go.kr/index.jsp', '_blank');
+  }
+}
+
+const validatePropertyNum = () => {
+  const pattern = /^\d{4}-\d{4}-\d{6}$/
+  if (!pattern.test(propertyNumValue.value)) {
+    errorMessage.value = '부동산 고유번호 형식은 1748-5986-123456 과 같이 4-4-6 자리여야 합니다.'
+  } else {
+    errorMessage.value = ''
   }
 }
 
@@ -42,11 +53,13 @@ onMounted(() => {
   <div class="AddPropertyNumPage">
     <div class="addPropertyNumber-container">
       <div class="propertyNum-input-wrapper">
-        <input type="text" placeholder="부동산 고유번호를 입력해주세요" id="propertyNum-input" v-model="propertyNumValue">
+        <input type="text" placeholder="1234-5678-123456 형식으로 입력해주세요" id="propertyNum-input" v-model="propertyNumValue"
+          @blur="validatePropertyNum">
         <button v-if="propertyNumValue" class="clear-btn" @click="propertyNumValue = ''">
           <img src="@/assets/icons/property/clear-icon.svg" class="icon clear" />
         </button>
       </div>
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       <div class="guess-box">
         <span class="search-property-number">
           <img :src=guessIcon alt="고유번호 찾기 아이콘" class="icon"><span @click="handleGotoSearch">부동산
@@ -107,6 +120,13 @@ onMounted(() => {
 
 .clear {
   opacity: 0.6;
+}
+
+.error {
+  font-size: .8rem;
+  color: red;
+  padding-left: .8rem;
+  margin-top: .2rem;
 }
 
 .guess-box {
