@@ -7,7 +7,8 @@ import PropertyManageCard from '@/components/cards/PropertyManageCard.vue'
 import Navbar from '@/components/layouts/Navbar.vue'
 
 const router = useRouter()
-const userStore = useUserStore() // Pinia 스토어 사용
+
+const userStore = useUserStore()
 
 const myPropertyList = ref([])
 
