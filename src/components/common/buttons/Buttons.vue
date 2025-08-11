@@ -288,7 +288,7 @@ const iconComponent = computed(() => {
   height: rem(60px);
   border: rem(1px) solid var(--grey);
   border-radius: rem(14px);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: var(--font-weight-semibold);
 }
 
@@ -372,5 +372,13 @@ const iconComponent = computed(() => {
   background-color: white;
   color: var(--primary-color);
   border: rem(1.5px) solid var(--primary-color);
+}
+
+@media (max-width: 375px) {
+  .btn-option {
+    height: rem(45px);
+    font-size: .8rem;
+    font-weight: var(--font-weight-semibold);
+  }
 }
 </style>
