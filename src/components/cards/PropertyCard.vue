@@ -5,8 +5,10 @@ import badge from '@/assets/images/landing/SecureBadge.png'
 import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import SafePropertyModal from '@/components/modals/SafePropertyModal.vue'
+import { usePropertyStore } from '@/stores/property'
 
 const router = useRouter()
+const propertyStore = usePropertyStore()
 
 const modalVisible = ref(false)
 
@@ -135,8 +137,11 @@ const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
     await api.removeFavoriteProperty(propertyId)
   }
 
+  propertyStore.bumpFavoriteVersion()
+
   // 즉시 로컬 상태 업데이트
   localIsFavorite.value = newFavoriteStatus
+  propertyStore.favoriteVersion++
 
   // store에서 다시 불러오는 건 필요 시만
   // await property.fetchPropertyDetails(propertyId)
