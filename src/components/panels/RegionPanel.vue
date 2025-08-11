@@ -1,7 +1,14 @@
 <script setup>
 import RegionSelector from './RegionSelector.vue'
 import Buttons from '../common/buttons/Buttons.vue'
-import { defineProps, defineEmits } from 'vue'
+import {
+  defineProps,
+  defineEmits,
+  computed,
+  ref,
+  nextTick,
+  onMounted,
+} from 'vue'
 
 // 지역 리스트는 props로 받고, 선택된 결과만 emit
 const props = defineProps({
@@ -21,7 +28,7 @@ const props = defineProps({
 })
 
 // RegionSelector에서 전달받은 선택 정보를 다시 외부로 emit하는 중간 다리
-const emit = defineEmits(['updateRegion'])
+const emit = defineEmits(['updateRegion', 'filterCompleted'])
 
 const handleRegionUpdate = region => {
   region.final = false
@@ -43,15 +50,30 @@ function cancel_btn_handler() {
   }
   emit('updateRegion', resetRegion)
 }
+
+const regionSelectorRef = ref(null)
+
+onMounted(() => {
+  nextTick(() => {
+    regionSelectorRef.value?.scrollToSelection()
+  })
+})
+const visibleDistricts = computed(() =>
+  props.selectedRegion?.city ? props.districts || [] : [],
+)
+const visibleParishes = computed(() =>
+  props.selectedRegion?.city ? props.parishes || [] : [],
+)
 </script>
 
 <template>
   <div class="region-panel">
     <RegionSelector
+      ref="regionSelectorRef"
       class="element1"
       :cities="cities"
-      :districts="districts"
-      :parishes="parishes"
+      :districts="visibleDistricts"
+      :parishes="visibleParishes"
       :selected-region="selectedRegion"
       @updateRegion="handleRegionUpdate"
     />
@@ -62,12 +84,14 @@ function cancel_btn_handler() {
         :is-active="true"
         type="md"
         @click="complete_btn_handler"
+        class="complete-btn"
       />
       <Buttons
         label="초기화"
         :is-active="false"
         type="md"
         @click="cancel_btn_handler"
+        class="cancel-btn"
       />
     </div>
   </div>
@@ -80,23 +104,41 @@ function cancel_btn_handler() {
   padding: 2rem;
   width: rem(400px);
   max-width: rem(400px);
-  height: 60vh;
+  height: 50vh;
   border: solid var(--whitish) 1.5px;
   position: relative;
 }
 .element1 {
   padding-bottom: 1.5rem;
-  border-bottom: 2px solid var(--whitish);
+  height: 34vh;
 }
 .element2 {
   margin-top: 1.5rem;
   font-size: 0.9rem;
-  color: #333;
 }
 .region-btn-section {
   display: flex; // 버튼들을 가로로 나열
   justify-content: space-between; // 또는 center, flex-end 등 필요에 맞게 조정
   gap: rem(10px); // 버튼 사이 간격
-  margin: 1.5rem 1rem 0 1rem;
+  padding-top: 0.8rem;
+
+  .complete-btn :deep(button) {
+    background-color: var(--primary-color);
+    color: var(--white);
+    font-weight: var(--font-weight-medium);
+    border-radius: 9px;
+    width: rem(150px);
+    height: rem(33px);
+    font-size: 0.9rem;
+  }
+  .cancel-btn :deep(button) {
+    background-color: var(--grey);
+    color: var(--white);
+    font-weight: var(--font-weight-medium);
+    border-radius: 9px;
+    width: rem(150px);
+    height: rem(33px);
+    font-size: 0.9rem;
+  }
 }
 </style>

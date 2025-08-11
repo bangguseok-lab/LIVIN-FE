@@ -19,18 +19,29 @@ const regionData = computed(() => {
   const currentCity = s.region.city
   const currentDistrict = s.region.district
 
-  const districts = [
-    ...new Set(
-      districtData.filter(d => d.sido === currentCity).map(d => d.sigungu),
-    ),
-  ].map(name => ({ code: name, name }))
-
-  const parishes = [
+  const districtNamesRaw = [
     ...new Set(
       districtData
-        .filter(d => d.sido === currentCity && d.sigungu === currentDistrict)
-        .map(d => d.eupmyeondong),
+        .filter(d => d.sido === currentCity)
+        .map(d => (d.sigungu ?? '').trim()),
     ),
+  ]
+  const hasRealDistricts = districtNamesRaw.some(Boolean)
+
+  // 시군구가 하나도 없으면 "해당없음" 더미 항목 노출
+  const districts = hasRealDistricts
+    ? districtNamesRaw.filter(Boolean).map(name => ({ code: name, name }))
+    : [{ code: '__NONE__', name: '해당없음' }]
+
+  // 읍/면/동: 시군구가 있으면 (시도+시군구)로, 없으면 (시도만)으로 필터
+  const parishRows = hasRealDistricts
+    ? districtData.filter(
+        d => d.sido === currentCity && d.sigungu === currentDistrict,
+      )
+    : districtData.filter(d => d.sido === currentCity)
+
+  const parishes = [
+    ...new Set(parishRows.map(d => d.eupmyeondong).filter(Boolean)),
   ].map(name => ({ code: name, name }))
 
   return { cities, districts, parishes }
@@ -251,7 +262,7 @@ function onClearFilter(chip) {
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: #777;
+  color: var(--grey);
   margin-bottom: 16px;
 }
 
@@ -260,6 +271,7 @@ function onClearFilter(chip) {
   flex-direction: column;
   gap: 12px;
   padding-bottom: 62px;
+  cursor: pointer;
 }
 
 .no-result {

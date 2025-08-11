@@ -54,7 +54,7 @@ function formatNumber(num, index) {
   } else if (num >= 1000 && num % 1000 === 0) {
     return `${num / 1000}천`
   } else {
-    return `${num.toLocaleString()}만원`
+    return `${num.toLocaleString()}만`
   }
 }
 
@@ -62,13 +62,15 @@ function formatDisplay(num) {
   const title = props.title
 
   if (num === '-') {
-    if (title === '월세') return '10만원 이하'
-    if (title === '월세 보증금') return '500만원 이하'
-    return '5천 이하'
+    if (title === '월세') return '10만 이하'
+    if (title === '월세 보증금') return '500만 이하'
+    return '6천 이하'
   }
 
   if (num === '+') {
-    return '10억 이상' // 모두 공통
+    if (title === '월세') return '400만 이상'
+    if (title === '월세 보증금') return '2억 이상'
+    return '10억 이상'
   }
   return formatNumber(num)
 }
@@ -126,9 +128,11 @@ function getButtonClass(num) {
         {{
           selectedRange.min === 0
             ? formatDisplay('-')
-            : selectedRange.min !== null
-              ? formatNumber(selectedRange.min)
-              : '최소'
+            : selectedRange.min === 9999999
+              ? formatDisplay('+')
+              : selectedRange.min !== null
+                ? formatNumber(selectedRange.min)
+                : '최소'
         }}
       </button>
       <span>~</span>
@@ -151,16 +155,16 @@ function getButtonClass(num) {
 }
 .title {
   font-weight: bold;
-  font-size: 0.8rem;
-  text-align: left;
-  margin-left: 1rem;
+  font-size: 0.95rem;
+  text-align: center;
+  // margin-left: 1rem;
 }
 
 .description {
   color: var(--grey);
-  font-size: 0.8rem;
-  text-align: left;
-  margin: -1rem 0 0 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: -1rem 0 0 0;
 }
 
 .grid {
@@ -210,7 +214,7 @@ function getButtonClass(num) {
 .display-btn {
   border: 1px solid var(--grey);
   background-color: var(--white);
-  width: 25%;
+  width: 28%;
   padding: 0.5rem 0.5rem;
   border-radius: 6px;
   color: var(--grey);

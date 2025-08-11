@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, watch, ref, nextTick } from 'vue'
 
 // emit 정의
 // 상위 컴포넌트에 선택된 지역 정보를 전달하기 위한 emit 함수 선언 (이벤트 이름: updateRegion)
@@ -57,7 +57,7 @@ function selectCity(code) {
 
 // 군/구 선택 → 읍/면/동 초기화 → emit
 function selectDistrict(code) {
-  selected.district = code
+  selected.district = code === '__NONE__' ? null : code
   selected.parish = null
   emit('updateRegion', { ...selected })
 }
@@ -67,13 +67,36 @@ function selectParish(code) {
   selected.parish = code
   emit('updateRegion', { ...selected })
 }
+
+const cityListRef = ref(null)
+const districtListRef = ref(null)
+const parishListRef = ref(null)
+
+async function scrollToSelection() {
+  await nextTick()
+  const alignBottom = ul => {
+    if (!ul) return
+    const target = ul.querySelector('li.selected') || ul.querySelector('li')
+    if (!target) return
+    const margin = 6 // 아래 여백 조절
+    const desired =
+      target.offsetTop - (ul.clientHeight - target.clientHeight) + margin
+    const max = Math.max(0, ul.scrollHeight - ul.clientHeight)
+    ul.scrollTop = Math.max(0, Math.min(desired, max))
+  }
+  alignBottom(cityListRef.value)
+  alignBottom(districtListRef.value)
+  alignBottom(parishListRef.value)
+}
+
+defineExpose({ scrollToSelection })
 </script>
 
 <template>
   <div class="region-selector">
     <div class="col">
       <div class="header">시/도</div>
-      <ul class="scroll-list">
+      <ul class="scroll-list" ref="cityListRef">
         <!-- 
          시/도 목록을 순회
          클릭 시 selectCity 호출
@@ -93,11 +116,14 @@ function selectParish(code) {
     <!-- 위와 동일한 구조. 각각 props.districts, props.parishes 기반으로 렌더링 -->
     <div class="col">
       <div class="header">군/구</div>
-      <ul class="scroll-list">
+      <ul class="scroll-list" ref="districtListRef">
         <li
           v-for="d in props.districts"
           :key="d.code"
-          :class="{ selected: selected.district === d.code }"
+          :class="{
+            selected: d.code !== '__NONE__' && selected.district === d.code,
+            none: d.code === '__NONE__',
+          }"
           @click="selectDistrict(d.code)"
         >
           {{ d.name }}
@@ -107,7 +133,7 @@ function selectParish(code) {
 
     <div class="col">
       <div class="header">읍/면/동</div>
-      <ul class="scroll-list">
+      <ul class="scroll-list" ref="parishListRef">
         <li
           v-for="n in props.parishes"
           :key="n.code"
@@ -131,7 +157,6 @@ function selectParish(code) {
 }
 
 .col {
-  width: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -149,7 +174,7 @@ function selectParish(code) {
   list-style: none;
   padding: 0;
   margin: 1rem 0 0 0;
-  width: 100%;
+  width: 110%;
   max-height: 14rem;
   overflow-y: auto;
   border-top: 1px solid var(--whitish);
@@ -169,5 +194,9 @@ function selectParish(code) {
   color: var(--primary-color);
   font-size: 0.9rem;
   font-weight: bold;
+}
+.scroll-list li.none {
+  color: var(--grey);
+  font-weight: normal;
 }
 </style>

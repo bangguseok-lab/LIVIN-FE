@@ -94,6 +94,7 @@ async function setUserType(type) {
     await userStore.changeRole(newRole)
     if (userInfo.value?.data) {
       userInfo.value.data.role = newRole
+      sessionStorage.setItem('role', newRole)
     }
   } catch (err) {
     console.error('역할 변경 실패', err)

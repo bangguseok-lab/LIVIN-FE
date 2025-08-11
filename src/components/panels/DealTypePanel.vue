@@ -82,12 +82,14 @@ function resetSelection() {
         :is-active="true"
         type="md"
         @click="confirmSelection"
+        class="complete-btn"
       />
       <Buttons
         label="초기화"
         :is-active="false"
         type="md"
         @click="resetSelection"
+        class="cancel-btn"
       />
     </div>
   </div>
@@ -100,6 +102,7 @@ function resetSelection() {
   box-shadow: 0 0 rem(4px) rgba(0, 0, 0, 0.1);
   padding: rem(16px) rem(32px);
   width: rem(400px);
+  align-items: center;
 }
 
 .deal-type-row {
@@ -107,13 +110,13 @@ function resetSelection() {
   align-items: center;
   justify-content: space-between;
   position: relative;
-  padding: rem(8px) 0;
+  padding: rem(8px) rem(20px);
 }
 
 .deal-type-label {
   font-size: rem(15px);
   font-weight: 600;
-  color: #222;
+  color: var(--black);
 }
 
 .deal-type-checkbox {
@@ -127,12 +130,32 @@ function resetSelection() {
   bottom: 0;
   left: 0;
   width: 100%;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--whitish);
 }
 .deal-type-buttons {
   display: flex;
   justify-content: space-between; // 또는 center, flex-end, 원하는 정렬로
   gap: 1rem; // 버튼 사이 여백
-  padding-top: 12px;
+  padding-top: 20px;
+}
+
+/* 공용 버튼 컴포넌트 오버라이드 */
+.complete-btn :deep(button) {
+  background-color: var(--primary-color);
+  color: var(--white);
+  font-weight: var(--font-weight-medium);
+  border-radius: 9px;
+  width: rem(150px);
+  height: rem(33px);
+  font-size: 0.9rem;
+}
+.cancel-btn :deep(button) {
+  background-color: var(--grey);
+  color: var(--white);
+  font-weight: var(--font-weight-medium);
+  border-radius: 9px;
+  width: rem(150px);
+  height: rem(33px);
+  font-size: 0.9rem;
 }
 </style>
