@@ -6,6 +6,7 @@ import axios from 'axios'
 
 import Filtering from '@/components/filters/FilterBarSearch.vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
+import Buttons from '@/components/common/buttons/Buttons.vue'
 import { usePriceStore } from '@/stores/priceStore'
 import districtData from '@/assets/data/district.json'
 import userAPI from '@/api/user'
@@ -36,6 +37,7 @@ const checklistTitle = ref('')
 const dealType = ref([]) // ['전세'] | ['월세'] | []
 const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null }) // 초기값 비움(위치 기반 제거)
+const propertyType = ref('general') // 'general' | 'favorite'
 
 // 리스트/로딩 상태
 const propertyList = ref([])
@@ -116,6 +118,7 @@ function buildParams(isLoadMore = false) {
     eupmyeondong: region.value.parish,
 
     onlySecure: onlySecure.value ? true : undefined,
+    propertyType: propertyType.value === 'favorite' ? 'favorite' : undefined,
     limit: 20,
     lastId: isLoadMore ? lastItem?.propertyId : undefined,
   }
@@ -185,6 +188,10 @@ function handleOnlySecureUpdate(val) {
   onlySecure.value = val
   refetchDebounced()
 }
+function handlePropertyTypeUpdate(val) {
+  propertyType.value = val
+  refetchDebounced()
+}
 function handleFilterCompleted() {
   refetchDebounced()
 }
@@ -240,6 +247,22 @@ onUnmounted(() => {
         </template>
         <template v-else> 원하는 매물을 검색해보세요 </template>
       </h1>
+    </div>
+
+    <!-- 필터 (일반 매물/관심 매물 조회) -->
+    <div class="property-type-toggle">
+      <Buttons
+        type="property"
+        label="일반 매물"
+        :is-active="propertyType === 'general'"
+        @update:is-active="() => handlePropertyTypeUpdate('general')"
+      />
+      <Buttons
+        type="property"
+        label="관심 매물"
+        :is-active="propertyType === 'favorite'"
+        @update:is-active="() => handlePropertyTypeUpdate('favorite')"
+      />
     </div>
 
     <!-- 필터(지역/거래유형/안전매물만으로 조회) -->
@@ -325,6 +348,13 @@ onUnmounted(() => {
 .applied {
   color: var(--primary-color);
   font-weight: 800;
+}
+
+.property-type-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
 }
 
 .property-list {
