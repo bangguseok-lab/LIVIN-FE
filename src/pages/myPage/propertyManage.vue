@@ -125,6 +125,17 @@ const fetchMyProperties = async () => {
   ]
 }
 
+// 임시 데이터에서 매물을 삭제하는 함수
+const handleDelete = propertyId => {
+  if (window.confirm('정말 삭제하시겠습니까?')) {
+    // 실제 API 호출 대신 임시 데이터에서 항목을 제거
+    myPropertyList.value = myPropertyList.value.filter(
+      item => item.propertyId !== propertyId,
+    )
+    console.log(`${propertyId}번 매물이 삭제되었습니다.`)
+  }
+}
+
 onMounted(() => {
   fetchMyProperties()
   userStore.fetchNickname()
@@ -152,6 +163,7 @@ onMounted(() => {
           v-for="item in myPropertyList"
           :key="item.propertyId"
           v-bind="item"
+          @delete="handleDelete"
         />
       </div>
       <div v-else class="no-property-message">
