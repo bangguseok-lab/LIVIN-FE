@@ -38,6 +38,7 @@ const dealType = ref([]) // ['전세'] | ['월세'] | []
 const onlySecure = ref(false)
 const region = ref({ city: null, district: null, parish: null }) // 초기값 비움(위치 기반 제거)
 const propertyType = ref('general') // 'general' | 'favorite'
+const isFavorite = ref(false) // 관심 매물 필터링
 
 // 리스트/로딩 상태
 const propertyList = ref([])
@@ -118,7 +119,7 @@ function buildParams(isLoadMore = false) {
     eupmyeondong: region.value.parish,
 
     onlySecure: onlySecure.value ? true : undefined,
-    propertyType: propertyType.value === 'favorite' ? 'favorite' : undefined,
+    isFavorite: propertyType.value === 'favorite' ? true : undefined,
     limit: 20,
     lastId: isLoadMore ? lastItem?.propertyId : undefined,
   }
@@ -190,6 +191,7 @@ function handleOnlySecureUpdate(val) {
 }
 function handlePropertyTypeUpdate(val) {
   propertyType.value = val
+  isFavorite.value = val === 'favorite'
   refetchDebounced()
 }
 function handleFilterCompleted() {
