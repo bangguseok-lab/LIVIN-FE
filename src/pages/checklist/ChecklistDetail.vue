@@ -121,6 +121,10 @@ async function gotoChecklist() {
   alert('적용되었습니다')
   router.push('/checklist')
 }
+
+function goToAppliedList() {
+  router.push({ name: 'checklistProperty', params: { id: checklistId } })
+}
 </script>
 
 <template>
@@ -142,6 +146,13 @@ async function gotoChecklist() {
         <div class="text-box">
           <h2 class="title">{{ checklist?.title }}</h2>
           <p class="desc">{{ checklist?.description }}</p>
+          <div class="cta-wrap">
+            <!-- router-link 써도 되고, 클릭이벤트로 이동해도 됨 -->
+            <button class="cta-btn" @click="goToAppliedList">
+              적용된 목록 보러가기
+              <span class="chev">›</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -286,6 +297,7 @@ async function gotoChecklist() {
   width: 100%;
   background-color: #007bff;
 }
+
 .card-2 {
   display: flex;
   justify-content: space-between;
@@ -295,6 +307,7 @@ async function gotoChecklist() {
   color: white;
   position: relative;
 }
+
 .image-box {
   width: 5.125rem;
   height: 4rem;
@@ -302,14 +315,17 @@ async function gotoChecklist() {
   border-radius: 0.5rem;
   margin-right: 1rem;
 }
+
 .title {
   font-size: 1.2rem;
   font-weight: bold;
 }
+
 .desc {
   font-size: 0.9rem;
   opacity: 0.9;
 }
+
 .actions {
   position: absolute;
   margin-bottom: 1rem;
@@ -318,22 +334,26 @@ async function gotoChecklist() {
   display: flex;
   gap: 0.5rem;
 }
+
 .section {
-  min-height: 100%;
+  /* min-height: 100%; */
   border-radius: 2rem 0 0 0;
   padding: 1.5rem;
   background-color: white;
 }
+
 .section h3 {
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
+
 .tag-group {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
+
 .tag {
   /* background-color: #e5f0ff;
   color: #007bff; */
@@ -343,12 +363,15 @@ async function gotoChecklist() {
   border-radius: 0.625rem;
   font-size: 0.9rem;
 }
+
 .footer-btn {
   width: 100%;
   padding: 1rem;
   padding-bottom: 2rem;
   background-color: white;
+  margin-bottom: 2rem;
 }
+
 .edit-btn {
   width: 100%;
   background-color: #007bff;
@@ -359,6 +382,7 @@ async function gotoChecklist() {
   font-weight: bold;
   border: none;
 }
+
 .card-content {
   display: flex;
   align-items: center;
@@ -411,5 +435,22 @@ async function gotoChecklist() {
 
 .add-img {
   all: unset;
+}
+
+.cta-btn {
+  border: none;
+  outline: none;
+  background: #fff;
+  color: #1b73ff; /* 파란 텍스트 */
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px; /* 알약 모양 */
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  white-space: nowrap;
 }
 </style>

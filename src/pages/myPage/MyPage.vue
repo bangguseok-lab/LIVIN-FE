@@ -17,16 +17,21 @@ const userStore = useUserStore()
 const { userInfo } = storeToRefs(userStore)
 const nickname = computed(() => userInfo.value?.data?.nickname || '닉네임')
 const name = computed(() => userInfo.value?.data?.name || '이름')
-const birth = computed(() => userInfo.value?.data?.birth || '생년월일')
+const birth = computed(() => {
+  const year = userInfo.value?.data?.birthDate[0]
+  const month = userInfo.value?.data?.birthDate[1]
+  const day = userInfo.value?.data?.birthDate[2]
+  return year + '년 ' + month + '월 ' + day + '일'
+})
 const phoneNumber = computed(() => userInfo.value?.data?.phone || '전화번호')
 const role = computed(() => userInfo.value?.data?.role || 'TENANT')
 const profileImage = computed(() => {
   const imageNumber = userInfo.value?.data?.profileImage ?? 1
-  return new URL(`../../assets/images/profile/test-${imageNumber}.svg`, import.meta.url).href
+  return new URL(
+    `../../assets/images/profile/test-${imageNumber}.svg`,
+    import.meta.url,
+  ).href
 })
-
-// const { profileImageUrl } = storeToRefs(userStore)
-
 
 const editingField = ref(null)
 const tempValue = ref('')
@@ -36,40 +41,60 @@ const phoneRef = ref(null)
 
 const showProfileModal = ref(false)
 
-// ✅ 닉네임/연락처 수정 저장
+const isNicknameValid = ref(true)
+const isPhoneValid = ref(true)
+
+function validateNickname(value) {
+  const nicknameRegex = /^[\w가-힣]{2,12}$/
+  isNicknameValid.value = nicknameRegex.test(value)
+}
+
+function validatePhone(value) {
+  const phoneRegex = /^010-\d{4}-\d{4}$/
+  isPhoneValid.value = phoneRegex.test(value)
+}
+
 async function saveEdit(field) {
+  // tempValue를 업데이트하고 유효성 검사
   if (field === 'nickname' && nicknameRef.value) {
     tempValue.value = nicknameRef.value.innerText
+    validateNickname(tempValue.value)
   } else if (field === 'phone' && phoneRef.value) {
     tempValue.value = phoneRef.value.innerText
+    validatePhone(tempValue.value)
   }
 
   const newValue = tempValue.value.trim()
-  if (newValue !== '') {
+
+  if (newValue !== '' && isNicknameValid.value && isPhoneValid.value) {
     try {
       const payload = {
-        nickname: field === 'nickname' ? newValue : userInfo.value.nickname,
-        phone: field === 'phone' ? newValue : userInfo.value.phone,
+        nickname:
+          field === 'nickname' ? newValue : userInfo.value.data.nickname,
+        phone: field === 'phone' ? newValue : userInfo.value.data.phone,
+        profileImage: userInfo.value.data.profileImage,
       }
       await userStore.updateUserInfo(payload)
       console.log(`${field} 수정 성공`)
+      editingField.value = null
     } catch (err) {
       console.error(`${field} 수정 실패`, err)
       alert('수정 중 오류가 발생했어요.')
     }
+  } else {
+    alert('입력 형식이 올바르지 않습니다.')
   }
-
-  editingField.value = null
 }
 
-// ✅ 역할 토글 변경 처리 (임대인 / 임차인 클릭 시)
 async function setUserType(type) {
   const newRole = type === '임대인' ? 'LANDLORD' : 'TENANT'
   if (role.value === newRole) return
 
   try {
     await userStore.changeRole(newRole)
-    // console.log('역할 변경 성공')
+    if (userInfo.value?.data) {
+      userInfo.value.data.role = newRole
+    }
   } catch (err) {
     console.error('역할 변경 실패', err)
     alert('유형 변경 중 오류가 발생했어요.')
@@ -103,30 +128,42 @@ async function handleWithdraw() {
 
 // 버튼 내용 다르게 보여주기
 const manageButton = computed(() => {
-  if (!userInfo.value) return { title: '', desc: '' }
+  if (!userInfo.value?.data) return { title: '', desc: '' }
 
-  return userInfo.value.role === 'LANDLORD'
+  return role.value === 'LANDLORD'
     ? {
-      title: '내 매물 관리하기',
-      desc: '내가 올린 매물을 확인하고 관리해요',
-    }
+        title: '내 매물 관리하기',
+        desc: '내가 올린 매물을 확인하고 관리해요',
+      }
     : {
-      title: '나만의 체크리스트 관리하기',
-      desc: '내가 찾는 집을 위한',
-    }
+        title: '나만의 체크리스트 관리하기',
+        desc: '내가 찾는 집을 위한',
+      }
 })
 
-function handleManageClick() {
-  if (userInfo.value?.role === 'TENANT') {
+function handleManageClick(buttonTitle) {
+  if (role.value === 'TENANT') {
     router.push('/checklist')
-  } else if (userInfo.value?.role === 'LANDLORD') {
-    router.push('/propertyManage')
+  } else {
+    if (buttonTitle === '내 매물 관리하기') {
+      router.push('/propertyManage')
+    } else if (buttonTitle === '내 매물 등록하기') {
+      router.push({ name: 'propertyAdd' })
+    }
   }
 }
 
 function startEdit(field) {
   editingField.value = field
-  tempValue.value = userInfo.value[field === 'phone' ? 'phoneNumber' : field]
+  // 수정 시작 시 유효성 상태 초기화
+  isNicknameValid.value = true
+  isPhoneValid.value = true
+
+  if (field === 'nickname') {
+    tempValue.value = userInfo.value.data.nickname
+  } else if (field === 'phone') {
+    tempValue.value = userInfo.value.data.phone
+  }
 }
 
 function openProfileModal() {
@@ -170,10 +207,16 @@ onMounted(async () => {
       <div class="info-header">
         <h2>회원 정보</h2>
         <div class="user-type-toggle">
-          <button :class="{ active: role === 'LANDLORD' }" @click="setUserType('임대인')">
+          <button
+            :class="{ active: role === 'LANDLORD' }"
+            @click="setUserType('임대인')"
+          >
             임대인
           </button>
-          <button :class="{ active: role === 'TENANT' }" @click="setUserType('임차인')">
+          <button
+            :class="{ active: role === 'TENANT' }"
+            @click="setUserType('임차인')"
+          >
             임차인
           </button>
         </div>
@@ -188,16 +231,34 @@ onMounted(async () => {
 
         <li>
           <span class="label">닉네임</span>
-          <span class="value">
-            <span v-if="editingField === 'nickname'" contenteditable="true" class="editable-text" ref="nicknameRef"
-              :style="{ color: 'var(--primary-color)' }">{{ tempValue }}</span>
+          <span class="value-container">
+            <span
+              v-if="editingField === 'nickname'"
+              contenteditable="true"
+              class="editable-text"
+              ref="nicknameRef"
+              :style="{
+                color: isNicknameValid ? 'var(--primary-color)' : 'red',
+              }"
+              @input="validateNickname($event.target.innerText)"
+              >{{ tempValue }}</span
+            >
             <span v-else>{{ nickname }}</span>
+            <span
+              v-if="editingField === 'nickname' && !isNicknameValid"
+              class="error-message"
+            >
+              (닉네임은 2~12자 이내, 특수문자 제외입니다.)
+            </span>
           </span>
-          <button class="edit-btn" @click="
-            editingField === 'nickname'
-              ? saveEdit('nickname')
-              : startEdit('nickname')
-            ">
+          <button
+            class="edit-btn"
+            @click="
+              editingField === 'nickname'
+                ? saveEdit('nickname')
+                : startEdit('nickname')
+            "
+          >
             {{ editingField === 'nickname' ? '수정완료' : '수정하기' }}
           </button>
         </li>
@@ -210,14 +271,30 @@ onMounted(async () => {
 
         <li>
           <span class="label">연락처</span>
-          <span class="value">
-            <span v-if="editingField === 'phone'" contenteditable="true" class="editable-text" ref="phoneRef"
-              :style="{ color: 'var(--primary-color)' }">{{ tempValue }}</span>
+          <span class="value-container">
+            <span
+              v-if="editingField === 'phone'"
+              contenteditable="true"
+              class="editable-text"
+              ref="phoneRef"
+              :style="{ color: isPhoneValid ? 'var(--primary-color)' : 'red' }"
+              @input="validatePhone($event.target.innerText)"
+              >{{ tempValue }}</span
+            >
             <span v-else>{{ phoneNumber }}</span>
+            <span
+              v-if="editingField === 'phone' && !isPhoneValid"
+              class="error-message"
+            >
+              (연락처는 '010-xxxx-xxxx' 형식이어야 합니다.)
+            </span>
           </span>
-          <button class="edit-btn" @click="
-            editingField === 'phone' ? saveEdit('phone') : startEdit('phone')
-            ">
+          <button
+            class="edit-btn"
+            @click="
+              editingField === 'phone' ? saveEdit('phone') : startEdit('phone')
+            "
+          >
             {{ editingField === 'phone' ? '수정완료' : '수정하기' }}
           </button>
         </li>
@@ -228,11 +305,22 @@ onMounted(async () => {
 
     <section class="manage-section">
       <h2 class="manage-title">
-        {{
-          role === 'LANDLORD' ? '나의 매물 관리' : '나의 체크리스트 관리'
-        }}
+        {{ role === 'LANDLORD' ? '나의 매물 관리' : '나의 체크리스트 관리' }}
       </h2>
-      <Buttons type="xl" @click="handleManageClick" class="manage-btn">
+      <Buttons
+        v-if="role === 'LANDLORD'"
+        type="xl"
+        @click="handleManageClick('내 매물 등록하기')"
+        class="create-property-btn"
+      >
+        <div class="top-text">나의 매물을 등록하고 싶어요</div>
+        <div class="bottom-text">내 매물 등록하기</div>
+      </Buttons>
+      <Buttons
+        type="xl"
+        @click="handleManageClick(manageButton.title)"
+        class="manage-btn"
+      >
         <div class="top-text">{{ manageButton.desc }}</div>
         <div class="bottom-text">{{ manageButton.title }}</div>
       </Buttons>
@@ -246,7 +334,10 @@ onMounted(async () => {
       </button>
     </section>
 
-    <ProfileImageModal v-model="showProfileModal" @change="onProfileImageChange" />
+    <ProfileImageModal
+      v-model="showProfileModal"
+      @change="onProfileImageChange"
+    />
   </div>
 
   <Navbar />
@@ -368,14 +459,30 @@ onMounted(async () => {
   padding: 0;
   margin: 0;
   width: 100%;
+  gap: rem(6px);
 }
 
 .info-list li {
   display: grid;
-  grid-template-columns: 1.2fr 3fr 7.5rem;
+  grid-template-columns: 1.2fr 9fr rem(40px);
   align-items: center;
   border-bottom: rem(1px) solid #eee;
   padding: rem(12px) 0;
+}
+
+.value-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: rem(4px);
+  font-size: rem(13px);
+  color: var(--black);
+  font-weight: 500;
+}
+
+.value-container > span {
+  font-weight: 500;
 }
 
 .label {
@@ -394,13 +501,14 @@ onMounted(async () => {
   gap: rem(6px);
   word-break: break-word;
   font-size: rem(13px);
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .editable-text {
   outline: none;
   min-width: rem(50px);
-  display: inline-block;
+  display: flex;
+  justify-content: center;
   cursor: text;
 }
 
@@ -411,6 +519,12 @@ onMounted(async () => {
   font-size: rem(10px);
   color: var(--grey);
   cursor: pointer;
+}
+
+.error-message {
+  font-size: rem(10px);
+  color: #888;
+  white-space: nowrap;
 }
 
 .invisible {
@@ -430,13 +544,18 @@ onMounted(async () => {
 
 .manage-title {
   font-size: rem(16px);
-  font-weight: 600;
+  font-weight: 800;
   margin-bottom: rem(24px);
   padding-top: rem(16px);
 }
 
 .manage-btn {
   height: rem(100px);
+}
+
+.create-property-btn {
+  height: rem(100px);
+  margin-bottom: 1rem;
 }
 
 .account-section {
