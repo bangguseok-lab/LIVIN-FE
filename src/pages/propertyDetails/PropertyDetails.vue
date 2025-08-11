@@ -144,6 +144,25 @@ const formatPrice = (price, isRent) => {
   return result.trim() || `${numberPrice}원`
 }
 
+// 관리비 포맷팅
+const formatMonthlyDetail = price => {
+  if (price === null || price === undefined || price === '')
+    return '가격 정보 없음'
+  const n = Number(price)
+  if (!Number.isFinite(n)) return '가격 정보 없음'
+
+  const man = Math.floor(n / 10000) // 만
+  const cheon = Math.floor((n % 10000) / 1000) // 천
+  const won = n % 1000 // 천원 미만
+
+  let s = ''
+  if (man) s += `${man}만`
+  if (cheon) s += `${s ? ' ' : ''}${cheon}천`
+  if (won) s += `${s ? ' ' : ''}${won}원`
+  if (!s) s = `${n}원` // 1000 미만 등
+  return s
+}
+
 const formattedPrice = computed(() => {
   const propertyDetails = property.getPropertyDetails
   if (!propertyDetails || !propertyDetails.transactionType) {
@@ -167,6 +186,7 @@ const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
   await property.fetchPropertyDetails(propertyId)
 }
 
+// 관리비 관련
 const calculate = computed(() => {
   const propertyDetails = property.getPropertyDetails
   const total = propertyDetails.management?.reduce((acc, crr) => {
@@ -178,7 +198,7 @@ const calculate = computed(() => {
   if (total === 0) {
     return '관련 정보 없음'
   }
-  return '매월' + formatPrice(total)
+  return '매월' + formatMonthlyDetail(total)
 })
 </script>
 
@@ -267,7 +287,7 @@ const calculate = computed(() => {
                 {{ m.managementType }}:
                 {{
                   m.managementFee !== '0'
-                    ? formatPrice(m.managementFee, false)
+                    ? formatMonthlyDetail(m.managementFee)
                     : '쓴 만큼'
                 }}
               </div>
