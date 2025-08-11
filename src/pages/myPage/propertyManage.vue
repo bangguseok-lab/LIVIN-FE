@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -7,10 +8,11 @@ import PropertyManageCard from '@/components/cards/PropertyManageCard.vue'
 import Navbar from '@/components/layouts/Navbar.vue'
 
 const router = useRouter()
-
 const userStore = useUserStore()
 
 const myPropertyList = ref([])
+const isModalVisible = ref(false)
+const propertyToDeleteId = ref(null)
 
 const nickname = computed(() => userStore.getNickname)
 
@@ -21,11 +23,6 @@ const goToAppliedList = () => {
 }
 
 const fetchMyProperties = async () => {
-  // 실제 API 호출 로직을 여기에 구현합니다.
-  // 예시: const response = await fetch('/api/my-properties');
-  //       myPropertyList.value = await response.json();
-
-  // 임시 데이터 (API가 준비되기 전까지 사용)
   myPropertyList.value = [
     {
       propertyId: 1,
@@ -125,19 +122,26 @@ const fetchMyProperties = async () => {
   ]
 }
 
-// 임시 데이터에서 매물을 삭제하는 함수
 const handleDelete = propertyId => {
-  if (window.confirm('정말 삭제하시겠습니까?')) {
-    // 실제 API 호출 대신 임시 데이터에서 항목을 제거
-    myPropertyList.value = myPropertyList.value.filter(
-      item => item.propertyId !== propertyId,
-    )
-    console.log(`${propertyId}번 매물이 삭제되었습니다.`)
-  }
+  propertyToDeleteId.value = propertyId
+  isModalVisible.value = true
+}
+
+const confirmDelete = () => {
+  myPropertyList.value = myPropertyList.value.filter(
+    item => item.propertyId !== propertyToDeleteId.value,
+  )
+  console.log(`${propertyToDeleteId.value}번 매물이 삭제되었습니다.`)
+  isModalVisible.value = false
+  propertyToDeleteId.value = null
+}
+
+const cancelDelete = () => {
+  isModalVisible.value = false
+  propertyToDeleteId.value = null
 }
 
 const handleEdit = propertyId => {
-  // 실제 API 호출 대신 매물 ID를 파라미터로 넘겨 페이지 이동
   router.push({ name: 'editProperty', params: { id: propertyId } })
 }
 
@@ -180,6 +184,19 @@ onMounted(() => {
   </div>
 
   <Navbar />
+
+  <div v-if="isModalVisible" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p class="modal-question">이 매물을 삭제하시겠어요?</p>
+        <p class="modal-info">확인을 누르면 삭제되고, 다시 볼 수 없어요</p>
+      </div>
+      <div class="modal-actions">
+        <button class="confirm-btn" @click="confirmDelete">삭제할래요</button>
+        <button class="cancel-btn" @click="cancelDelete">안 할래요</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -243,5 +260,70 @@ p {
   color: var(--grey);
   font-size: 1rem;
   line-height: 1.9;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--white);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 420px;
+  padding: 32px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.modal-body {
+  margin-bottom: 24px;
+}
+
+.modal-question {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.modal-info {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--grey);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.modal-actions button {
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.confirm-btn {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.cancel-btn {
+  background: #e0e0e0;
+  color: #333;
 }
 </style>
