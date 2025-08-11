@@ -1,9 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
-import PropertyCard from '@/components/cards/PropertyCard.vue';
+import PropertyCard from '@/components/cards/PropertyCard.vue'
+import Navbar from '@/components/layouts/Navbar.vue'
 
 // todo: 전체 리스트 개수 가져오기
-
 </script>
 
 <template>
@@ -16,12 +16,23 @@ import PropertyCard from '@/components/cards/PropertyCard.vue';
     <div class="propertyManage-list-container">
       <p class="propertyManage-list-count">총 5건</p>
       <div v-for="item in 15" :key="item.id">
-        <PropertyCard :id=1 price="38000" title="빌라 에덴4차 저층" area="76m²" supplyArea="35m²" floor="저" totalFloors="5"
-          direction="동향" address="서울시 강남구 논현동" isWished="false" />
+        <PropertyCard
+          :id="1"
+          price="38000"
+          title="빌라 에덴4차 저층"
+          area="76m²"
+          supplyArea="35m²"
+          floor="저"
+          totalFloors="5"
+          direction="동향"
+          address="서울시 강남구 논현동"
+          isWished="false"
+        />
       </div>
-
     </div>
   </div>
+
+  <Navbar />
 </template>
 
 <style scoped lang="scss">
