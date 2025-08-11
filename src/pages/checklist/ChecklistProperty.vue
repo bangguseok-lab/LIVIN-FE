@@ -354,6 +354,7 @@ onUnmounted(() => {
 
 .property-type-toggle {
   display: flex;
+  justify-content: center;
   gap: 10px;
   margin-bottom: 20px;
   width: 100%;
