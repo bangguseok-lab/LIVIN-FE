@@ -6,6 +6,9 @@ export const usePropertyStore = defineStore('property', {
     favoriteProperties: [],
     properties: [],
     propertyDetails: {},
+    favLoading: false,
+    lastFavParams: null,
+    favoriteVersion: 0,
 
     // 매물 등록용 state 추가 (지우면 안 됩니다! 매물 등록 시 사용 됩니다.)
     newProperty: {
@@ -17,12 +20,19 @@ export const usePropertyStore = defineStore('property', {
     },
   }),
   actions: {
+     bumpFavoriteVersion() {
+     this.favoriteVersion
+    },
     async fetchFavoriteProperties(params) {
+      this.favLoading = true
+      this.lastFavParams = params
       try {
-        const data = await api.getFavorite(params)
-        this.favoriteProperties = data
+        const res = await api.getFavorite(params)
+       this.favoriteProperties = res?.data?.data ?? res?.data ?? res ?? []
       } catch (error) {
         console.error('찜한 매물 데이터를 불러오는 데 실패했습니다:', error)
+      } finally {
+        this.favLoading = false
       }
     },
     async fetchProperties(params) {
