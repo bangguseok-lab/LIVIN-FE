@@ -73,9 +73,9 @@ export default [
         },
       },
       {
-        path: 'junse',
-        component: () => import('@/pages/propertyAdd/JunsePage.vue'),
-        name: 'junsePage',
+        path: 'jeonse',
+        component: () => import('@/pages/propertyAdd/JeonsePage.vue'),
+        name: 'jeonsePage',
         meta: {
           title: '전세 정보를 입력해주세요',
           subTitle: '',

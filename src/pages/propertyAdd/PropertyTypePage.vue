@@ -1,21 +1,27 @@
 <script setup>
 import Buttons from '@/components/common/buttons/Buttons.vue';
-import router from '@/router';
+import { useRouter } from 'vue-router'
+import { usePropertyStore } from '@/stores/property';
 import { ref } from 'vue'
 
+const router = useRouter();
+
+// 거래 유형 저장에 사용하려고 둔 스토어
+const propertyStore = usePropertyStore()
+
 // 전세, 월세 버튼 활성 상태 값을 결정하는 변수
-const junseOptIsActive = ref(false)
+const jeonseOptIsActive = ref(false)
 const monthlyRentOptIsActive = ref(false)
 
 // 전세 버튼 클릭 시 월세 버튼 비활성화 하는 함수
-const onJunseClick = () => {
-  junseOptIsActive.value = true
+const onJeonseClick = () => {
+  jeonseOptIsActive.value = true
   monthlyRentOptIsActive.value = false
 }
 
 // 월세 버튼 클릭 시 전세 버튼 비활성화 하는 함수
 const onMonthlyRentClick = () => {
-  junseOptIsActive.value = false
+  jeonseOptIsActive.value = false
   monthlyRentOptIsActive.value = true
 }
 
@@ -23,9 +29,11 @@ const onMonthlyRentClick = () => {
 // 다음 페이지로 이동
 const handleClick = () => {
   // 부동산 고유번호가 비어있지 않을 때
-  if (junseOptIsActive.value) {
-    router.push({ name: 'junsePage' })
+  if (jeonseOptIsActive.value) {
+    propertyStore.updateNewProperty('propertyType', 'jeonse')
+    router.push({ name: 'jeonsePage' })
   } else {
+    propertyStore.updateNewProperty('propertyType', 'wolse')
     router.push({ name: 'wolsePage' })
   }
 }
@@ -34,7 +42,7 @@ const handleClick = () => {
 
 <template>
   <div class="PropertyTypePage">
-    <Buttons type="option" label="전세" v-model:isActive="junseOptIsActive" class="type-button" @click="onJunseClick" />
+    <Buttons type="option" label="전세" v-model:isActive="jeonseOptIsActive" class="type-button" @click="onJeonseClick" />
     <Buttons type="option" label="월세" v-model:isActive="monthlyRentOptIsActive" class="type-button"
       @click="onMonthlyRentClick" />
   </div>
