@@ -57,7 +57,7 @@ function selectCity(code) {
 
 // 군/구 선택 → 읍/면/동 초기화 → emit
 function selectDistrict(code) {
-  selected.district = code
+  selected.district = code === '__NONE__' ? null : code
   selected.parish = null
   emit('updateRegion', { ...selected })
 }
@@ -97,7 +97,10 @@ function selectParish(code) {
         <li
           v-for="d in props.districts"
           :key="d.code"
-          :class="{ selected: selected.district === d.code }"
+          :class="{
+            selected: d.code !== '__NONE__' && selected.district === d.code,
+            none: d.code === '__NONE__',
+          }"
           @click="selectDistrict(d.code)"
         >
           {{ d.name }}
@@ -168,5 +171,9 @@ function selectParish(code) {
   color: var(--primary-color);
   font-size: 0.9rem;
   font-weight: bold;
+}
+.scroll-list li.none {
+  color: var(--grey);
+  font-weight: normal;
 }
 </style>

@@ -1,7 +1,7 @@
 <script setup>
 import RegionSelector from './RegionSelector.vue'
 import Buttons from '../common/buttons/Buttons.vue'
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, computed } from 'vue'
 
 // 지역 리스트는 props로 받고, 선택된 결과만 emit
 const props = defineProps({
@@ -43,6 +43,13 @@ function cancel_btn_handler() {
   }
   emit('updateRegion', resetRegion)
 }
+
+const visibleDistricts = computed(() =>
+  props.selectedRegion?.city ? props.districts || [] : [],
+)
+const visibleParishes = computed(() =>
+  props.selectedRegion?.city ? props.parishes || [] : [],
+)
 </script>
 
 <template>
@@ -50,8 +57,8 @@ function cancel_btn_handler() {
     <RegionSelector
       class="element1"
       :cities="cities"
-      :districts="districts"
-      :parishes="parishes"
+      :districts="visibleDistricts"
+      :parishes="visibleParishes"
       :selected-region="selectedRegion"
       @updateRegion="handleRegionUpdate"
     />
