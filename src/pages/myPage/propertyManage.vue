@@ -136,6 +136,11 @@ const handleDelete = propertyId => {
   }
 }
 
+const handleEdit = propertyId => {
+  // 실제 API 호출 대신 매물 ID를 파라미터로 넘겨 페이지 이동
+  router.push({ name: 'editProperty', params: { id: propertyId } })
+}
+
 onMounted(() => {
   fetchMyProperties()
   userStore.fetchNickname()
@@ -164,6 +169,7 @@ onMounted(() => {
           :key="item.propertyId"
           v-bind="item"
           @delete="handleDelete"
+          @edit="handleEdit"
         />
       </div>
       <div v-else class="no-property-message">
