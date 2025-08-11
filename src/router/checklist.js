@@ -17,8 +17,8 @@ export default [
     props: true,
   },
   {
-    path: '/checklist/:id/properties',
-    name: 'checklistProperties',
+    path: '/checklist/:id/property/list',
+    name: 'checklistProperty',
     component: () => import('@/pages/checklist/ChecklistProperty.vue'),
     props: true,
   },
