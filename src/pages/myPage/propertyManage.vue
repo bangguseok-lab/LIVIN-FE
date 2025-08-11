@@ -230,13 +230,13 @@ p {
   background: var(--primary-color);
   color: var(--white);
   padding: 0.5rem 0.9rem;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   font-size: 0.8rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -250,8 +250,8 @@ p {
 .propertyManage-list-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-bottom: 62px;
+  gap: 0.75rem;
+  padding-bottom: 3.875rem;
 }
 
 .no-property-message {
@@ -278,16 +278,16 @@ p {
 
 .modal-content {
   background: var(--white);
-  border-radius: 20px;
+  border-radius: 1.25rem;
   width: 90%;
-  max-width: 420px;
-  padding: 32px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 26.25rem;
+  padding: 2rem;
+  box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
 .modal-body {
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
 }
 
 .modal-question {
@@ -304,12 +304,12 @@ p {
 .modal-actions {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .modal-actions button {
-  padding: 14px 24px;
-  border-radius: 12px;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.75rem;
   border: none;
   font-weight: 700;
   cursor: pointer;
