@@ -50,6 +50,39 @@ export default [
           page: 4,
         },
       },
+      {
+        path: 'type',
+        component: () => import('@/pages/propertyAdd/PropertyTypePage.vue'),
+        name: 'propertyType',
+        meta: {
+          title: '거래 유형을 선택해주세요',
+          subTitle: '',
+          totalPage: 10,
+          page: 1,
+        },
+      },
+      {
+        path: 'wolse',
+        component: () => import('@/pages/propertyAdd/WolsePage.vue'),
+        name: 'wolsePage',
+        meta: {
+          title: '월세 정보를 입력해주세요',
+          subTitle: '',
+          totalPage: 10,
+          page: 2,
+        },
+      },
+      {
+        path: 'junse',
+        component: () => import('@/pages/propertyAdd/JunsePage.vue'),
+        name: 'junsePage',
+        meta: {
+          title: '전세 정보를 입력해주세요',
+          subTitle: '',
+          totalPage: 10,
+          page: 2,
+        },
+      },
     ],
   },
 ]

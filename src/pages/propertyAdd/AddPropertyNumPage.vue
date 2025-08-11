@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { usePropertyStore } from '@/stores/property'
 import Buttons from '@/components/common/buttons/Buttons.vue';
 import guessIcon from '@/assets/icons/property/interrogation-icon.svg'
@@ -9,6 +9,7 @@ import router from '@/router';
 const propertyNumValue = ref('')
 // 매물 등록에 사용될 스토어
 const propertyStore = usePropertyStore()
+
 
 // 부동산 고유번호를 모를 때, 새로운 페이지 열리면서 외부 페이지로 이동
 const handleGotoSearch = () => {
@@ -30,6 +31,11 @@ const handleClick = () => {
     alert('부동산 고유번호를 입력해주세요')
   }
 }
+
+onMounted(() => {
+  // 다음 페이지에 갔다가 다시 돌아오는 경우, 입력해뒀던 부동산 고유 번호 보이도록 설정
+  propertyNumValue.value = propertyStore.getNewProperty.propertyNum;
+})
 </script>
 
 <template>

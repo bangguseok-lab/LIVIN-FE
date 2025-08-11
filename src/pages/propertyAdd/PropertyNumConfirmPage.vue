@@ -24,7 +24,7 @@ const handleClickNoPropertyNum = () => {
 
 // 다음 페이지로 이동
 const handleClick = () => {
-  router.push({ name: 'propertyNumConfirm' })
+  router.push({ name: 'propertyType' })
 }
 
 onMounted(async () => {
@@ -68,12 +68,12 @@ onMounted(async () => {
             <div class="propertyNum-content-text"><span class="content-text">이름</span>{{ serverUserName }}</div>
           </div>
           <div>
-            <div class="propertyNum-content-text"><span class="content-text">생년월일</span><span
-                id="birth-text">{{ serverUserBirth }}</span></div>
+            <div class="propertyNum-content-text"><span class="content-text">생년월일</span><span id="birth-text">{{
+              serverUserBirth }}</span></div>
           </div>
           <div>
-            <div class="propertyNum-content-text"><span class="content-text">연락처</span><span
-                id="phone-text">{{ serverUserPhoneNum }}</span></div>
+            <div class="propertyNum-content-text"><span class="content-text">연락처</span><span id="phone-text">{{
+              serverUserPhoneNum }}</span></div>
           </div>
         </div>
       </div>
