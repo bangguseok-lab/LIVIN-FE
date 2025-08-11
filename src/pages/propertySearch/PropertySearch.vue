@@ -251,7 +251,7 @@ function onClearFilter(chip) {
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: #777;
+  color: var(--grey);
   margin-bottom: 16px;
 }
 
@@ -260,6 +260,7 @@ function onClearFilter(chip) {
   flex-direction: column;
   gap: 12px;
   padding-bottom: 62px;
+  cursor: pointer;
 }
 
 .no-result {

@@ -131,7 +131,6 @@ function selectParish(code) {
 }
 
 .col {
-  width: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -149,7 +148,7 @@ function selectParish(code) {
   list-style: none;
   padding: 0;
   margin: 1rem 0 0 0;
-  width: 100%;
+  width: 110%;
   max-height: 14rem;
   overflow-y: auto;
   border-top: 1px solid var(--whitish);
