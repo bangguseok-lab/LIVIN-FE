@@ -7,6 +7,7 @@ export const useChecklistStore = defineStore('checklist', {
     checklists: [],
     currentChecklist: null,
     currentChecklistItems: [],
+    selectedChecklistId: null,
     loading: false,
     error: null,
   }),
@@ -22,6 +23,11 @@ export const useChecklistStore = defineStore('checklist', {
       } finally {
         this.loading = false
       }
+    },
+
+    // 선택 변경
+    setSelected(id) {
+      this.selectedChecklistId = id
     },
 
     // 특정 체크리스트 조회
@@ -112,5 +118,6 @@ export const useChecklistStore = defineStore('checklist', {
         this.error = err
       }
     },
+
   },
 })

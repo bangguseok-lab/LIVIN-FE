@@ -1,22 +1,14 @@
 <script setup>
-import api from '@/api/property'
-import FavoriteButton from '@/components/common/buttons/FavoriteButton.vue'
+import { computed, defineProps, defineEmits } from 'vue'
 import badge from '@/assets/images/landing/SecureBadge.png'
-import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import SafePropertyModal from '@/components/modals/SafePropertyModal.vue'
-import { usePropertyStore } from '@/stores/property'
 
 const router = useRouter()
-const propertyStore = usePropertyStore()
-
-const modalVisible = ref(false)
-
 
 const props = defineProps({
   propertyId: {
     type: Number,
-    required: true, // 이 값이 없으면 라우팅 안됨
+    required: true,
   },
   transactionType: String, // 'JEONSE' | 'MONTHLY_RENT'
   price: Number, // 전세 보증금 또는 월세 보증금
@@ -31,30 +23,10 @@ const props = defineProps({
   totalFloors: String,
   direction: String,
   address: String,
-  isFavorite: Boolean,
   isSafe: Boolean,
-  mortgage: Boolean,
-  ownerMatch: Boolean,
-  illegalBuilding: Boolean,
-  jeonseRate: Number,
 })
 
-const propertyInfo = computed(() => {
-  return {
-    mortgage: props.mortgage,
-    ownerMatch: props.ownerMatch,
-    illegalBuilding: props.illegalBuilding,
-    jeonseRate: props.jeonseRate,
-  }
-})
-
-// props에서 초기 상태를 가져와 ref로 설정
-const localIsFavorite = ref(props.isFavorite)
-
-// 백엔드 이미지 url 받아올 때 주석 해제하고 아래의 동일 이름의 함수 삭제.
-// const imageUrl = computed(() => {
-//   return props.imageUrls?.[0]?.imageUrl || null
-// })
+const emit = defineEmits(['edit', 'delete'])
 
 import sample1 from '../../assets/images/home/sample-img1.png'
 
@@ -62,106 +34,69 @@ const imageUrl = computed(() => {
   return props.imageUrls?.[0]?.imageUrl || sample1
 })
 
-// 금액 단위 포맷 함수
 function formatDepositPrice(value) {
   if (!value || value === 0) return '가격 정보 없음'
-
-  const billion = Math.floor(value / 100000000) // 억
+  const billion = Math.floor(value / 100000000)
   const rest = value % 100000000
-  const million = Math.floor(rest / 10000) // 만
-
+  const million = Math.floor(rest / 10000)
   let millionStr = ''
-
   if (million > 0) {
     const thousand = Math.floor(million / 1000)
     const remain = million % 1000
-
     if (thousand > 0) {
       millionStr += ` ${thousand}천`
     }
-
     if (remain > 0) {
       millionStr += ` ${remain}만`
     } else if (thousand === 0) {
-      // 1000보다 작고 정확히 떨어질 때만 '만' 붙이기
       millionStr += '만'
     }
   }
-
   return `${billion > 0 ? `${billion}억 ` : ''}${millionStr}`.trim()
 }
 
 function formatMonthlyRent(value) {
-  if (!value || value === 0) return '가격 정보 없음'
-
-  const billion = Math.floor(value / 10000) // 억
-  const thousand = Math.floor((value % 10000) / 1000) // 천
-  const rest = value % 1000 // 나머지 만 단위
-
+  if (!value || value === 0) return ''
+  const billion = Math.floor(value / 10000)
+  const thousand = Math.floor((value % 10000) / 1000)
+  const rest = value % 1000
   let result = ''
   if (billion > 0) result += `${billion}억 `
   if (thousand > 0) result += ` ${thousand}천`
   if (rest > 0) {
     result += ` ${rest}만`
   } else if (thousand === 0 && billion === 0) {
-    result += '만' // 만 단위만 있는 경우
+    result += '만'
   }
-
   return result.trim()
 }
 
-// 전세 or 월세 형식의 가격 문자열
 const formattedPrice = computed(() => {
   if (props.transactionType === 'JEONSE') {
     return `전세 ${formatDepositPrice(props.price)}`
   } else if (props.transactionType === 'MONTHLY_RENT') {
-    const depositStr = formatDepositPrice(props.price) // monthlyDeposit
+    const depositStr = formatDepositPrice(props.price)
     const rentStr = formatMonthlyRent(props.monthlyRent)
     return `월세 ${depositStr} / ${rentStr}`
   }
   return ''
 })
 
-// 외부 값 변경 감지 (필요 시)
-watch(
-  () => props.isFavorite,
-  newVal => {
-    localIsFavorite.value = newVal
-  },
-)
-
-const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
-  if (newFavoriteStatus) {
-    await api.addFavoriteProperty(propertyId)
-  } else {
-    await api.removeFavoriteProperty(propertyId)
-  }
-
-  propertyStore.bumpFavoriteVersion()
-
-  // 즉시 로컬 상태 업데이트
-  localIsFavorite.value = newFavoriteStatus
-  propertyStore.favoriteVersion++
-
-  // store에서 다시 불러오는 건 필요 시만
-  // await property.fetchPropertyDetails(propertyId)
+const handleEditClick = () => {
+  emit('edit', props.propertyId)
 }
 
-//
+const handleDeleteClick = () => {
+  emit('delete', props.propertyId)
+}
+
 function goToDetail() {
   console.log('[goToDetail] propertyId:', props.propertyId)
-
   router.push({ name: 'propertyDetails', params: { id: props.propertyId } })
 }
 </script>
 
 <template>
-  <SafePropertyModal
-    v-if="modalVisible"
-    :modelValue="modalVisible"
-    :propertyInfo="propertyInfo"
-    @update:modelValue="modalVisible = $event"
-   />
   <div class="property-card" @click="goToDetail()">
     <div class="image-wrapper">
       <template v-if="imageUrl">
@@ -170,10 +105,8 @@ function goToDetail() {
       <template v-else>
         <div class="property-image-placeholder">이미지 없음</div>
       </template>
-
-      <!-- 안심 매물 뱃지 -->
       <div class="property-card-badge">
-        <img v-if="isSafe" :src="badge" alt="안심매물 뱃지" class="badge-img" @click.stop="modalVisible = true" />
+        <img v-if="isSafe" :src="badge" alt="안심매물 뱃지" class="badge-img" />
       </div>
     </div>
 
@@ -188,15 +121,58 @@ function goToDetail() {
       </div>
       <div class="address">{{ address }}</div>
     </div>
-    <!-- 관심 하트 버튼 -->
-    <div class="card-favorite-btn" @click.stop>
-      <FavoriteButton
-        width="18"
-        height="18"
-        :isFavorite="localIsFavorite"
-        :propertyId="propertyId"
-        @toggle-favorite="handleFavoriteToggle"
-      />
+
+    <div class="card-action-btn" @click.stop>
+      <div class="actions">
+        <button @click="handleEditClick" class="action-btn edit-btn">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 20H21"
+              stroke="#888"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M16.5 3.5C16.8979 3.10217 17.4371 2.87865 18 2.87865C18.5629 2.87865 19.1021 3.10217 19.5 3.5C19.8978 3.89782 20.1213 4.43708 20.1213 5C20.1213 5.56292 19.8978 6.10218 19.5 6.5L9 17L3 18L4 12L14.5 3.5Z"
+              stroke="#888"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button @click="handleDeleteClick" class="action-btn">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M3 6H5H21"
+              stroke="#888"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+              stroke="#888"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -206,6 +182,7 @@ function goToDetail() {
   display: flex;
   padding: 16px 0;
   border-bottom: 1px solid #ddd;
+  position: relative;
 }
 .image-wrapper {
   position: relative;
@@ -220,7 +197,6 @@ function goToDetail() {
 .property-thumbnail {
   width: 100%;
   height: 100%;
-  // background-color: #ddd;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -274,5 +250,29 @@ function goToDetail() {
 .address {
   font-size: 12px;
   color: #999;
+}
+
+.card-action-btn {
+  position: absolute;
+  top: 10px;
+  right: 1px;
+  z-index: 10;
+}
+.actions {
+  display: flex;
+  gap: 16px;
+}
+.action-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.35rem;
+}
+.edit-btn {
+  margin-top: 0.5rem;
 }
 </style>

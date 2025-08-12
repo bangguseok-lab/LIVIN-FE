@@ -1,7 +1,14 @@
 <script setup>
 import RegionSelector from './RegionSelector.vue'
 import Buttons from '../common/buttons/Buttons.vue'
-import { defineProps, defineEmits } from 'vue'
+import {
+  defineProps,
+  defineEmits,
+  computed,
+  ref,
+  nextTick,
+  onMounted,
+} from 'vue'
 
 // 지역 리스트는 props로 받고, 선택된 결과만 emit
 const props = defineProps({
@@ -21,7 +28,7 @@ const props = defineProps({
 })
 
 // RegionSelector에서 전달받은 선택 정보를 다시 외부로 emit하는 중간 다리
-const emit = defineEmits(['updateRegion'])
+const emit = defineEmits(['updateRegion', 'filterCompleted'])
 
 const handleRegionUpdate = region => {
   region.final = false
@@ -43,15 +50,30 @@ function cancel_btn_handler() {
   }
   emit('updateRegion', resetRegion)
 }
+
+const regionSelectorRef = ref(null)
+
+onMounted(() => {
+  nextTick(() => {
+    regionSelectorRef.value?.scrollToSelection()
+  })
+})
+const visibleDistricts = computed(() =>
+  props.selectedRegion?.city ? props.districts || [] : [],
+)
+const visibleParishes = computed(() =>
+  props.selectedRegion?.city ? props.parishes || [] : [],
+)
 </script>
 
 <template>
   <div class="region-panel">
     <RegionSelector
+      ref="regionSelectorRef"
       class="element1"
       :cities="cities"
-      :districts="districts"
-      :parishes="parishes"
+      :districts="visibleDistricts"
+      :parishes="visibleParishes"
       :selected-region="selectedRegion"
       @updateRegion="handleRegionUpdate"
     />
