@@ -21,7 +21,7 @@ export const usePropertyStore = defineStore('property', {
   }),
   actions: {
      bumpFavoriteVersion() {
-     this.favoriteVersion
+     this.favoriteVersion++
     },
     async fetchFavoriteProperties(params) {
       this.favLoading = true
