@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import {
   FilterDropdownSection,
   FilterSecureOption,
-  FilterChecklistSlider,
 } from './FilterBar.js'
 
 // Props 정의
