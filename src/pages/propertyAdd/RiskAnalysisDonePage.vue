@@ -1,7 +1,12 @@
 <script setup>
 import Buttons from '@/components/common/buttons/Buttons.vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter()
 
+const handleClick = () => {
+  router.push({ name: "photoPage" })
+}
 </script>
 
 <template>
