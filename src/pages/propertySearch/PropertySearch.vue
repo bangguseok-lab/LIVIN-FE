@@ -219,7 +219,6 @@ function onClearFilter(chip) {
   width: 100%;
   min-width: rem(375px);
   max-width: rem(600px);
-  height: 100vh;
   padding: 100px 40px 0 40px;
 }
 

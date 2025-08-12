@@ -12,7 +12,6 @@ const propertyStore = usePropertyStore()
 
 const modalVisible = ref(false)
 
-
 const props = defineProps({
   propertyId: {
     type: Number,
@@ -161,7 +160,7 @@ function goToDetail() {
     :modelValue="modalVisible"
     :propertyInfo="propertyInfo"
     @update:modelValue="modalVisible = $event"
-   />
+  />
   <div class="property-card" @click="goToDetail()">
     <div class="image-wrapper">
       <template v-if="imageUrl">
@@ -173,7 +172,13 @@ function goToDetail() {
 
       <!-- 안심 매물 뱃지 -->
       <div class="property-card-badge">
-        <img v-if="isSafe" :src="badge" alt="안심매물 뱃지" class="badge-img" @click.stop="modalVisible = true" />
+        <img
+          v-if="isSafe"
+          :src="badge"
+          alt="안심매물 뱃지"
+          class="badge-img"
+          @click.stop="modalVisible = true"
+        />
       </div>
     </div>
 
@@ -191,8 +196,8 @@ function goToDetail() {
     <!-- 관심 하트 버튼 -->
     <div class="card-favorite-btn" @click.stop>
       <FavoriteButton
-        width="18"
-        height="18"
+        width="16"
+        height="16"
         :isFavorite="localIsFavorite"
         :propertyId="propertyId"
         @toggle-favorite="handleFavoriteToggle"
@@ -205,7 +210,8 @@ function goToDetail() {
 .property-card {
   display: flex;
   padding: 16px 0;
-  border-bottom: 1px solid #ddd;
+  border-top: 1px solid var(--whitish);
+  border-bottom: 1px solid var(--whitish);
 }
 .image-wrapper {
   position: relative;
@@ -274,5 +280,9 @@ function goToDetail() {
 .address {
   font-size: 12px;
   color: #999;
+}
+
+.card-favorite-btn {
+  margin-right: 0.5rem;
 }
 </style>
