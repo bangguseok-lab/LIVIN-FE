@@ -153,9 +153,8 @@ onMounted(async () => {
           alt="Character"
         />
       </div>
-      {{ user.getNickname }}님,
-      <br />
-      <div class="board-text-box lg-text-box">
+      <div class="name-text">{{ user.getNickname }}님,</div>
+      <div class="main-text">
         오늘도 함께 <br />
         좋은 집을 찾아봐요!
       </div>
@@ -166,6 +165,7 @@ onMounted(async () => {
         <property-section
           :properties="property.getPropertiesList"
           :propertyMessage="propertyMessage"
+          class="propertyMessage"
         />
       </div>
       <div class="checklist-router-box">
@@ -173,10 +173,18 @@ onMounted(async () => {
           더 많은 매물이 궁금하시다면, 더보기를 눌러 확인해보세요
         </div>
         <Buttons type="xl" togo="/checklist" class="checklist-router-btn mt-5">
-          <div class="top-text">
-            나만의 공간을 위한 모든 준비, 지금 여기서 시작하세요
-          </div>
-          <div class="bottom-text">나만의 체크리스트 만들기</div>
+          <span class="btn-inner">
+            <span class="btn-text">
+              <div class="top-text">
+                나만의 공간을 위한 모든 준비, 지금 여기서 시작하세요
+              </div>
+              <div class="bottom-text">나만의 체크리스트 만들기</div>
+            </span>
+            <img
+              src="@/assets/icons/home/go-to-check-icon.svg"
+              class="btn-icon"
+            />
+          </span>
         </Buttons>
       </div>
     </div>
@@ -191,7 +199,7 @@ onMounted(async () => {
 
 .Home {
   width: 100%;
-  padding: 4rem 0;
+  padding: 7rem 0;
   background-color: var(--primary-color);
   display: flex;
   flex-direction: column;
@@ -200,15 +208,27 @@ onMounted(async () => {
 .intro-box {
   color: white;
   margin-top: rem(100px);
-  padding: 0 2rem;
+  padding: 2rem 2rem 0 2rem;
   position: relative;
   height: 30vh;
+}
+.name-text {
+  font-size: 1rem;
+  font-weight: var(--font-weight-light);
+  margin-bottom: rem(4px);
+}
+
+.main-text {
+  font-size: 1.6rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.3;
 }
 
 .intro-box .character {
   position: absolute;
   right: 25px; /* 오른쪽에서 띄움 */
-  width: 170px;
+  bottom: rem(50px);
+  width: 200px;
   pointer-events: none; /* 클릭 방지 */
 }
 
@@ -230,7 +250,7 @@ onMounted(async () => {
   height: auto;
   background-color: var(--whitish);
   border-radius: 35px 35px 0 0;
-  margin-bottom: rem(-20px);
+  margin-bottom: rem(-70px);
 }
 
 .content-box {
@@ -251,14 +271,14 @@ onMounted(async () => {
   --primary-color: var(--green);
 
   .top-text {
-    font-size: 0.8rem;
-    font-weight: var(--font-weight-regular);
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-light);
     color: var(--white);
   }
 
   .bottom-text {
-    font-size: 1rem;
-    font-weight: var(--font-weight-lg);
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
     color: var(--white);
     margin-top: -0.3rem;
   }
@@ -275,5 +295,28 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 슬롯 래퍼: 좌우 끝 정렬 */
+.checklist-router-btn .btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽: 텍스트, 오른쪽: 아이콘 */
+  width: 100%;
+  gap: 12px;
+}
+
+/* 텍스트 묶음: 왼쪽 정렬 및 두 줄 세로 배치 */
+.checklist-router-btn .btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1 1 auto; /* 남는 영역을 텍스트가 차지 */
+  line-height: 1.25;
+}
+
+.checklist-router-btn .btn-icon {
+  width: rem(65px);
+  flex: 0 0 auto;
 }
 </style>
