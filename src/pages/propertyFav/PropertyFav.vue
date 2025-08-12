@@ -103,9 +103,22 @@ function toCard(item) {
 
 async function loadFavorites() {
   try {
-    const res = await api.getFavProperties()
-    const raw = res?.data?.data ?? res?.data?.content ?? res?.data ?? res ?? []
-    const arr = Array.isArray(raw) ? raw : []
+    const params = {}
+
+    if (favOnlySecure.value) params.onlySecure = true
+    if (favSelectedChecklist.value !== '전체' && !isNaN(Number(favSelectedChecklist.value))) {
+      params.checklistId = Number(favSelectedChecklist.value)
+    }
+
+    if (favRegion.value.city) params.sido = favRegion.value.city
+    if (favRegion.value.district) params.sigungu = favRegion.value.district
+    if (favRegion.value.parish) params.eupmyeondong = favRegion.value.parish
+
+    const res = await api.getFavProperties(params)
+    const arr = Array.isArray(res)
+      ? res
+      : (Array.isArray(res?.content) ? res.content : [])
+
     propertyList.value = arr.map(toCard)
   } catch (err) {
     console.error('관심 매물 조회 실패:', err)

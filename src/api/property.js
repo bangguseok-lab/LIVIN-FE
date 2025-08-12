@@ -1,13 +1,9 @@
 import apiClient from '@/api/apiClient'
 
 export default {
-  async getFavorite(params) {
-    const { data } = await apiClient.get('/properties/favorite', { params })
-    return data
-  },
 
   async getFavProperties(params) {
-    const { data } = await apiClient.get('/properties/favorite', { params })
+    const { data } = await apiClient.get('/favorite-properties', { params })
     return data
   },
 
