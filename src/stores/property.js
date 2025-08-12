@@ -19,18 +19,19 @@ export const usePropertyStore = defineStore('property', {
       propertyNum: '', // 부동산 고유번호
       propertyType: '', // 거래유형
       propertyDeposit: '', // 보증금 금액
+      direction: '', // 주실 방향
     },
   }),
   actions: {
-     bumpFavoriteVersion() {
-     this.favoriteVersion
+    bumpFavoriteVersion() {
+      this.favoriteVersion
     },
     async fetchFavoriteProperties(params) {
       this.favLoading = true
       this.lastFavParams = params
       try {
         const res = await api.getFavorite(params)
-       this.favoriteProperties = res?.data?.data ?? res?.data ?? res ?? []
+        this.favoriteProperties = res?.data?.data ?? res?.data ?? res ?? []
       } catch (error) {
         console.error('찜한 매물 데이터를 불러오는 데 실패했습니다:', error)
       } finally {
@@ -73,6 +74,7 @@ export const usePropertyStore = defineStore('property', {
         propertyNum: '', // 부동산 고유번호
         propertyType: '', // 거래유형
         propertyDeposit: '', // 보증금 금액
+        direction: '', // 주실 방향
       }
     },
     async fetchPropertyDetails(params) {
