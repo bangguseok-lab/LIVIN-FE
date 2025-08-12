@@ -181,7 +181,8 @@ function goToDetail() {
 .property-card {
   display: flex;
   padding: 16px 0;
-  border-bottom: 1px solid #ddd;
+  border-top: 1px solid var(--whitish);
+  border-bottom: 1px solid var(--whitish);
   position: relative;
 }
 .image-wrapper {
