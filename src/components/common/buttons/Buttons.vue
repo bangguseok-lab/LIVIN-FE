@@ -285,12 +285,11 @@ const iconComponent = computed(() => {
 
 // btn-option, 매물 등록 시 옵션 관련 버튼
 .btn-option {
-  width: rem(352px);
   height: rem(60px);
   border: rem(1px) solid var(--grey);
   border-radius: rem(14px);
-  font-size: rem(20px);
-  font-weight: var(--font-weight-lg);
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-semibold);
 }
 
 
@@ -373,5 +372,13 @@ const iconComponent = computed(() => {
   background-color: white;
   color: var(--primary-color);
   border: rem(1.5px) solid var(--primary-color);
+}
+
+@media (max-width: 375px) {
+  .btn-option {
+    height: rem(45px);
+    font-size: .8rem;
+    font-weight: var(--font-weight-semibold);
+  }
 }
 </style>

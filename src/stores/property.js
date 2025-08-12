@@ -17,20 +17,25 @@ export const usePropertyStore = defineStore('property', {
       detailAddress: '', // 상세주소 (몇 동 몇 호인지)
       extraAddress: '', // 참고 주소 (아파트 이름 등)
       propertyNum: '', // 부동산 고유번호
+      propertyType: '', // 거래유형
+      propertyDeposit: '', // 보증금 금액
     },
   }),
   actions: {
      bumpFavoriteVersion() {
-     this.favoriteVersion
+     this.favoriteVersion++
     },
     async fetchFavoriteProperties(params) {
       this.favLoading = true
       this.lastFavParams = params
       try {
-        const res = await api.getFavorite(params)
-       this.favoriteProperties = res?.data?.data ?? res?.data ?? res ?? []
-      } catch (error) {
+      const res = await api.getFavorite(params)
+      this.favoriteProperties = Array.isArray(res)
+        ? res
+        : (Array.isArray(res?.content) ? res.content : [])
+    } catch (error) {
         console.error('찜한 매물 데이터를 불러오는 데 실패했습니다:', error)
+        this.favoriteProperties = []
       } finally {
         this.favLoading = false
       }
@@ -69,6 +74,8 @@ export const usePropertyStore = defineStore('property', {
         detailAddress: '', // 상세주소 (몇 동 몇 호인지)
         extraAddress: '', // 참고 주소 (아파트 이름 등)
         propertyNum: '', // 부동산 고유번호
+        propertyType: '', // 거래유형
+        propertyDeposit: '', // 보증금 금액
       }
     },
     async fetchPropertyDetails(params) {

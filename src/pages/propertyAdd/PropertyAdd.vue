@@ -66,4 +66,14 @@ const subTitle = computed(() => route.meta.subTitle || '')
   color: var(--sub-title-text);
   margin-bottom: rem(34px);
 }
+
+
+@media (max-width: 375px) {
+  .property-add-title-text {
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    color: .8rem;
+    margin-bottom: 0;
+  }
+}
 </style>
