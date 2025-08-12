@@ -133,8 +133,8 @@ const modules = [Parallax, Pagination]
 .no-favorite-card-box {
   height: rem(200px);
   padding-bottom: rem(20px);
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: rem(30px);
+  padding-right: rem(30px);
 }
 
 @media (max-width: 399px) {
@@ -219,7 +219,7 @@ const modules = [Parallax, Pagination]
 }
 
 :deep(.favorite-go-btn) {
-  padding: 1.3rem rem(10px) 0 rem(10px);
+  padding-top: 1.3rem;
   --primary-color: var(--pink);
   width: 100%;
   height: 100%;

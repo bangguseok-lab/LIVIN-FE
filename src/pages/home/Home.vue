@@ -147,6 +147,12 @@ onMounted(async () => {
 <template>
   <div class="Home">
     <div class="intro-box">
+      <div class="character">
+        <img
+          src="@/assets/images/character/character-basic.svg"
+          alt="Character"
+        />
+      </div>
       {{ user.getNickname }}님,
       <br />
       <div class="board-text-box lg-text-box">
@@ -195,6 +201,20 @@ onMounted(async () => {
   color: white;
   margin-top: rem(100px);
   padding: 0 2rem;
+  position: relative;
+  height: 30vh;
+}
+
+.intro-box .character {
+  position: absolute;
+  right: 25px; /* 오른쪽에서 띄움 */
+  width: 170px;
+  pointer-events: none; /* 클릭 방지 */
+}
+
+.intro-box .character img {
+  display: block;
+  width: 100%;
 }
 
 .board-text-box {
@@ -210,7 +230,6 @@ onMounted(async () => {
   height: auto;
   background-color: var(--whitish);
   border-radius: 35px 35px 0 0;
-  margin-top: rem(100px);
   margin-bottom: rem(-20px);
 }
 
