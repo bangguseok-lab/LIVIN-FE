@@ -1,136 +1,44 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useRegisteredPropertyStore } from '@/stores/registeredProperty' // 새로 만든 스토어 임포트
 
 import PropertyManageCard from '@/components/cards/PropertyManageCard.vue'
 import Navbar from '@/components/layouts/Navbar.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
+const registeredPropertyStore = useRegisteredPropertyStore() // 스토어 인스턴스 생성
 
-const myPropertyList = ref([])
 const isModalVisible = ref(false)
 const propertyToDeleteId = ref(null)
 
 const nickname = computed(() => userStore.getNickname)
 
-const totalCount = computed(() => myPropertyList.value.length)
+// 백엔드 API로부터 가져온 데이터와 개수를 스토어에서 계산된 속성으로 가져옵니다.
+const myPropertyList = computed(() => registeredPropertyStore.getProperties)
+const totalCount = computed(() => registeredPropertyStore.getPropertyCount)
 
 const goToAppliedList = () => {
   router.push({ name: 'propertyAdd' })
 }
 
+// 스토어의 액션을 호출하여 내 매물 리스트를 가져오는 함수
 const fetchMyProperties = async () => {
-  myPropertyList.value = [
-    {
-      propertyId: 1,
-      transactionType: 'JEONSE',
-      price: 740000000,
-      monthlyRent: null,
-      title: '은마 5동 301호',
-      imageUrls: [
-        { imageUrl: 'https://placehold.co/90x90/E9ECEF/868E96?text=Image' },
-      ],
-      propertyType: '아파트',
-      exclusiveArea: '76.79',
-      supplyArea: '101.52',
-      floor: '3',
-      totalFloors: '14',
-      direction: '남향',
-      address: '서울시 강남구 삼성로 212',
-      isFavorite: false,
-      isSafe: true,
-    },
-    {
-      propertyId: 2,
-      transactionType: 'MONTHLY_RENT',
-      price: 100000000,
-      monthlyRent: 1200000,
-      title: '잠실 파크리오 101동',
-      imageUrls: [
-        { imageUrl: 'https://placehold.co/90x90/E9ECEF/868E96?text=Image' },
-      ],
-      propertyType: '아파트',
-      exclusiveArea: '59.98',
-      supplyArea: '84.92',
-      floor: '12',
-      totalFloors: '20',
-      direction: '남향',
-      address: '서울시 송파구 올림픽로 347',
-      isFavorite: true,
-      isSafe: false,
-    },
-    {
-      propertyId: 3,
-      transactionType: 'JEONSE',
-      price: 1250000000,
-      monthlyRent: null,
-      title: '반포자이 110동',
-      imageUrls: [
-        { imageUrl: 'https://placehold.co/90x90/E9ECEF/868E96?text=Image' },
-      ],
-      propertyType: '아파트',
-      exclusiveArea: '134.82',
-      supplyArea: '165.72',
-      floor: '7',
-      totalFloors: '30',
-      direction: '동향',
-      address: '서울시 서초구 신반포로 270',
-      isFavorite: false,
-      isSafe: true,
-    },
-    {
-      propertyId: 4,
-      transactionType: 'JEONSE',
-      price: 1250000000,
-      monthlyRent: null,
-      title: '반포자이 110동',
-      imageUrls: [
-        { imageUrl: 'https://placehold.co/90x90/E9ECEF/868E96?text=Image' },
-      ],
-      propertyType: '아파트',
-      exclusiveArea: '134.82',
-      supplyArea: '165.72',
-      floor: '7',
-      totalFloors: '30',
-      direction: '동향',
-      address: '서울시 서초구 신반포로 270',
-      isFavorite: false,
-      isSafe: true,
-    },
-    {
-      propertyId: 5,
-      transactionType: 'JEONSE',
-      price: 1250000000,
-      monthlyRent: null,
-      title: '반포자이 110동',
-      imageUrls: [
-        { imageUrl: 'https://placehold.co/90x90/E9ECEF/868E96?text=Image' },
-      ],
-      propertyType: '아파트',
-      exclusiveArea: '134.82',
-      supplyArea: '165.72',
-      floor: '7',
-      totalFloors: '30',
-      direction: '동향',
-      address: '서울시 서초구 신반포로 270',
-      isFavorite: false,
-      isSafe: true,
-    },
-  ]
+  await registeredPropertyStore.fetchMyProperties()
 }
 
+// 삭제 모달을 띄우는 함수
 const handleDelete = propertyId => {
   propertyToDeleteId.value = propertyId
   isModalVisible.value = true
 }
 
-const confirmDelete = () => {
-  myPropertyList.value = myPropertyList.value.filter(
-    item => item.propertyId !== propertyToDeleteId.value,
-  )
+// 삭제 API를 호출하고 스토어의 액션을 통해 데이터를 업데이트하는 함수
+const confirmDelete = async () => {
+  // 로컬에서 필터링하는 대신, 스토어 액션을 통해 백엔드 API를 호출합니다.
+  await registeredPropertyStore.deleteProperty(propertyToDeleteId.value)
   console.log(`${propertyToDeleteId.value}번 매물이 삭제되었습니다.`)
   isModalVisible.value = false
   propertyToDeleteId.value = null
@@ -171,7 +79,24 @@ onMounted(() => {
         <PropertyManageCard
           v-for="item in myPropertyList"
           :key="item.propertyId"
-          v-bind="item"
+          v-bind="{
+            ...item,
+            // 백엔드 응답 필드와 프론트엔드 컴포넌트 props 매핑
+            price:
+              item.transactionType === 'JEONSE'
+                ? item.jeonseDeposit
+                : item.monthlyDeposit,
+            title: item.name,
+            exclusiveArea: item.exclusiveAreaM2,
+            supplyArea: item.supplyAreaM2,
+            floor: item.floor,
+            totalFloors: item.totalFloors,
+            direction: item.mainDirection,
+            address: item.roadAddress,
+            imageUrls: item.imageUrls,
+            isFavorite: item.isFavorite,
+            isSafe: item.isSafe,
+          }"
           @delete="handleDelete"
           @edit="handleEdit"
         />
