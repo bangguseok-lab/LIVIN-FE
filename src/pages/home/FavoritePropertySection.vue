@@ -19,33 +19,58 @@ const props = defineProps({
 const modules = [Parallax, Pagination]
 </script>
 <template>
-  <div class="favorite-box" :class="{ 'no-favorite-box': props.favorite.length === 0 }">
+  <div
+    class="favorite-box"
+    :class="{ 'no-favorite-box': props.favorite.length === 0 }"
+  >
     <div class="title-box">
       <div class="board-text-box">찜한 매물</div>
       <small class="sm-text-box">
         <router-link to="/favorite" class="router-text"> 더보기 </router-link>
       </small>
     </div>
-    <div class="favorite-card-box" :class="{ 'no-favorite-card-box': props.favorite.length === 0 }">
+    <div
+      class="favorite-card-box"
+      :class="{ 'no-favorite-card-box': props.favorite.length === 0 }"
+    >
       <div v-if="props.favorite.length === 0" class="favorite-go-btn">
         <Buttons type="xl" togo="/search" class="property-search-router-btn">
-          <div class="top-text">아직 등록한 매물이 없으시다면?</div>
-          <div class="bottom-text">매물 확인하러 가기</div>
+          <div class="top-text">아직 저장한 매물이 없다면?</div>
+          <div class="bottom-text">매물 보러 가기</div>
         </Buttons>
       </div>
-      <swiper v-else :slidesPerView="1" :spaceBetween="20" :parallax="true" :modules="modules" :loop="loop"
-        class="mySwiper" :breakpoints="{
+      <swiper
+        v-else
+        :slidesPerView="1"
+        :spaceBetween="20"
+        :parallax="true"
+        :modules="modules"
+        :loop="loop"
+        class="mySwiper"
+        :breakpoints="{
           450: {
             slidesPerView: 2,
             spaceBetween: 20,
             loop: true,
           },
-        }">
-        <div class="parallax-bg" slot="container-start" data-swiper-parallax="-23%"></div>
+        }"
+      >
+        <div
+          class="parallax-bg"
+          slot="container-start"
+          data-swiper-parallax="-23%"
+        ></div>
         <swiper-slide v-for="fp in props.favorite" :key="fp.propertyId">
-          <router-link :to="`/property/${fp.propertyId}`" class="router-text router-card">
+          <router-link
+            :to="`/property/${fp.propertyId}`"
+            class="router-text router-card"
+          >
             <div class="card fp-box">
-              <img :src="SampleImg2" class="card-img-top fp-img" alt="건물 이미지" />
+              <img
+                :src="SampleImg2"
+                class="card-img-top fp-img"
+                alt="건물 이미지"
+              />
               <div class="card-body">
                 <p class="card-text board-text-box">
                   {{ fp.name }} <br />
@@ -82,35 +107,34 @@ const modules = [Parallax, Pagination]
   padding: 2rem 0;
   display: flex;
   flex-direction: column;
-  border-radius: 50px 50px 0 0;
+  border-radius: 35px 35px 0 0;
   height: rem(550px);
-  margin-bottom: rem(20px);
+  margin-bottom: rem(10px);
   justify-content: space-between;
 }
 
 .no-favorite-box {
   background-color: var(--white);
-  padding: 2rem 0;
+  padding: 2rem 0 10rem;
   display: flex;
   flex-direction: column;
-  border-radius: 50px 50px 0 0;
-  height: rem(200px);
-  margin-bottom: rem(20px);
+  border-radius: 35px 35px 0 0;
+  height: rem(230px);
+  margin-bottom: rem(10px);
   justify-content: space-between;
 }
 
 .favorite-card-box {
   height: rem(400px);
-  padding-bottom: rem(20px);
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 .no-favorite-card-box {
   height: rem(200px);
   padding-bottom: rem(20px);
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: rem(30px);
+  padding-right: rem(30px);
 }
 
 @media (max-width: 399px) {
@@ -134,7 +158,7 @@ const modules = [Parallax, Pagination]
     width: 100%;
     /* 컨테이너 너비의 45%로 설정 */
     height: 95%;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 4 4 4px 4px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -191,14 +215,26 @@ const modules = [Parallax, Pagination]
   justify-content: space-between;
   align-items: center;
   font-size: rem(18px);
-  padding: 0 2rem;
+  padding: 0.2rem 2rem;
 }
 
-.favorite-go-btn {
-  padding: 0 rem(10px) rem(30px) rem(10px);
-  background-color: var(--white);
+:deep(.favorite-go-btn) {
+  padding-top: 1.3rem;
+  --primary-color: var(--pink);
   width: 100%;
   height: 100%;
+
+  .top-text {
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-regular);
+    color: var(--white);
+  }
+  .bottom-text {
+    font-size: 1rem;
+    font-weight: var(--font-weight-lg);
+    color: var(--white);
+    margin-top: -0.3rem;
+  }
 }
 
 .property-search-router-btn {

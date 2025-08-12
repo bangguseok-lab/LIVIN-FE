@@ -67,7 +67,7 @@ const searchAddressByCoords = async (latitude, longitude) => {
         await property.fetchProperties(properties)
         if (property.getPropertiesList.length === 0) {
           propertyMessage.value = propertyMessage.value =
-            '현재 위치 주변에 매물이 없습니다.\n서울특별시 강남구 대치동의 매물을 보여드릴게요.'
+            '현재 위치 주변에 매물이 없어요.\n 서울특별시 강남구 대치동의 매물을 보여드릴게요.'
           const initialProperties = {
             limit: 4,
             sido: '서울특별시',
@@ -147,6 +147,12 @@ onMounted(async () => {
 <template>
   <div class="Home">
     <div class="intro-box">
+      <div class="character">
+        <img
+          src="@/assets/images/character/character-basic.svg"
+          alt="Character"
+        />
+      </div>
       {{ user.getNickname }}님,
       <br />
       <div class="board-text-box lg-text-box">
@@ -195,6 +201,20 @@ onMounted(async () => {
   color: white;
   margin-top: rem(100px);
   padding: 0 2rem;
+  position: relative;
+  height: 30vh;
+}
+
+.intro-box .character {
+  position: absolute;
+  right: 25px; /* 오른쪽에서 띄움 */
+  width: 170px;
+  pointer-events: none; /* 클릭 방지 */
+}
+
+.intro-box .character img {
+  display: block;
+  width: 100%;
 }
 
 .board-text-box {
@@ -209,8 +229,7 @@ onMounted(async () => {
   width: 100%;
   height: auto;
   background-color: var(--whitish);
-  border-radius: 50px 50px 0 0;
-  margin-top: rem(100px);
+  border-radius: 35px 35px 0 0;
   margin-bottom: rem(-20px);
 }
 
@@ -221,14 +240,34 @@ onMounted(async () => {
 }
 
 .checklist-router-box {
-  padding: 0 rem(10px) rem(30px) rem(10px);
+  padding: 0 rem(30px) rem(50px) rem(30px);
   background-color: var(--white);
   width: 100%;
 }
 
-.checklist-router-btn {
+:deep(.checklist-router-btn) {
   height: rem(100px);
+  // 색상 적용이 안 돼서 이 부분의 primary color만 var(--green)으로 재정의
+  --primary-color: var(--green);
+
+  .top-text {
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-regular);
+    color: var(--white);
+  }
+
+  .bottom-text {
+    font-size: 1rem;
+    font-weight: var(--font-weight-lg);
+    color: var(--white);
+    margin-top: -0.3rem;
+  }
 }
+
+:deep(.checklist-router-btn.btn-xl) {
+  background-color: var(--green) !important;
+}
+
 .description-box {
   color: var(--grey);
   font-size: rem(12px);

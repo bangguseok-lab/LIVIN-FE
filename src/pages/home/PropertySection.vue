@@ -106,9 +106,10 @@ const formattedMessage = computed(() => {
 }
 .property-message {
   padding: 1rem 1rem;
-  color: var(--primary-color);
-  font-weight: var(--font-weight-bold);
-  font-size: rem(14px);
+  color: var(--grey);
+  font-weight: var(--font-weight-regular);
+  font-size: 0.9rem;
   margin: 0;
+  text-align: center;
 }
 </style>
