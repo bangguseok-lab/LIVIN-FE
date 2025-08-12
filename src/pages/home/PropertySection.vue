@@ -48,8 +48,8 @@ const formattedMessage = computed(() => {
           :supplyArea="p.supplyAreaM2"
           :floor="p.floor"
           :totalFloors="p.totalFloors"
-          :direction="p.direction"
-          :address="p.address"
+          :direction="p.mainDirection"
+          :address="p.roadAddress"
           :isFavorite="p.isFavorite"
           :isSafe="p.isSafe"
         />
