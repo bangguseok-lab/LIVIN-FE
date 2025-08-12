@@ -131,11 +131,11 @@ function goToAppliedList() {
   <div class="ChecklistDetail">
     <div class="actions">
       <div class="icon-wrapper" @click="showEditModal = true">
-        <img src="@/assets/edit-icon.svg" />
+        <img src="@/assets/icons/checklist/edit-icon.png" />
         <span class="icon-label">수정하기</span>
       </div>
       <div class="icon-wrapper" @click="showDeleteConfirm = true">
-        <img src="@/assets/delete-icon.svg" />
+        <img src="@/assets/icons/checklist/delete-icon.png" />
         <span class="icon-label">삭제하기</span>
       </div>
     </div>
@@ -162,7 +162,7 @@ function goToAppliedList() {
       <h5 class="fw-bold pt-3">
         방 컨디션
         <button @click="() => openModal('방 컨디션', 'ROOM')" class="add-img">
-          <img src="@/assets/add-btn.svg" />
+          <img src="@/assets/add-btn.svg" class="plus-btn" />
         </button>
       </h5>
 
@@ -178,7 +178,7 @@ function goToAppliedList() {
           @click="() => openModal('건물 컨디션', 'BUILDING')"
           class="add-img"
         >
-          <img src="@/assets/add-btn.svg" />
+          <img src="@/assets/add-btn.svg" class="plus-btn" />
         </button>
       </h5>
       <div class="tag-group pb-5">
@@ -197,7 +197,7 @@ function goToAppliedList() {
           @click="() => openModal('주변 인프라', 'INFRA')"
           class="add-img"
         >
-          <img src="@/assets/add-btn.svg" />
+          <img src="@/assets/add-btn.svg" class="plus-btn" />
         </button>
       </h5>
       <div class="tag-group pb-5">
@@ -213,7 +213,7 @@ function goToAppliedList() {
       <h5 class="fw-bold">
         방 옵션
         <button @click="() => openModal('방 옵션', 'OPTION')" class="add-img">
-          <img src="@/assets/add-btn.svg" />
+          <img src="@/assets/add-btn.svg" class="plus-btn" />
         </button>
       </h5>
       <div class="tag-group pb-5">
@@ -232,7 +232,7 @@ function goToAppliedList() {
           @click="() => openModal('주변 환경', 'CIRCUMSTANCE')"
           class="add-img"
         >
-          <img src="@/assets/add-btn.svg" />
+          <img src="@/assets/add-btn.svg" class="plus-btn" />
         </button>
       </h5>
       <div class="tag-group pb-5">
@@ -248,7 +248,7 @@ function goToAppliedList() {
       <h5 class="fw-bold">
         나만의 항목
         <button @click="() => (showCustomModal = true)" class="add-img">
-          <img src="@/assets/add-btn.svg" />
+          <img src="@/assets/add-btn.svg" class="plus-btn" />
         </button>
       </h5>
       <div class="tag-group pb-5">
@@ -295,22 +295,23 @@ function goToAppliedList() {
 .ChecklistDetail {
   padding-top: 6rem;
   width: 100%;
-  background-color: #007bff;
+  background-color: var(--primary-color);
 }
 
 .card-2 {
   display: flex;
   justify-content: space-between;
   align-items: left;
-  padding: 1.5rem;
-  background-color: #007bff;
+  padding: 1.5rem 2rem 0 2rem;
+  background-color: var(--primary-color);
   color: white;
   position: relative;
+  height: 40vh;
 }
 
 .image-box {
-  width: 5.125rem;
-  height: 4rem;
+  width: 6rem;
+  height: 7rem;
   background-color: #dddddd;
   border-radius: 0.5rem;
   margin-right: 1rem;
@@ -337,8 +338,8 @@ function goToAppliedList() {
 
 .section {
   /* min-height: 100%; */
-  border-radius: 2rem 0 0 0;
-  padding: 1.5rem;
+  border-radius: 0 2rem 0 0;
+  padding: 2rem 2rem 2rem 3rem;
   background-color: white;
 }
 
@@ -415,6 +416,7 @@ function goToAppliedList() {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  margin-right: 10px;
 }
 
 .icon-wrapper img {
@@ -423,9 +425,9 @@ function goToAppliedList() {
 }
 
 .icon-label {
-  font-size: 0.7rem;
-  color: black;
-  margin-top: 2px;
+  font-size: 0.6rem;
+  color: var(--white);
+  margin-top: 3px;
 }
 
 .text-box {
@@ -437,19 +439,25 @@ function goToAppliedList() {
   all: unset;
 }
 
+.plus-btn {
+  margin-bottom: 0.3rem;
+  margin-left: 0.3rem;
+  width: 1rem;
+  height: 1rem;
+}
+
 .cta-btn {
   border: none;
   outline: none;
-  background: #fff;
-  color: #1b73ff; /* 파란 텍스트 */
+  background: var(--white);
+  color: var(--primary-color);
   padding: 0.5rem 0.9rem;
-  border-radius: 10px; /* 알약 모양 */
+  border-radius: 10px;
   font-size: 0.8rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   white-space: nowrap;
 }
