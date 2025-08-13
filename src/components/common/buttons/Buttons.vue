@@ -1,18 +1,17 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
-import { computed, defineProps, defineEmits } from 'vue';
+import { computed, defineProps, defineEmits } from 'vue'
 import { useRouter } from 'vue-router'
 
 // 아이콘
-import IconBlue from '@/assets/togo-btn-blue.svg';
-import IconWhite from '@/assets/togo-btn-white.svg';
-import CloseIcon from '@/assets/close-btn.svg';
+import IconBlue from '@/assets/togo-btn-blue.svg'
+import IconWhite from '@/assets/togo-btn-white.svg'
+import CloseIcon from '@/assets/close-btn.svg'
 
 // API
 // import { deleteMyChecklistItem } from '@/api/checklist';
 
 const router = useRouter()
-
 
 // Props 정의
 const props = defineProps({
@@ -20,16 +19,31 @@ const props = defineProps({
     type: String,
     default: 'OK',
   },
-  isActive: {
+  isChecked: {
     type: Boolean,
     default: false,
   },
   type: {
     type: String,
     default: 'default',
-    validator: (val) => [
-      'default', 'xl', 'md', 'sm', 'xs', 'ok', 'go', 'property', 'role', 'option', 'direction', 'date', 'photo', 'floor', 'my-option'
-    ].includes(val),
+    validator: val =>
+      [
+        'default',
+        'xl',
+        'md',
+        'sm',
+        'xs',
+        'ok',
+        'go',
+        'property',
+        'role',
+        'option',
+        'direction',
+        'date',
+        'photo',
+        'floor',
+        'my-option',
+      ].includes(val),
   },
   togo: {
     type: [String, Object], // ex: '/home' or { name: 'HomePage' }
@@ -42,11 +56,11 @@ const props = defineProps({
   showIcon: {
     type: Boolean,
     default: false,
-  }
+  },
 })
 
 // Emit 정의 (버튼 토글 상태를 외부로 보냄)
-const emit = defineEmits(['update:isActive'])
+const emit = defineEmits(['update:isChecked'])
 
 // Click 시 상태 반전
 const handleClick = () => {
@@ -54,7 +68,7 @@ const handleClick = () => {
   if (props.togo) {
     router.push(props.togo) // props에서 전달해준 페이지로 이동
   } else {
-    emit('update:isActive', !props.isActive)  // 토글 처리가 필요하면, 토글 처리
+    emit('update:isChecked', !props.isChecked) // 토글 처리가 필요하면, 토글 처리
   }
 }
 
@@ -78,8 +92,12 @@ const handelClose = async () => {
 // class 계산
 const typeClass = computed(() => `btn-${props.type}`)
 const activeClass = computed(() => {
-  const activeTypes = ['default', 'md', 'sm', 'ok', 'go', 'go-lg', 'my-option']  // props.type이 이 중에 있으면, 버튼 전체를 채우는 fill-active 스타일이 적용
-  return props.isActive ? (activeTypes.includes(props.type) ? 'fill-active' : 'border-active') : '';
+  const activeTypes = ['default', 'md', 'sm', 'ok', 'go', 'go-lg', 'my-option'] // props.type이 이 중에 있으면, 버튼 전체를 채우는 fill-active 스타일이 적용
+  return props.isChecked
+    ? activeTypes.includes(props.type)
+      ? 'fill-active'
+      : 'border-active'
+    : ''
 })
 
 // iconType 에 따른 아이콘별 주소 지정
@@ -96,15 +114,31 @@ const iconComponent = computed(() => {
 
 <template>
   <div class="Buttons">
-    <button class="button" :class="[typeClass, activeClass]" @click="handleClick">
+    <button
+      class="button"
+      :class="[typeClass, activeClass]"
+      @click="handleClick"
+    >
       <!-- 슬롯이 있으면 슬롯 내용을, 없으면 label을 보여줌 -->
       <slot>{{ label }}</slot>
 
       <!-- label이 지정한 값일 때만 아이콘 표시 -->
-      <img v-if="label === '적용된 매물 보러가기' || label === '체크리스트 확인하기'" :src="iconComponent" alt="icon" />
+      <img
+        v-if="
+          label === '적용된 매물 보러가기' || label === '체크리스트 확인하기'
+        "
+        :src="iconComponent"
+        alt="icon"
+      />
     </button>
     <!-- 버튼이 my-option 타입일 때만 close icon 보여줌 -->
-    <img v-if="type === 'my-option'" :src=CloseIcon alt="항목 삭제하기" class="close-icon" @click="handelClose">
+    <img
+      v-if="type === 'my-option'"
+      :src="CloseIcon"
+      alt="항목 삭제하기"
+      class="close-icon"
+      @click="handelClose"
+    />
   </div>
 </template>
 
@@ -160,14 +194,12 @@ const iconComponent = computed(() => {
   font-weight: var(--font-weight-lg);
 }
 
-
 // btn-md, 완료, 초기화, 확인에 많이 사용되는 버튼
 .btn-md {
   background-color: var(--grey);
   color: white;
   border-radius: rem(8px);
 }
-
 
 // btn-sm, 체크리스트 항목에 많이 사용되는 버튼
 .btn-sm {
@@ -194,7 +226,6 @@ const iconComponent = computed(() => {
   font-weight: var(--font-weight-regular);
 }
 
-
 // btn-xs, 관리비에 사용되는 버튼
 .btn-xs {
   min-width: rem(60px);
@@ -206,7 +237,6 @@ const iconComponent = computed(() => {
   color: var(--grey);
   font-size: rem(12px);
 }
-
 
 // btn-ok, 확인 버튼
 .btn-ok {
@@ -268,7 +298,7 @@ const iconComponent = computed(() => {
 }
 
 .btn-role.border-active :deep(.role-description-text) {
-  color: var(--primary-color)
+  color: var(--primary-color);
 }
 
 // btn-go-lg, 등록한 매물 보러가기 버튼
@@ -282,7 +312,6 @@ const iconComponent = computed(() => {
   font-weight: var(--font-weight-lg);
 }
 
-
 // btn-option, 매물 등록 시 옵션 관련 버튼
 .btn-option {
   height: rem(60px);
@@ -291,7 +320,6 @@ const iconComponent = computed(() => {
   font-size: 1.1rem;
   font-weight: var(--font-weight-semibold);
 }
-
 
 // btn-date, 즉시 입주 가능해요 버튼
 .btn-date {
@@ -333,7 +361,6 @@ const iconComponent = computed(() => {
   font-weight: var(--font-weight-sm);
 }
 
-
 // btn-my-option, 나의 항목 삭제하기 버튼
 .btn-my-option {
   background-color: var(--grey);
@@ -360,8 +387,6 @@ const iconComponent = computed(() => {
   right: rem(12px);
 }
 
-
-
 // 토글 active 상태일 때 디자인들
 .fill-active {
   background-color: var(--primary-color);
@@ -377,7 +402,7 @@ const iconComponent = computed(() => {
 @media (max-width: 375px) {
   .btn-option {
     height: rem(45px);
-    font-size: .8rem;
+    font-size: 0.8rem;
     font-weight: var(--font-weight-semibold);
   }
 }
