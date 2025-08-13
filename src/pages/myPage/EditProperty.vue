@@ -24,6 +24,7 @@ import BedIcon from '@/assets/icons/property/bed.svg'
 import { useRoute } from 'vue-router'
 import api from '@/api/property'
 import EditButton from '@/components/common/buttons/edit-btn.vue'
+import ImageEditModal from '@/components/modals/ImageEditModal.vue'
 
 const optionMap = {
   Washer: { name: '세탁기', iconUrl: WasherIcon },
@@ -36,13 +37,9 @@ const optionMap = {
   Bed: { name: '침대', iconUrl: BedIcon },
 }
 
-const isModalOpen = ref(false)
-const openModal = () => {
-  isModalOpen.value = true
-}
-const closeModal = () => {
-  isModalOpen.value = false
-}
+// 👈 모달의 열림/닫힘 상태를 관리하는 반응형 변수
+const isImageModalOpen = ref(false)
+
 const { kakao } = window
 const route = useRoute()
 const propertyId = route.params.id
@@ -177,14 +174,6 @@ const formattedPrice = computed(() => {
   }
   return '가격 정보 없음'
 })
-const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
-  if (newFavoriteStatus) {
-    await api.addFavoriteProperty(propertyId)
-  } else {
-    await api.removeFavoriteProperty(propertyId)
-  }
-  await property.fetchPropertyDetails(propertyId)
-}
 
 // 관리비 관련
 const calculate = computed(() => {
@@ -201,10 +190,14 @@ const calculate = computed(() => {
   return '매월' + formatMonthlyDetail(total)
 })
 
-// 수정 아이콘 클릭 핸들러
 const handleEditSection = section => {
-  console.log(`${section} 섹션 수정하기 버튼이 눌렸습니다.`)
-  // TODO: 여기에 각 섹션별 수정 모달 또는 폼을 띄우는 로직을 추가
+  if (section === 'images') {
+    isImageModalOpen.value = true
+  }
+}
+
+const handleImageSave = newImages => {
+  console.log('새 이미지 목록:', newImages)
 }
 </script>
 
@@ -474,6 +467,14 @@ const handleEditSection = section => {
         </div>
       </div>
     </div>
+
+    <ImageEditModal
+      v-if="isImageModalOpen"
+      :isOpen="isImageModalOpen"
+      :images="imgUrls.map(url => ({ url }))"
+      @update:isOpen="isImageModalOpen = $event"
+      @save="handleImageSave"
+    />
     <Navbar />
   </div>
 </template>
