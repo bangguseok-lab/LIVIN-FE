@@ -8,15 +8,24 @@ import { onMounted, ref, watch } from 'vue';
 
 const router = useRouter()
 const propertyStore = usePropertyStore()
+const page = ref(null) // { month: 1~12, year: 4자리 }
 
 // 스토어에 저장해둔 값이 있으면 그걸 기본값으로 사용
-const moveInDate = ref(propertyStore.newProperty?.moveInDate ?? null)
+const moveDate = ref(propertyStore.newProperty?.moveDate ?? null)
 
 // 날짜가 바뀔 때마다 스토어에 저장
-watch(moveInDate, (val) => {
-  console.log("선택된 날짜: ", val)   // 선택된 날짜:  Fri Aug 15 2025 00:00:00 GMT+0900 (한국 표준시)
+watch(moveDate, (val) => {
+  // console.log("선택된 날짜: ", val)   // 선택된 날짜:  Fri Aug 15 2025 00:00:00 GMT+0900 (한국 표준시)
   propertyStore.updateNewProperty('moveDate', val)
 })
+
+// 선택 값에 맞춰 캘린더 표시 달(page) 설정
+const setPageFromDate = (selectDate) => {
+  if (selectDate instanceof Date && !isNaN(selectDate)) {
+    page.value = { month: selectDate.getMonth() + 1, year: selectDate.getFullYear() }
+    // console.log('page: ', page.value.month)
+  }
+}
 
 const handlePrevClick = () => {
   router.push({ name: "optionPage" })
@@ -28,7 +37,8 @@ const handleNextClick = () => {
 
 onMounted(() => {
   const savedDate = propertyStore.getNewProperty?.moveDate || []
-  moveInDate.value = savedDate
+  moveDate.value = savedDate
+  setPageFromDate(moveDate.value)
 })
 </script>
 
@@ -36,10 +46,9 @@ onMounted(() => {
   <div class="MoveDatePage">
     <div class="moveDate-container">
       <VCalendar class="my-calendar" transparent borderless expanded />
-      <!-- <VDatePicker v-model="date" /> -->
       <!-- 캘린더 -->
-      <VDatePicker v-model="moveInDate" is-inline mode="date" :min-date="new Date()" title-position="left"
-        locale="ko-KR" />
+      <VDatePicker v-model="moveDate" v-model:page="page" is-inline mode="date" :min-date="new Date()"
+        title-position="left" locale="ko-KR" />
     </div>
     <div class="button-wrapper">
       <Buttons type="default" label="이전" @click="handlePrevClick" class="prevBtn" />
