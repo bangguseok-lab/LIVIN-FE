@@ -1,7 +1,7 @@
 <script setup>
 import { useChecklistStore } from '@/stores/checklist'
 import { defineProps, onMounted, ref, computed } from 'vue'
-import api from '../../api/checklist'
+import checklistAPI from '../../api/checklist'
 import Buttons from '@/components/common/buttons/Buttons.vue'
 
 const props = defineProps({
@@ -65,17 +65,32 @@ const selectChecklist = title => {
 const loadChecklistItems = async id => {
   try {
     console.log('API 요청 시작:', `/properties/checklist/${id}/items`)
-    const items = await api.getChecklistItems(id)
+    const items = await checklistAPI.getChecklistItems(id)
     console.log('받아온 체크리스트 아이템:', items)
 
     if (items && Array.isArray(items)) {
       checklistItems.value = items
-      // 각 아이템의 isChecked 상태를 checkedOptions에 초기화
-      checkedOptions.value = items.map(item => ({
-        id: item.id || item.itemId || item.checklistItemId,
-        isChecked: item.isChecked || item.checked || false,
-      }))
-      currentGroupIndex.value = 0 // 그룹 인덱스 초기화
+
+      // 각 아이템의 isChecked 상태를 checkedOptions에 초기화 (객체 형태로 변경)
+      checkedOptions.value = items.reduce((acc, item) => {
+        const itemId = item.id || item.itemId || item.checklistItemId
+        if (itemId) {
+          const isChecked = item.isChecked || item.checked || false
+          acc[itemId] = isChecked
+          console.log(`[DEBUG] checkedOptions 초기화: ${itemId} = ${isChecked}`)
+        }
+        return acc
+      }, {})
+      console.log('[DEBUG] 초기화된 checkedOptions:', checkedOptions.value)
+      console.log('[DEBUG] 원본 아이템들의 isChecked 상태:')
+      items.forEach((item, index) => {
+        const itemId = item.id || item.itemId || item.checklistItemId
+        console.log(
+          `[DEBUG] 아이템 ${index}: ID=${itemId}, isChecked=${item.isChecked}, checked=${item.checked}`,
+        )
+      })
+
+      currentGroupIndex.value = 0
       modalState.value = 'options'
     } else {
       console.error('체크리스트 아이템이 배열이 아닙니다:', items)
@@ -99,7 +114,7 @@ const confirmApplyChecklist = async () => {
     propertyId: props.propertyId,
   }
   try {
-    await api.propretiesApplyChecklist(payload)
+    await checklistAPI.propretiesApplyChecklist(payload)
     alert('체크리스트가 성공적으로 적용되었습니다.')
     close()
   } catch (error) {
@@ -117,72 +132,120 @@ const goBackToList = () => {
 }
 
 const updateItemState = (item, newValue) => {
-  console.log('=== updateItemState 함수 시작 ===')
   const itemId = item.id || item.itemId || item.checklistItemId
 
-  console.log('아이템 상태 업데이트:', {
-    item,
-    itemId,
-    새로운상태: newValue,
-    이전isChecked: item.isChecked,
-    이전checked: item.checked,
-  })
+  console.log('=== updateItemState 함수 시작 ===')
+  console.log(`[DEBUG] 전달받은 매개변수:`, { item, newValue })
+  console.log(`[DEBUG] itemId: ${itemId}`)
+  console.log(`[DEBUG] newValue 타입: ${typeof newValue}, 값: ${newValue}`)
+  console.log(
+    `[DEBUG] 업데이트 전 checkedOptions[${itemId}]:`,
+    checkedOptions.value[itemId],
+  )
+  console.log(
+    `[DEBUG] 업데이트 전 전체 checkedOptions:`,
+    JSON.stringify(checkedOptions.value),
+  )
 
-  // 원본 아이템의 isChecked 또는 checked 필드 업데이트
-  if ('isChecked' in item) {
-    console.log(`item.isChecked 변경: ${item.isChecked} → ${newValue}`)
-    item.isChecked = newValue
+  // checkedOptions 객체에서 해당 itemId의 상태만 업데이트
+  if (itemId) {
+    const oldValue = checkedOptions.value[itemId]
+    checkedOptions.value[itemId] = newValue
+    console.log(
+      `[DEBUG] checkedOptions[${itemId}] 업데이트: ${oldValue} → ${newValue}`,
+    )
+    console.log(
+      `[DEBUG] 업데이트 후 전체 checkedOptions:`,
+      JSON.stringify(checkedOptions.value),
+    )
+
+    // 값이 실제로 변경되었는지 확인
+    if (oldValue !== newValue) {
+      console.log(`[DEBUG] ✅ 값이 성공적으로 변경되었습니다!`)
+    } else {
+      console.log(`[DEBUG] ⚠️ 값이 변경되지 않았습니다.`)
+    }
+  } else {
+    console.error(`[DEBUG] ❌ itemId를 찾을 수 없습니다:`, item)
   }
-  if ('checked' in item) {
-    console.log(`item.checked 변경: ${item.checked} → ${newValue}`)
-    item.checked = newValue
+
+  // 원본 아이템 배열도 업데이트 (UI 동기화를 위해)
+  const itemToUpdate = checklistItems.value.find(
+    i => (i.id || i.itemId || i.checklistItemId) === itemId,
+  )
+  if (itemToUpdate) {
+    const oldIsChecked = itemToUpdate.isChecked
+    const oldChecked = itemToUpdate.checked
+    itemToUpdate.isChecked = newValue
+    itemToUpdate.checked = newValue // 둘 중 하나만 사용하더라도 둘 다 업데이트
+    console.log(`[DEBUG] 원본 아이템 업데이트:`, {
+      itemId,
+      oldIsChecked,
+      oldChecked,
+      newIsChecked: itemToUpdate.isChecked,
+      newChecked: itemToUpdate.checked,
+    })
+  } else {
+    console.error(`[DEBUG] ❌ 원본 아이템을 찾을 수 없습니다:`, itemId)
   }
-
-  // checkedOptions도 동기화
-  checkedOptions.value[itemId] = newValue
-
-  console.log('업데이트 완료:', {
-    itemId,
-    새로운상태: newValue,
-    업데이트된아이템: item,
-    checkedOptions_업데이트후: checkedOptions.value[itemId],
-    동기화여부: item.isChecked === checkedOptions.value[itemId],
-  })
 
   console.log('=== updateItemState 함수 완료 ===')
 }
 
 const saveOptions = async () => {
   try {
-    // 선택된 옵션들을 백엔드로 전송
-    const selectedItemIds = Object.keys(checkedOptions.value)
-      .filter(id => checkedOptions.value[id])
-      .map(id => parseInt(id))
+    console.log('=== saveOptions 함수 시작 ===')
+    console.log(
+      '[DEBUG] 현재 checkedOptions 상태:',
+      JSON.stringify(checkedOptions.value),
+    )
+    console.log('[DEBUG] checkedOptions 타입:', typeof checkedOptions.value)
+    console.log(
+      '[DEBUG] checkedOptions 키 개수:',
+      Object.keys(checkedOptions.value).length,
+    )
 
-    // 업데이트된 아이템들의 전체 정보 수집
-    const updatedItems = checklistItems.value.map(item => {
-      const itemId = item.id || item.itemId || item.checklistItemId
-      return {
-        ...item,
-        isChecked: checkedOptions.value[itemId] || false,
-        checked: checkedOptions.value[itemId] || false,
+    // 각 아이템의 상태를 개별적으로 확인
+    Object.keys(checkedOptions.value).forEach(itemId => {
+      console.log(
+        `[DEBUG] 아이템 ${itemId}: ${checkedOptions.value[itemId]} (${typeof checkedOptions.value[itemId]})`,
+      )
+    })
+
+    // checkedOptions 객체를 기반으로 백엔드에 보낼 payload 생성
+    // [{ checklistItemId: 1, isChecked: true }, { checklistItemId: 2, isChecked: false }, ...]
+    const payload = Object.keys(checkedOptions.value).map(itemId => {
+      const payloadItem = {
+        checklistItemId: parseInt(itemId),
+        isChecked: checkedOptions.value[itemId],
       }
+      console.log(`[DEBUG] payload 아이템 생성:`, payloadItem)
+      return payloadItem
     })
 
-    console.log('저장할 데이터:', {
-      selectedItemIds,
-      updatedItems,
-      checkedOptions: checkedOptions.value,
-    })
+    console.log('[DEBUG] 백엔드로 보낼 최종 payload:', JSON.stringify(payload))
+    console.log('[DEBUG] selectedChecklistId:', selectedChecklistId.value)
+
+    // true 값을 가진 아이템이 있는지 확인
+    const trueItems = payload.filter(item => item.isChecked === true)
+    const falseItems = payload.filter(item => item.isChecked === false)
+    console.log(`[DEBUG] true 값 아이템 개수: ${trueItems.length}`)
+    console.log(`[DEBUG] false 값 아이템 개수: ${falseItems.length}`)
+    console.log(`[DEBUG] true 값 아이템들:`, trueItems)
+    console.log(`[DEBUG] false 값 아이템들:`, falseItems)
 
     // TODO: 백엔드 API 엔드포인트에 맞춰 저장 로직 구현
-    // const response = await api.updateChecklistItems(selectedChecklistId.value, updatedItems)
+    // 아래는 백엔드 API의 URL과 형태에 맞게 수정된 예시입니다.
+    await checklistAPI.updateChecklistItems(selectedChecklistId.value, payload)
 
-    alert('옵션이 저장되었습니다.')
+    alert('옵션이 성공적으로 저장되었습니다.')
     modalState.value = 'list'
   } catch (error) {
     console.error('옵션 저장에 실패했습니다.', error)
-    alert('옵션 저장에 실패했습니다.')
+    alert(
+      '옵션 저장에 실패했습니다: ' +
+        (error.response?.data?.message || error.message),
+    )
   }
 }
 
@@ -223,7 +286,7 @@ onMounted(async () => {
     await checklist.loadChecklists()
 
     // 직접 API 호출도 시도해보기
-    const directResponse = await api.getChecklistTitles()
+    const directResponse = await checklistAPI.getChecklistTitles()
     console.log('직접 API 응답 전체:', directResponse)
     console.log('직접 API 응답 data:', directResponse?.data)
     console.log('직접 API 응답 data.data:', directResponse?.data?.data)
@@ -332,7 +395,11 @@ onMounted(async () => {
                   <Buttons
                     class="sm"
                     type="sm"
-                    :is-checked="item.isChecked || item.checked || false"
+                    :is-checked="
+                      checkedOptions[
+                        item.id || item.itemId || item.checklistItemId
+                      ] || false
+                    "
                     @update:is-checked="
                       newValue => updateItemState(item, newValue)
                     "
