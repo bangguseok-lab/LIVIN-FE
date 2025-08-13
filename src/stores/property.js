@@ -20,7 +20,8 @@ export const usePropertyStore = defineStore('property', {
       propertyType: '', // 거래유형
       propertyDeposit: '', // 보증금 금액
       direction: '', // 주실 방향
-      selectOptions: [], // 옵션들
+      selectOptions: [], // 옵션들 (옵션 id 번호로 가지고 있음)
+      moveDate: Date, // 이사 가능 날짜
     },
   }),
   actions: {
@@ -81,7 +82,8 @@ export const usePropertyStore = defineStore('property', {
         propertyType: '', // 거래유형
         propertyDeposit: '', // 보증금 금액
         direction: '', // 주실 방향
-        selectOptions: [],
+        selectOptions: [], // 선택된 옵션들
+        moveDate: Date, // 이사 가능 날짜
       }
     },
     async fetchPropertyDetails(params) {
