@@ -769,9 +769,6 @@ input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-input[type='number'] {
-  -moz-appearance: textfield;
-}
 
 .done-button {
   background-color: var(--primary-color);
