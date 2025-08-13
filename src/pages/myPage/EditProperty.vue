@@ -23,6 +23,7 @@ import InductionIcon from '@/assets/icons/property/induction-stove.svg'
 import BedIcon from '@/assets/icons/property/bed.svg'
 import { useRoute } from 'vue-router'
 import api from '@/api/property'
+import EditButton from '@/components/common/buttons/edit-btn.vue'
 
 const optionMap = {
   Washer: { name: '세탁기', iconUrl: WasherIcon },
@@ -222,30 +223,9 @@ const handleEditSection = section => {
           <img :src="img" class="property-img" alt="매물 이미지" />
         </swiper-slide>
       </swiper>
-      <button class="edit-img-btn" @click="handleEditSection('images')">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M12 20H21"
-            stroke="#888"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M16.5 3.5C16.8979 3.10217 17.4371 2.87865 18 2.87865C18.5629 2.87865 19.1021 3.10218 19.5 3.5C19.8978 3.89782 20.1213 4.43708 20.1213 5C20.1213 5.56292 19.8978 6.10218 19.5 6.5L9 17L3 18L4 12L14.5 3.5Z"
-            stroke="#888"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </button>
+      <div class="edit-img-btn-wrapper">
+        <EditButton @click="handleEditSection('images')" />
+      </div>
     </div>
 
     <div class="content-wrap">
@@ -260,30 +240,7 @@ const handleEditSection = section => {
               class="badge-img"
             />
           </div>
-          <button class="edit-btn" @click="handleEditSection('title')">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 20H21"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16.5 3.5C16.8979 3.10217 17.4371 2.87865 18 2.87865C18.5629 2.87865 19.1021 3.10218 19.5 3.5C19.8978 3.89782 20.1213 4.43708 20.1213 5C20.1213 5.56292 19.8978 6.10218 19.5 6.5L9 17L3 18L4 12L14.5 3.5Z"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+          <EditButton @click="handleEditSection('title')" />
         </div>
         <div class="property-price">
           {{ formattedPrice }}
@@ -306,30 +263,7 @@ const handleEditSection = section => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">가격 정보</div>
-          <button class="edit-btn" @click="handleEditSection('price')">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 20H21"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16.5 3.5C16.8979 3.10217 17.4371 2.87865 18 2.87865C18.5629 2.87865 19.1021 3.10218 19.5 3.5C19.8978 3.89782 20.1213 4.43708 20.1213 5C20.1213 5.56292 19.8978 6.10218 19.5 6.5L9 17L3 18L4 12L14.5 3.5Z"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+          <EditButton @click="handleEditSection('price')" />
         </div>
         <div class="content-details">
           <div class="content-details-row">
@@ -360,30 +294,7 @@ const handleEditSection = section => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">상세 정보</div>
-          <button class="edit-btn" @click="handleEditSection('details')">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 20H21"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16.5 3.5C16.8979 3.10217 17.4371 2.87865 18 2.87865C18.5629 2.87865 19.1021 3.10218 19.5 3.5C19.8978 3.89782 20.1213 4.43708 20.1213 5C20.1213 5.56292 19.8978 6.10218 19.5 6.5L9 17L3 18L4 12L14.5 3.5Z"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+          <EditButton @click="handleEditSection('details')" />
         </div>
         <div class="content-details">
           <div class="content-details-row">
@@ -451,30 +362,7 @@ const handleEditSection = section => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">단지 정보</div>
-          <button class="edit-btn" @click="handleEditSection('building')">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 20H21"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16.5 3.5C16.8979 3.10217 17.4371 2.87865 18 2.87865C18.5629 2.87865 19.1021 3.10218 19.5 3.5C19.8978 3.89782 20.1213 4.43708 20.1213 5C20.1213 5.56292 19.8978 6.10218 19.5 6.5L9 17L3 18L4 12L14.5 3.5Z"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+          <EditButton @click="handleEditSection('building')" />
         </div>
         <div class="content-details">
           <div class="content-details-row">
@@ -539,30 +427,7 @@ const handleEditSection = section => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">옵션 정보</div>
-          <button class="edit-btn" @click="handleEditSection('options')">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 20H21"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16.5 3.5C16.8979 3.10217 17.4371 2.87865 18 2.87865C18.5629 2.87865 19.1021 3.10218 19.5 3.5C19.8978 3.89782 20.1213 4.43708 20.1213 5C20.1213 5.56292 19.8978 6.10218 19.5 6.5L9 17L3 18L4 12L14.5 3.5Z"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+          <EditButton @click="handleEditSection('options')" />
         </div>
         <div class="content-details">
           <div v-if="chunkedOptions.length" class="container-fluid p-0">
@@ -602,30 +467,7 @@ const handleEditSection = section => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">기타 정보</div>
-          <button class="edit-btn" @click="handleEditSection('description')">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 20H21"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16.5 3.5C16.8979 3.10217 17.4371 2.87865 18 2.87865C18.5629 2.87865 19.1021 3.10218 19.5 3.5C19.8978 3.89782 20.1213 4.43708 20.1213 5C20.1213 5.56292 19.8978 6.10218 19.5 6.5L9 17L3 18L4 12L14.5 3.5Z"
-                stroke="#888"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+          <EditButton @click="handleEditSection('description')" />
         </div>
         <div class="content-property-description">
           {{ property.getPropertyDetails.description }}
@@ -651,7 +493,7 @@ const handleEditSection = section => {
 }
 
 .img-wrap {
-  position: relative; // 👈 이 부분이 추가되었습니다.
+  position: relative;
   width: 100%;
   height: rem(270px);
   border-top: 2px solid rgba($color: #000000, $alpha: 0.2);
@@ -853,22 +695,17 @@ const handleEditSection = section => {
   align-items: center;
 }
 
-.edit-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-.edit-img-btn {
-  position: absolute; // 👈 이 부분이 추가되었습니다.
-  top: 10px;
-  right: 10px;
+.edit-img-btn-wrapper {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  width: 2rem;
+  height: 2rem;
   z-index: 10;
   background-color: rgba(255, 255, 255, 0.7);
   border: none;
   border-radius: 50%;
-  padding: 8px;
-  cursor: pointer;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
