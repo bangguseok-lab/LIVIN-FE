@@ -475,6 +475,21 @@ const sortedImgUrls = computed(() => {
       </div>
     </div>
     <div class="content-box">
+      <div class="content-title-row">임대인 정보</div>
+      <div class="content-details-row">
+        <div class="content-details-row-title">이름</div>
+        <div class="content-details-row-content">
+          {{ property.getPropertyDetails.land?.name }}
+        </div>
+      </div>
+      <div class="content-details-row">
+        <div class="content-details-row-title">전화번호</div>
+        <div class="content-details-row-content">
+          {{ property.getPropertyDetails.land?.phone }}
+        </div>
+      </div>
+    </div>
+    <div class="content-box">
       <div class="content-title-row">기타 정보</div>
       <div class="content-property-description">
         {{ property.getPropertyDetails.description }}
