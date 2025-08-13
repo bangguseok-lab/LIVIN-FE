@@ -1,10 +1,10 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { usePropertyStore } from '@/stores/property';
+import { onMounted, ref } from 'vue';
+import Buttons from '@/components/common/buttons/Buttons.vue';
 import VCalendar from 'v-calendar';
 import 'v-calendar/style.css';
-import Buttons from '@/components/common/buttons/Buttons.vue';
-import { onMounted, ref, watch } from 'vue';
 
 const router = useRouter()
 const propertyStore = usePropertyStore()
@@ -12,12 +12,6 @@ const page = ref(null) // { month: 1~12, year: 4자리 }
 
 // 스토어에 저장해둔 값이 있으면 그걸 기본값으로 사용
 const moveDate = ref(propertyStore.newProperty?.moveDate ?? null)
-
-// 날짜가 바뀔 때마다 스토어에 저장
-watch(moveDate, (val) => {
-  // console.log("선택된 날짜: ", val)   // 선택된 날짜:  Fri Aug 15 2025 00:00:00 GMT+0900 (한국 표준시)
-  propertyStore.updateNewProperty('moveDate', val)
-})
 
 // 선택 값에 맞춰 캘린더 표시 달(page) 설정
 const setPageFromDate = (selectDate) => {
@@ -27,11 +21,23 @@ const setPageFromDate = (selectDate) => {
   }
 }
 
+// 선택된 날짜를 'YYYY-MM-DD' 형식으로 변환
+const selectDateFormatt = (val) => {
+
+  if (!(val instanceof Date) || Number.isNaN(val.getTime())) return null
+
+  const year = val.getFullYear()
+  const month = String(val.getMonth() + 1).padStart(2, '0')
+  const date = String(val.getDate()).padStart(2, '0')
+  return `${year}-${month}-${date}`
+}
+
 const handlePrevClick = () => {
   router.push({ name: "optionPage" })
 }
 
 const handleNextClick = () => {
+  propertyStore.updateNewProperty('moveDate', selectDateFormatt(moveDate.value))
   router.push({ name: "lastPage" })
 }
 
@@ -47,8 +53,8 @@ onMounted(() => {
     <div class="moveDate-container">
       <VCalendar class="my-calendar" transparent borderless expanded />
       <!-- 캘린더 -->
-      <VDatePicker v-model="moveDate" v-model:page="page" is-inline mode="date" :min-date="new Date()"
-        title-position="left" locale="ko-KR" />
+      <VDatePicker v-model="moveDate" is-inline mode="date" :min-date="new Date()" title-position="left"
+        locale="ko-KR" />
     </div>
     <div class="button-wrapper">
       <Buttons type="default" label="이전" @click="handlePrevClick" class="prevBtn" />
