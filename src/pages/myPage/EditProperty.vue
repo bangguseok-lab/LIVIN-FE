@@ -307,7 +307,6 @@ const handleEditSection = section => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">상세 정보</div>
-          <EditButton @click="handleEditSection('details')" />
         </div>
         <div class="content-details">
           <div class="content-details-row">
@@ -375,7 +374,6 @@ const handleEditSection = section => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">단지 정보</div>
-          <EditButton @click="handleEditSection('building')" />
         </div>
         <div class="content-details">
           <div class="content-details-row">
@@ -440,7 +438,6 @@ const handleEditSection = section => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">옵션 정보</div>
-          <EditButton @click="handleEditSection('options')" />
         </div>
         <div class="content-details">
           <div v-if="chunkedOptions.length" class="container-fluid p-0">
