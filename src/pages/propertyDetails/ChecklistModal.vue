@@ -22,6 +22,7 @@ const selectedChecklistId = ref(null)
 const selectedChecklistTitle = ref('')
 const checklistItems = ref([])
 const checkedOptions = ref({}) // { itemId: boolean } - isChecked 값들을 저장
+const currentGroupIndex = ref(0) // 현재 표시되고 있는 그룹의 인덱스
 
 const selectChecklist = async (id, title) => {
   console.log('=== selectChecklist 함수 시작 ===')
@@ -48,6 +49,7 @@ const selectChecklist = async (id, title) => {
 
   selectedChecklistId.value = id
   selectedChecklistTitle.value = title
+  currentGroupIndex.value = 0 // 그룹 인덱스 초기화
 
   try {
     console.log('API 요청 시작:', `/properties/checklist/${id}/items`)
@@ -239,6 +241,25 @@ const retryLoadChecklists = () => {
   checklist.loadChecklists()
 }
 
+// 그룹 간 전환을 위한 내비게이션 함수들
+const nextGroup = () => {
+  if (currentGroupIndex.value < groupedItems.value.length - 1) {
+    currentGroupIndex.value++
+  }
+}
+
+const prevGroup = () => {
+  if (currentGroupIndex.value > 0) {
+    currentGroupIndex.value--
+  }
+}
+
+const goToGroup = groupIndex => {
+  if (groupIndex >= 0 && groupIndex < groupedItems.value.length) {
+    currentGroupIndex.value = groupIndex
+  }
+}
+
 onMounted(async () => {
   try {
     console.log('체크리스트 목록 요청 시작')
@@ -399,41 +420,59 @@ onMounted(async () => {
         </div>
 
         <div class="modal-options-body">
-          <!-- 체크리스트 아이템들을 9개씩 그룹화하여 표시 -->
-          <div
-            v-for="(group, groupIndex) in groupedItems"
-            :key="groupIndex"
-            class="option-group"
+          <button
+            v-if="groupedItems.length > 1"
+            @click="prevGroup"
+            :disabled="currentGroupIndex === 0"
+            class="nav-button prev-button"
           >
-            <div class="option-grid">
-              <div
-                v-for="item in group"
-                :key="item.id || item.itemId || item.checklistItemId"
-                class="option-button-container"
-              >
-                <Buttons
-                  class="sm"
-                  type="sm"
-                  :is-checked="item.isChecked || item.checked || false"
-                  @update:is-checked="
-                    newValue => updateItemState(item, newValue)
-                  "
+            ‹
+          </button>
+
+          <div class="carousel-content-wrapper">
+            <div class="option-group">
+              <div class="option-grid">
+                <div
+                  v-for="item in groupedItems[currentGroupIndex]"
+                  :key="item.id || item.itemId || item.checklistItemId"
+                  class="option-button-container"
                 >
-                  <div class="option-text">
-                    {{ item.keyword || item.title || item.name || '제목 없음' }}
-                  </div>
-                </Buttons>
+                  <Buttons
+                    class="sm"
+                    type="sm"
+                    :is-checked="item.isChecked || item.checked || false"
+                    @update:is-checked="
+                      newValue => updateItemState(item, newValue)
+                    "
+                  >
+                    <div class="option-text">
+                      {{
+                        item.keyword || item.title || item.name || '제목 없음'
+                      }}
+                    </div>
+                  </Buttons>
+                </div>
               </div>
             </div>
-            <!-- 페이지네이션 점들 (9개 이상일 때만 표시) -->
+
             <div v-if="groupedItems.length > 1" class="pagination-dots">
               <span
                 v-for="(dot, index) in groupedItems.length"
                 :key="index"
-                :class="['dot', { active: groupIndex === index }]"
+                :class="['dot', { active: currentGroupIndex === index }]"
+                @click="goToGroup(index)"
               ></span>
             </div>
           </div>
+
+          <button
+            v-if="groupedItems.length > 1"
+            @click="nextGroup"
+            :disabled="currentGroupIndex === groupedItems.length - 1"
+            class="nav-button next-button"
+          >
+            ›
+          </button>
         </div>
 
         <div class="modal-options-footer">
@@ -466,7 +505,7 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: relative; // 슬라이더 버튼의 절대 위치 기준점
 }
 
 .modal-header {
@@ -559,10 +598,11 @@ onMounted(async () => {
 }
 
 .modal-options-title {
-  font-size: rem(20px);
+  font-size: rem(28px); // 글자 크기를 더 키움
   font-weight: bold;
   margin-bottom: rem(8px);
   color: #333;
+  text-align: left; // 좌측 정렬로 변경
 }
 
 .apply-another-btn {
@@ -581,16 +621,32 @@ onMounted(async () => {
   font-size: rem(14px);
   color: #999;
   margin: 0;
+  margin-top: rem(16px); // 제목과의 간격을 늘림
 }
 
 .modal-options-body {
+  // 위치 속성 제거, flex 속성과 패딩만 유지
   flex: 1;
-  overflow: hidden;
   margin-bottom: rem(24px);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-content-wrapper {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: rem(10px) 0;
 }
 
 .option-group {
-  height: 100%;
+  display: flex;
+  justify-content: center;
+  width: 100%; // 부모 너비를 꽉 채우도록 설정
 }
 
 .option-grid {
@@ -598,18 +654,30 @@ onMounted(async () => {
   grid-template-columns: repeat(3, 1fr);
   gap: rem(12px);
   margin-bottom: rem(16px);
+  width: 100%; // 부모 너비를 꽉 채우도록 설정
+  max-width: rem(340px); // 그리드의 최대 너비를 약간 줄여 좌우 여백 확보
+  justify-content: center; // 그리드 내 아이템들을 중앙 정렬
 }
 
 .option-button-container {
   display: flex;
   justify-content: center;
+
+  .sm {
+    transition: all 0.2s ease; // 부드러운 전환 효과
+
+    &:hover {
+      transform: scale(1.02); // 호버 시 약간의 스케일 효과
+    }
+  }
 }
 
 .option-text {
   font-size: rem(14px);
-  color: #333;
+  color: white; // 흰색 글자로 변경
   text-align: center;
   line-height: 1.2;
+  font-weight: 600; // 글자 굵기 늘림
 }
 
 .pagination-dots {
@@ -625,6 +693,11 @@ onMounted(async () => {
   border-radius: 50%;
   background-color: #ccc;
   transition: background-color 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #999;
+  }
 }
 
 .dot.active {
@@ -651,6 +724,55 @@ onMounted(async () => {
   &:hover {
     opacity: 0.8;
   }
+}
+
+// 네비게이션 버튼 절대 위치 설정
+.nav-button {
+  background: #1e90ff; // 단순한 파란색 배경
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: rem(32px); // 크기를 약간 줄여서 더 깔끔하게
+  height: rem(32px);
+  font-size: rem(16px); // 화살표 크기도 적절하게 조정
+  font-weight: normal; // 굵기를 normal로 변경하여 더 깔끔하게
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease; // 부드러운 전환 효과
+  flex-shrink: 0;
+
+  // 새로운 절대 위치 설정
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%); // 수직 중앙 정렬
+  z-index: 10;
+
+  &:hover:not(:disabled) {
+    background: #0066cc; // 호버 시 더 진한 파란색
+    transform: scale(1.05) translateY(-50%); // 호버 시에도 중앙 정렬 유지, 스케일 효과 줄임
+  }
+
+  &:disabled {
+    background: #cccccc; // 비활성화 시 회색
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.nav-button.prev-button {
+  left: rem(16px); // modal-content의 좌측 가장자리 기준으로 위치
+}
+
+.nav-button.next-button {
+  right: rem(16px); // modal-content의 우측 가장자리 기준으로 위치
+}
+
+// 다른 버튼들이 이 스타일을 상속받지 않도록 설정
+.confirm-button,
+.save-button {
+  position: relative;
 }
 
 .error-message {
