@@ -94,7 +94,7 @@ const handleRegionUpdate = region => {
       @click="e => togglePanel(e, 'region')"
     >
       지역별
-      <span class="arrow-down">▼</span>
+      <!-- <span class="arrow-down">⌄</span> -->
     </button>
 
     <!-- 체크리스트 버튼들 -->
@@ -172,12 +172,23 @@ const handleRegionUpdate = region => {
 
     &.dropdown-button {
       font-weight: 600;
-      color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
+      color: var(--grey);
+      border-color: var(--grey);
+      position: relative; // ::after 위치 기준
+      padding: 0 rem(24px) 0 rem(12px);
 
-    .arrow-down {
-      margin-left: rem(4px);
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: rem(8px);
+        transform: translateY(-50%) rotate(45deg);
+        width: rem(6px);
+        height: rem(6px);
+        border: solid #b3b3b3;
+        border-width: 0 rem(1px) rem(1px) 0;
+        pointer-events: none;
+      }
     }
   }
 
