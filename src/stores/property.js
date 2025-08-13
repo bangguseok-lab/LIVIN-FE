@@ -20,6 +20,7 @@ export const usePropertyStore = defineStore('property', {
       propertyType: '', // 거래유형
       propertyDeposit: '', // 보증금 금액
       direction: '', // 주실 방향
+      selectOptions: [], // 옵션들
     },
   }),
   actions: {
@@ -80,6 +81,7 @@ export const usePropertyStore = defineStore('property', {
         propertyType: '', // 거래유형
         propertyDeposit: '', // 보증금 금액
         direction: '', // 주실 방향
+        selectOptions: [],
       }
     },
     async fetchPropertyDetails(params) {
