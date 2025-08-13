@@ -22,18 +22,20 @@ export const usePropertyStore = defineStore('property', {
     },
   }),
   actions: {
-     bumpFavoriteVersion() {
-     this.favoriteVersion++
+    bumpFavoriteVersion() {
+      this.favoriteVersion++
     },
     async fetchFavoriteProperties(params) {
       this.favLoading = true
       this.lastFavParams = params
       try {
-      const res = await api.getFavorite(params)
-      this.favoriteProperties = Array.isArray(res)
-        ? res
-        : (Array.isArray(res?.content) ? res.content : [])
-    } catch (error) {
+        const res = await api.getFavProperties(params)
+        this.favoriteProperties = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.content)
+            ? res.content
+            : []
+      } catch (error) {
         console.error('찜한 매물 데이터를 불러오는 데 실패했습니다:', error)
         this.favoriteProperties = []
       } finally {
