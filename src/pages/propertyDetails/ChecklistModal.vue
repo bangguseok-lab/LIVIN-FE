@@ -24,113 +24,72 @@ const checklistItems = ref([])
 const checkedOptions = ref({}) // { itemId: boolean } - isChecked 값들을 저장
 const currentGroupIndex = ref(0) // 현재 표시되고 있는 그룹의 인덱스
 
-const selectChecklist = async (id, title) => {
+const selectChecklist = title => {
   console.log('=== selectChecklist 함수 시작 ===')
-  console.log('전달받은 매개변수:', { id, title })
-  console.log('매개변수 타입:', {
-    idType: typeof id,
-    titleType: typeof title,
-    idValue: id,
-    titleValue: title,
-  })
+  console.log('전달받은 제목:', title)
 
-  // id가 undefined인 경우 원본 객체에서 찾아보기
-  if (id === undefined || id === null) {
-    console.log('ID가 undefined/null입니다. 원본 객체에서 찾아보기...')
-    const originalItem = checklist.checklists.find(item => item.title === title)
-    if (originalItem) {
-      console.log('원본 객체에서 찾은 아이템:', originalItem)
-      console.log('원본 객체의 키들:', Object.keys(originalItem))
-      id =
-        originalItem.id || originalItem.checklistId || originalItem.checklist_id
-      console.log('수정된 ID:', id)
-    }
+  // 체크리스트 제목으로 해당 체크리스트 찾기
+  const selectedChecklist = checklist.checklists.find(
+    item => item.title === title,
+  )
+
+  if (!selectedChecklist) {
+    console.error('선택된 체크리스트를 찾을 수 없습니다:', title)
+    alert('체크리스트를 찾을 수 없습니다.')
+    return
   }
 
-  selectedChecklistId.value = id
-  selectedChecklistTitle.value = title
-  currentGroupIndex.value = 0 // 그룹 인덱스 초기화
+  // 체크리스트 ID 추출 (여러 가능한 필드명 시도)
+  const checklistId =
+    selectedChecklist.id ||
+    selectedChecklist.checklistId ||
+    selectedChecklist.checklist_id
 
+  if (!checklistId) {
+    console.error('체크리스트 ID를 찾을 수 없습니다:', selectedChecklist)
+    alert('체크리스트 ID를 찾을 수 없습니다.')
+    return
+  }
+
+  console.log('선택된 체크리스트:', selectedChecklist)
+  console.log('체크리스트 ID:', checklistId)
+  console.log('체크리스트 제목:', title)
+
+  selectedChecklistId.value = checklistId
+  selectedChecklistTitle.value = title
+
+  // 체크리스트 아이템 가져오기
+  loadChecklistItems(checklistId)
+}
+
+const loadChecklistItems = async id => {
   try {
     console.log('API 요청 시작:', `/properties/checklist/${id}/items`)
     const items = await api.getChecklistItems(id)
-    console.log('API 응답 받음:', items)
+    console.log('받아온 체크리스트 아이템:', items)
 
-    if (!items || !Array.isArray(items)) {
-      console.error('API 응답이 올바르지 않습니다:', items)
-      alert('체크리스트 데이터를 가져올 수 없습니다.')
-      return
+    if (items && Array.isArray(items)) {
+      checklistItems.value = items
+      // 각 아이템의 isChecked 상태를 checkedOptions에 초기화
+      checkedOptions.value = items.map(item => ({
+        id: item.id || item.itemId || item.checklistItemId,
+        isChecked: item.isChecked || item.checked || false,
+      }))
+      currentGroupIndex.value = 0 // 그룹 인덱스 초기화
+      modalState.value = 'options'
+    } else {
+      console.error('체크리스트 아이템이 배열이 아닙니다:', items)
+      alert('체크리스트 아이템을 가져오는데 실패했습니다.')
     }
-
-    // API 응답 구조 분석
-    console.log('첫 번째 아이템 구조:', items[0])
-    console.log('첫 번째 아이템 키들:', Object.keys(items[0]))
-
-    checklistItems.value = items
-    // 선택된 옵션 초기화 - isChecked 값 사용
-    checkedOptions.value = {}
-    items.forEach((item, index) => {
-      // keyword가 있으면 keyword 사용, 없으면 title 사용
-      const itemTitle = item.keyword || item.title || item.name || '제목 없음'
-      const itemId = item.id || item.itemId || item.checklistItemId
-      const isChecked = item.isChecked || item.checked || false
-
-      console.log(`아이템 ${index} 설정:`, {
-        itemId,
-        itemTitle,
-        원본isChecked: item.isChecked,
-        원본checked: item.checked,
-        최종isChecked: isChecked,
-        원본아이템: item,
-      })
-
-      // checkedOptions에 설정
-      checkedOptions.value[itemId] = isChecked
-
-      // 원본 아이템의 isChecked 값도 명시적으로 설정
-      if ('isChecked' in item) {
-        item.isChecked = Boolean(isChecked)
-      }
-      if ('checked' in item) {
-        item.checked = Boolean(isChecked)
-      }
-    })
-
-    console.log('체크리스트 아이템 설정 완료:', checklistItems.value)
-    console.log('선택된 옵션 상태:', checkedOptions.value)
-
-    // 상태 동기화 확인
-    console.log('=== 상태 동기화 확인 ===')
-    items.forEach((item, index) => {
-      const itemId = item.id || item.itemId || item.checklistItemId
-      console.log(`아이템 ${index} 동기화 상태:`, {
-        itemId,
-        원본isChecked: item.isChecked,
-        원본checked: item.checked,
-        checkedOptions값: checkedOptions.value[itemId],
-        동기화여부: item.isChecked === checkedOptions.value[itemId],
-      })
-    })
-    modalState.value = 'options'
   } catch (error) {
-    console.error('체크리스트 아이템을 가져오는데 실패했습니다.', error)
-    console.error('에러 상세:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-    })
-
-    // 500 에러인 경우 특별한 메시지 제공
+    console.error('체크리스트 아이템 로딩 에러:', error)
     if (error.response?.status === 500) {
       alert(
-        `서버 오류가 발생했습니다.\n\n체크리스트 ID: ${id}\n제목: ${title}\n\n잠시 후 다시 시도해주세요.`,
+        `서버 오류가 발생했습니다. 체크리스트 ID: ${id} 제목: ${selectedChecklistTitle.value}\n잠시 후 다시 시도해주세요.`,
       )
     } else {
-      alert(`체크리스트 아이템을 가져오는데 실패했습니다: ${error.message}`)
+      alert('체크리스트 아이템을 가져오는데 실패했습니다: ' + error.message)
     }
-
-    // 에러 발생 시 목록 화면으로 돌아가기
-    modalState.value = 'list'
   }
 }
 
@@ -237,10 +196,6 @@ const groupedItems = computed(() => {
   return groups
 })
 
-const retryLoadChecklists = () => {
-  checklist.loadChecklists()
-}
-
 // 그룹 간 전환을 위한 내비게이션 함수들
 const nextGroup = () => {
   if (currentGroupIndex.value < groupedItems.value.length - 1) {
@@ -314,81 +269,18 @@ onMounted(async () => {
     <div class="modal-content">
       <div v-if="modalState === 'list'" class="modal-screen">
         <div class="modal-header">
-          <h2 class="modal-title">확인하고 싶은 리스트를 선택하세요</h2>
-          <p class="modal-subtitle">누르면 해당 체크리스트를 볼 수 있어요</p>
+          <h2 class="modal-title">체크리스트 선택</h2>
+          <p class="modal-subtitle">적용할 체크리스트를 선택해주세요</p>
         </div>
+
         <div class="modal-body">
-          <template
-            v-if="checklist.checklists && checklist.checklists.length > 0"
+          <button
+            v-for="checklist in checklist.checklists"
+            :key="checklist.id"
+            @click="selectChecklist(checklist.title)"
+            class="checklist-button"
           >
-            <button
-              class="checklist-button"
-              v-for="item in checklist.checklists"
-              :key="item.id || item.checklistId || item.checklist_id"
-              @click="
-                () => {
-                  console.log('버튼 클릭된 아이템:', item)
-                  console.log(
-                    '전달할 ID:',
-                    item.id || item.checklistId || item.checklist_id,
-                  )
-                  console.log('전달할 제목:', item.title)
-                  selectChecklist(
-                    item.id || item.checklistId || item.checklist_id,
-                    item.title,
-                  )
-                }
-              "
-            >
-              {{ item.title }}
-              <small v-if="item.id || item.checklistId || item.checklist_id">
-                (ID: {{ item.id || item.checklistId || item.checklist_id }})
-              </small>
-            </button>
-          </template>
-          <div v-else class="no-checklist">
-            <p>등록된 체크리스트가 없습니다.</p>
-            <p>디버깅 정보:</p>
-            <p>
-              checklist.checklists: {{ JSON.stringify(checklist.checklists) }}
-            </p>
-            <p>checklist.loading: {{ checklist.loading }}</p>
-            <p>checklist.error: {{ checklist.error }}</p>
-
-            <!-- 체크리스트가 있지만 길이가 0인 경우 상세 분석 -->
-            <div
-              v-if="checklist.checklists && checklist.checklists.length === 0"
-            >
-              <p><strong>체크리스트 배열이 비어있습니다.</strong></p>
-            </div>
-
-            <!-- 체크리스트가 있는 경우 각 아이템의 구조 분석 -->
-            <div v-if="checklist.checklists && checklist.checklists.length > 0">
-              <p><strong>체크리스트 아이템 구조 분석:</strong></p>
-              <div
-                v-for="(item, index) in checklist.checklists"
-                :key="index"
-                class="debug-item"
-              >
-                <p>
-                  <strong>아이템 {{ index + 1 }}:</strong>
-                </p>
-                <p>전체 객체: {{ JSON.stringify(item) }}</p>
-                <p>객체 키들: {{ Object.keys(item) }}</p>
-                <p>id: {{ item.id }}</p>
-                <p>checklistId: {{ item.checklistId }}</p>
-                <p>checklist_id: {{ item.checklist_id }}</p>
-                <p>title: {{ item.title }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 에러 발생 시 안내 메시지 -->
-        <div v-if="checklist.error" class="error-message">
-          <p>체크리스트 로딩 중 오류가 발생했습니다.</p>
-          <button @click="retryLoadChecklists" class="retry-button">
-            다시 시도
+            {{ checklist.title }}
           </button>
         </div>
       </div>
