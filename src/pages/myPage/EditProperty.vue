@@ -37,8 +37,8 @@ const optionMap = {
   Bed: { name: '침대', iconUrl: BedIcon },
 }
 
-// 👈 모달의 열림/닫힘 상태를 관리하는 반응형 변수
 const isImageModalOpen = ref(false)
+const isPriceEditing = ref(false)
 
 const { kakao } = window
 const route = useRoute()
@@ -71,16 +71,13 @@ const property = usePropertyStore()
 const modules = [Navigation, Pagination]
 
 const loadKakaoMap = address => {
-  // 주소가 없으면 함수 실행 중단
   if (!address || !kakao) {
     console.error('주소 정보가 없거나 카카오 맵 API가 로드되지 않았습니다.')
     return
   }
 
-  // 주소-좌표 변환 객체 생성
   const geocoder = new kakao.maps.services.Geocoder()
 
-  // 주소로 좌표를 검색
   geocoder.addressSearch(address, (result, status) => {
     if (status === kakao.maps.services.Status.OK) {
       const coords = new kakao.maps.LatLng(result[0].y, result[0].x)
@@ -127,7 +124,6 @@ const formatPrice = (price, isRent) => {
     return result.trim()
   }
 
-  // ✅ [2] 전세/보증금 포맷 → "x억 y천 z만"
   const 억 = Math.floor(numberPrice / 100000000)
   const 나머지 = numberPrice % 100000000
   const 천 = Math.floor(나머지 / 10000000)
@@ -141,22 +137,21 @@ const formatPrice = (price, isRent) => {
   return result.trim() || `${numberPrice}원`
 }
 
-// 관리비 포맷팅
 const formatMonthlyDetail = price => {
   if (price === null || price === undefined || price === '')
     return '가격 정보 없음'
   const n = Number(price)
   if (!Number.isFinite(n)) return '가격 정보 없음'
 
-  const man = Math.floor(n / 10000) // 만
-  const cheon = Math.floor((n % 10000) / 1000) // 천
-  const won = n % 1000 // 천원 미만
+  const man = Math.floor(n / 10000)
+  const cheon = Math.floor((n % 10000) / 1000)
+  const won = n % 1000
 
   let s = ''
   if (man) s += `${man}만`
   if (cheon) s += `${s ? ' ' : ''}${cheon}천`
   if (won) s += `${s ? ' ' : ''}${won}원`
-  if (!s) s = `${n}원` // 1000 미만 등
+  if (!s) s = `${n}원`
   return s
 }
 
@@ -175,14 +170,12 @@ const formattedPrice = computed(() => {
   return '가격 정보 없음'
 })
 
-// 관리비 관련
 const calculate = computed(() => {
   const propertyDetails = property.getPropertyDetails
   const total = propertyDetails.management?.reduce((acc, crr) => {
-    if (crr.managementFee !== null && crr.managementFee !== undefined) {
-      return acc + parseInt(crr.managementFee, 10)
-    }
-    return acc
+    // isNaN 체크 추가
+    const fee = parseInt(crr.managementFee, 10)
+    return acc + (isNaN(fee) ? 0 : fee)
   }, 0)
   if (total === 0) {
     return '관련 정보 없음'
@@ -193,6 +186,8 @@ const calculate = computed(() => {
 const handleEditSection = section => {
   if (section === 'images') {
     isImageModalOpen.value = true
+  } else if (section === 'price') {
+    isPriceEditing.value = !isPriceEditing.value
   }
 }
 
@@ -233,7 +228,6 @@ const handleImageSave = newImages => {
               class="badge-img"
             />
           </div>
-          <EditButton @click="handleEditSection('title')" />
         </div>
         <div class="property-price">
           {{ formattedPrice }}
@@ -256,28 +250,71 @@ const handleImageSave = newImages => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">가격 정보</div>
-          <EditButton @click="handleEditSection('price')" />
+          <button
+            v-if="isPriceEditing"
+            class="done-button"
+            @click="handleEditSection('price')"
+          >
+            완료
+          </button>
+          <EditButton v-else @click="handleEditSection('price')" />
         </div>
         <div class="content-details">
           <div class="content-details-row">
             <div class="content-details-row-title">
               {{ property.getPropertyDetails.transactionType }}
             </div>
-            <div class="content-details-row-content">
-              {{ formattedPrice }}
+            <div
+              class="content-details-row-content"
+              :class="{ 'editing-text': isPriceEditing }"
+            >
+              <template v-if="isPriceEditing">
+                <input
+                  type="text"
+                  v-model="property.getPropertyDetails.price"
+                  class="editing-input"
+                />
+              </template>
+              <template v-else>
+                {{ formattedPrice }}
+              </template>
             </div>
           </div>
           <div class="content-details-row">
             <div class="content-details-row-title">관리비</div>
-            <div class="content-details-row-content">
-              {{ calculate }}<br /><br />
-              <div v-for="m in property.getPropertyDetails?.management">
-                {{ m.managementType }}:
-                {{
-                  m.managementFee !== '0'
-                    ? formatMonthlyDetail(m.managementFee)
-                    : '쓴 만큼'
-                }}
+            <div
+              class="content-details-row-content"
+              :class="{ 'editing-text': isPriceEditing }"
+            >
+              {{ calculate }}
+              <br /><br />
+              <div
+                v-for="m in property.getPropertyDetails?.management"
+                :key="m.managementType"
+                class="management-item"
+              >
+                <template v-if="isPriceEditing">
+                  <span class="management-type">{{ m.managementType }}:</span>
+                  <input
+                    type="number"
+                    v-model.number="m.managementFee"
+                    class="editing-input-small"
+                    @focus="$event.target.select()"
+                  />
+                  <span class="management-unit">원</span>
+                </template>
+                <template v-else>
+                  <span class="management-type">{{ m.managementType }}:</span>
+                  <span>
+                    {{
+                      m.managementFee !== '0' &&
+                      m.managementFee !== null &&
+                      m.managementFee !== undefined
+                        ? formatMonthlyDetail(m.managementFee)
+                        : '쓴 만큼'
+                    }}
+                  </span>
+                </template>
               </div>
             </div>
           </div>
@@ -710,5 +747,67 @@ const handleImageSave = newImages => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.editing-text {
+  color: var(--primary-color) !important;
+}
+.editing-input {
+  font-size: rem(15px);
+  font-weight: var(--font-weight-md);
+  color: var(--primary-color);
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  width: 100%;
+}
+.editing-input:focus {
+  outline: none;
+}
+.management-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.management-type {
+  min-width: 40px;
+}
+.editing-input-small {
+  width: auto;
+  max-width: 80px;
+  font-size: rem(15px);
+  font-weight: var(--font-weight-md);
+  color: var(--primary-color);
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  text-align: center;
+  margin-left: 8px;
+}
+.editing-input-small:focus {
+  outline: none;
+}
+.management-unit {
+  min-width: 15px;
+}
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.done-button {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }
 </style>
