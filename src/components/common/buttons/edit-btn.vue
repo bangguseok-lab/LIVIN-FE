@@ -1,5 +1,5 @@
 <template>
-  <button class="edit-btn">
+  <button class="edit-btn" @click="$emit('click')">
     <svg
       width="16"
       height="16"
