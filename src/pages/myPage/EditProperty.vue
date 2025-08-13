@@ -24,8 +24,6 @@ import BedIcon from '@/assets/icons/property/bed.svg'
 import { useRoute } from 'vue-router'
 import api from '@/api/property'
 import EditButton from '@/components/common/buttons/edit-btn.vue'
-// ImageEditModal은 더 이상 사용하지 않으므로 삭제합니다.
-// import ImageEditModal from '@/components/modals/ImageEditModal.vue'
 
 const optionMap = {
   Washer: { name: '세탁기', iconUrl: WasherIcon },
@@ -38,8 +36,6 @@ const optionMap = {
   Bed: { name: '침대', iconUrl: BedIcon },
 }
 
-// isImageModalOpen, handleImageSave 관련 로직을 모두 삭제합니다.
-// const isImageModalOpen = ref(false)
 const isPriceEditing = ref(false)
 
 const { kakao } = window
@@ -186,15 +182,10 @@ const calculate = computed(() => {
 })
 
 const handleEditSection = section => {
-  // images 관련 로직을 삭제합니다.
   if (section === 'price') {
     isPriceEditing.value = !isPriceEditing.value
   }
 }
-// handleImageSave 함수도 삭제합니다.
-// const handleImageSave = newImages => {
-//   console.log('새 이미지 목록:', newImages)
-// }
 </script>
 
 <template>
@@ -658,35 +649,6 @@ const handleEditSection = section => {
   font-size: rem(14px);
   color: var(--dark-gray);
   white-space: nowrap;
-}
-/* No need for the content-details-row-options class anymore */
-.content-details-row-options {
-  display: none; // or remove this class entirely
-}
-@media (min-width: 381px) and (max-width: 768px) {
-  .option-item {
-    // Bootstrap의 col-3 클래스와 유사한 효과를 줍니다.
-    width: 25%;
-  }
-}
-
-// 450px 이하에서는 2개씩 나오도록 설정
-@media (max-width: 380px) {
-  .option-item {
-    // Bootstrap의 col-6 클래스와 유사한 효과를 줍니다.
-    width: 50%;
-  }
-}
-
-// 옵션 아이템의 flex-basis도 함께 조절해주는 것이 좋습니다.
-.row {
-  display: flex;
-  flex-wrap: wrap;
-}
-.col-sm-6,
-.col-md-3 {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
 }
 .content-property-description {
   color: rgba($color: #000000, $alpha: 0.3);
