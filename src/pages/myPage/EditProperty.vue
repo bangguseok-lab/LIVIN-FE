@@ -24,7 +24,8 @@ import BedIcon from '@/assets/icons/property/bed.svg'
 import { useRoute } from 'vue-router'
 import api from '@/api/property'
 import EditButton from '@/components/common/buttons/edit-btn.vue'
-import ImageEditModal from '@/components/modals/ImageEditModal.vue'
+// ImageEditModal은 더 이상 사용하지 않으므로 삭제합니다.
+// import ImageEditModal from '@/components/modals/ImageEditModal.vue'
 
 const optionMap = {
   Washer: { name: '세탁기', iconUrl: WasherIcon },
@@ -37,7 +38,8 @@ const optionMap = {
   Bed: { name: '침대', iconUrl: BedIcon },
 }
 
-const isImageModalOpen = ref(false)
+// isImageModalOpen, handleImageSave 관련 로직을 모두 삭제합니다.
+// const isImageModalOpen = ref(false)
 const isPriceEditing = ref(false)
 
 const { kakao } = window
@@ -184,16 +186,15 @@ const calculate = computed(() => {
 })
 
 const handleEditSection = section => {
-  if (section === 'images') {
-    isImageModalOpen.value = true
-  } else if (section === 'price') {
+  // images 관련 로직을 삭제합니다.
+  if (section === 'price') {
     isPriceEditing.value = !isPriceEditing.value
   }
 }
-
-const handleImageSave = newImages => {
-  console.log('새 이미지 목록:', newImages)
-}
+// handleImageSave 함수도 삭제합니다.
+// const handleImageSave = newImages => {
+//   console.log('새 이미지 목록:', newImages)
+// }
 </script>
 
 <template>
@@ -211,9 +212,6 @@ const handleImageSave = newImages => {
           <img :src="img" class="property-img" alt="매물 이미지" />
         </swiper-slide>
       </swiper>
-      <div class="edit-img-btn-wrapper">
-        <EditButton @click="handleEditSection('images')" />
-      </div>
     </div>
 
     <div class="content-wrap">
@@ -282,10 +280,7 @@ const handleImageSave = newImages => {
           </div>
           <div class="content-details-row">
             <div class="content-details-row-title">관리비</div>
-            <div
-              class="content-details-row-content"
-              :class="{ 'editing-text': isPriceEditing }"
-            >
+            <div class="content-details-row-content">
               {{ calculate }}
               <br /><br />
               <div
@@ -293,28 +288,16 @@ const handleImageSave = newImages => {
                 :key="m.managementType"
                 class="management-item"
               >
-                <template v-if="isPriceEditing">
-                  <span class="management-type">{{ m.managementType }}:</span>
-                  <input
-                    type="number"
-                    v-model.number="m.managementFee"
-                    class="editing-input-small"
-                    @focus="$event.target.select()"
-                  />
-                  <span class="management-unit">원</span>
-                </template>
-                <template v-else>
-                  <span class="management-type">{{ m.managementType }}:</span>
-                  <span>
-                    {{
-                      m.managementFee !== '0' &&
-                      m.managementFee !== null &&
-                      m.managementFee !== undefined
-                        ? formatMonthlyDetail(m.managementFee)
-                        : '쓴 만큼'
-                    }}
-                  </span>
-                </template>
+                <span class="management-type">{{ m.managementType }}:</span>
+                <span>
+                  {{
+                    m.managementFee !== '0' &&
+                    m.managementFee !== null &&
+                    m.managementFee !== undefined
+                      ? formatMonthlyDetail(m.managementFee)
+                      : '쓴 만큼'
+                  }}
+                </span>
               </div>
             </div>
           </div>
@@ -505,13 +488,6 @@ const handleImageSave = newImages => {
       </div>
     </div>
 
-    <ImageEditModal
-      v-if="isImageModalOpen"
-      :isOpen="isImageModalOpen"
-      :images="imgUrls.map(url => ({ url }))"
-      @update:isOpen="isImageModalOpen = $event"
-      @save="handleImageSave"
-    />
     <Navbar />
   </div>
 </template>
