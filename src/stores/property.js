@@ -22,6 +22,9 @@ export const usePropertyStore = defineStore('property', {
       direction: '', // 주실 방향
       selectOptions: [], // 옵션들 (옵션 id 번호로 가지고 있음)
       moveDate: Date, // 이사 가능 날짜
+      imageFiles: '', // 업로드 사진들
+      imgRepresentList: '', // 대표이미지 지정을 위한 리스트
+      selectedIndex: '', // 대표이미지로 선택된 이미지 인덱스
     },
   }),
   actions: {
@@ -84,6 +87,9 @@ export const usePropertyStore = defineStore('property', {
         direction: '', // 주실 방향
         selectOptions: [], // 선택된 옵션들
         moveDate: Date, // 이사 가능 날짜
+        imageFiles: '', // 업로드 사진들
+        imgRepresentList: '', // 대표이미지 지정을 위한 리스트
+        selectedIndex: '', // 대표이미지로 선택된 이미지 인덱스
       }
     },
     async fetchPropertyDetails(params) {
