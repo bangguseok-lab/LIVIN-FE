@@ -1,16 +1,79 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import Buttons from '@/components/common/buttons/Buttons.vue';
+import { usePropertyStore } from '@/stores/property';
+import { onMounted, ref } from 'vue';
 
 const router = useRouter()
+const propertyStore = usePropertyStore()
+
+const exclusiveArea = ref('')   // 전용면적
+const supplyArea = ref('')      // 공급면적
+const roomCnt = ref('')         // 방 개수
+const bathRoomCnt = ref('')     // 욕실 개수
+const floor = ref('')           // 층
+const isDuplex = ref(false)     // 복층 여부
+
+
+const inputExclusiveArea = (e) => {
+  // 소수점 한 개만 허용: 12.34 형태
+  let v = e.target.value
+    .replace(/[^\d.]/g, '')     // 숫자/점 이외 제거
+    .replace(/^(\d*\.\d*?)\.+/g, '$1') // 점 두 번 이상 금지
+    .replace(/^0+(\d)/, '$1')   // 선행 0 정리 (원하면 유지해도 됨)
+
+  e.target.value = v
+  exclusiveArea.value = v
+}
+
+const inputSupplyArea = (e) => {
+  let v = e.target.value
+    .replace(/[^\d.]/g, '')     // 숫자/점 이외 제거
+    .replace(/^(\d*\.\d*?)\.+/g, '$1') // 점 두 번 이상 금지
+    .replace(/^0+(\d)/, '$1')   // 선행 0 정리 (원하면 유지해도 됨)
+
+  e.target.value = v
+  supplyArea.value = v
+}
+
 
 const handlePrevClick = () => {
+  if (exclusiveArea.value !== '' && supplyArea.value !== '' && roomCnt.value > 0 && bathRoomCnt.value > 0 && floor.value !== '') {
+    propertyStore.updateNewProperty('exclusiveArea', exclusiveArea.value)
+    propertyStore.updateNewProperty('supplyArea', supplyArea.value)
+    propertyStore.updateNewProperty('roomCnt', roomCnt.value)
+    propertyStore.updateNewProperty('bathRoomCnt', bathRoomCnt.value)
+    propertyStore.updateNewProperty('floor', floor.value)
+    propertyStore.updateNewProperty('isDuplex', isDuplex.value)
+  }
   router.push({ name: "roomDirectionPage" })
 }
 
 const handleNextClick = () => {
-  router.push({ name: "managementPage" })
+  if (exclusiveArea.value !== '' && supplyArea.value !== '' && roomCnt.value > 0 && bathRoomCnt.value > 0 && floor.value !== '') {
+    propertyStore.updateNewProperty('exclusiveArea', exclusiveArea.value)
+    propertyStore.updateNewProperty('supplyArea', supplyArea.value)
+    propertyStore.updateNewProperty('roomCnt', roomCnt.value)
+    propertyStore.updateNewProperty('bathRoomCnt', bathRoomCnt.value)
+    propertyStore.updateNewProperty('floor', floor.value)
+    propertyStore.updateNewProperty('isDuplex', isDuplex.value)
+
+    router.push({ name: "managementPage" })
+  } else {
+    alert('모든 항목을 입력해주세요')
+  }
 }
+
+onMounted(() => {
+  // 위험도 분석에서 층, 면적 정보를 받아오는 경우
+  exclusiveArea.value = propertyStore.getNewProperty?.exclusiveArea ?? ''
+  supplyArea.value = propertyStore.getNewProperty?.supplyArea ?? ''
+  roomCnt.value = propertyStore.getNewProperty?.roomCnt ?? ''
+  bathRoomCnt.value = propertyStore.getNewProperty?.bathRoomCnt ?? ''
+  floor.value = propertyStore.getNewProperty?.floor ?? ''
+  isDuplex.value = propertyStore.getNewProperty?.isDuplex ?? false
+
+})
 </script>
 
 <template>
@@ -24,7 +87,7 @@ const handleNextClick = () => {
             <div class="input-field">
               <div class="input-group area-input">
                 <input type="text" inputmode="numeric" placeholder="면적을 입력하세요" id="exclusiveArea"
-                  @input="onWolseNumberInput" />
+                  @input="inputExclusiveArea" v-model="exclusiveArea" />
                 <span class="unit">㎡</span>
               </div>
             </div>
@@ -33,8 +96,8 @@ const handleNextClick = () => {
             <div class="input-label">공급면적</div>
             <div class="input-field">
               <div class="input-group">
-                <input type="text" inputmode="numeric" placeholder="면적을 입력하세요" id="supplyArea"
-                  @input="onWolseNumberInput" />
+                <input type="text" inputmode="numeric" placeholder="면적을 입력하세요" id="supplyArea" @input="inputSupplyArea"
+                  v-model="supplyArea" />
                 <span class="unit">㎡</span>
               </div>
             </div>
@@ -48,7 +111,7 @@ const handleNextClick = () => {
             <div class="input-label">방 개수</div>
             <div class="count-input-field">
               <div class="input-group">
-                <input type="text" inputmode="numeric" placeholder="0" id="supplyArea" @input="onWolseNumberInput" />
+                <input type="number" inputmode="numeric" placeholder="0" id="roomcount" v-model="roomCnt" />
                 <span class="unit">개</span>
               </div>
             </div>
@@ -57,7 +120,7 @@ const handleNextClick = () => {
             <div class="input-label">욕실 개수</div>
             <div class="count-input-field">
               <div class="input-group">
-                <input type="text" inputmode="numeric" placeholder="0" id="supplyArea" @input="onWolseNumberInput" />
+                <input type="number" inputmode="numeric" placeholder="0" id="bathroomcount" v-model="bathRoomCnt" />
                 <span class="unit">개</span>
               </div>
             </div>
@@ -71,8 +134,7 @@ const handleNextClick = () => {
             <div class="input-label">층수</div>
             <div class="input-field">
               <div class="input-group">
-                <input type="text" inputmode="numeric" placeholder="매물의 층을 입력하세요" id="supplyArea"
-                  @input="onWolseNumberInput" />
+                <input type="number" inputmode="numeric" placeholder="매물의 층을 입력하세요" id="floor" v-model="floor" />
                 <span class="unit">층</span>
               </div>
             </div>
@@ -80,7 +142,7 @@ const handleNextClick = () => {
           <div class="duplex-button-wrapper">
             <div class="input-label">복층 여부</div>
             <div class="input-field">
-              <Buttons v-model:is-active="floorBtn1" type="floor" label="복층입니다" />
+              <Buttons v-model:is-active="isDuplex" type="floor" label="복층입니다" />
             </div>
           </div>
         </div>
@@ -104,7 +166,7 @@ const handleNextClick = () => {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 70%;
+  // height: 70%;
 }
 
 .detail-wrapper {

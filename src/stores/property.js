@@ -28,6 +28,12 @@ export const usePropertyStore = defineStore('property', {
       buildingNo: '', // 본번
       buildingSubNo: '', // 부번
       riskAnalyzed: false, // 분석 완료 여부
+      exclusiveArea: '', // 전용면적
+      supplyArea: '', // 공급면적
+      floor: '', // 층
+      isDuplex: false, // 복층 여부
+      roomCnt: '', // 방 개수
+      bathRoomCnt: '', // 욕실 개수
     },
   }),
   actions: {
@@ -96,6 +102,12 @@ export const usePropertyStore = defineStore('property', {
         buildingNo: '', // 본번
         buildingSubNo: '', // 부번
         riskAnalyzed: false, // 분석 완료 여부
+        exclusiveArea: '', // 전용면적
+        supplyArea: '', // 공급면적
+        floor: '', // 층
+        isDuplex: false, // 복층 여부
+        roomCnt: '', // 방 개수
+        bathRoomCnt: '', // 욕실 개수
       }
     },
     async fetchPropertyDetails(params) {
