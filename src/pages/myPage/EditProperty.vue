@@ -536,9 +536,9 @@ const handleEditSection = section => {
   z-index: 1;
 }
 
-.mySwiper ::v-deep {
-  .swiper-button-prev,
-  .swiper-button-next {
+.mySwiper {
+  :deep(.swiper-button-prev),
+  :deep(.swiper-button-next) {
     top: 50%;
     width: rem(40px);
     height: rem(40px);
@@ -549,17 +549,18 @@ const handleEditSection = section => {
     z-index: 10;
   }
 
-  .swiper-button-prev:hover,
-  .swiper-button-next:hover {
+  :deep(.swiper-button-prev:hover),
+  :deep(.swiper-button-next:hover) {
     background-color: rgba(0, 0, 0, 0.8);
   }
 
-  .swiper-button-prev::after,
-  .swiper-button-next::after {
+  :deep(.swiper-button-prev::after),
+  :deep(.swiper-button-next::after) {
     font-size: rem(16px);
     color: #fff;
   }
 }
+
 .content-box {
   background-color: var(--white);
   margin-bottom: rem(10px);
