@@ -13,6 +13,7 @@ import sample2 from '../../assets/images/home/sample-img2.png'
 import sample3 from '../../assets/images/home/sample-img3.png'
 import badge from '../../assets/images/landing/SecureBadge.png'
 import FavoriteButton from '@/components/common/buttons/FavoriteButton.vue'
+import SafePropertyModal from '@/components/modals/SafePropertyModal.vue'
 
 import WasherIcon from '@/assets/icons/property/washing-machine.svg'
 import RefrigeratorIcon from '@/assets/icons/property/refrigerator.svg'
@@ -34,6 +35,14 @@ const optionMap = {
   GasStove: { name: '가스렌지', iconUrl: GasStoveIcon },
   Induction: { name: '인덕션', iconUrl: InductionIcon },
   Bed: { name: '침대', iconUrl: BedIcon },
+}
+
+const safeModalOpen = ref(false)
+function openSafeModal() {
+  safeModalOpen.value = true
+}
+function onSafeCta() {
+  router.push({ name: 'DepositInput' })
 }
 
 const isModalOpen = ref(false)
@@ -223,12 +232,15 @@ const calculate = computed(() => {
         <div class="property-title">
           <div class="property-title-inner">
             {{ property.getPropertyDetails.name }}
-            <img
+            <button
               v-if="property.getPropertyDetails.safe"
-              :src="badge"
-              alt="안심매물 뱃지"
-              class="badge-img"
-            />
+              type="button"
+              class="safe-badge-btn"
+              @click.stop="openSafeModal"
+              aria-label="안심 리포트 열기"
+            >
+              <img :src="badge" alt="안심매물 뱃지" class="badge-img" />
+            </button>
           </div>
           <div class="favorite-btn">
             <FavoriteButton
@@ -267,6 +279,11 @@ const calculate = computed(() => {
         v-if="isModalOpen"
         :propertyId="propertyId"
         @close="closeModal"
+      />
+      <SafePropertyModal
+        v-model="safeModalOpen"
+        :property-id="Number(propertyId)"
+        @cta="onSafeCta"
       />
       <div class="content-box">
         <div class="content-title-row">가격 정보</div>
@@ -563,6 +580,13 @@ const calculate = computed(() => {
 .badge-img {
   width: rem(45px);
   height: 100%;
+}
+.safe-badge-btn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
 }
 .property-addr {
   font-size: rem(15px);
