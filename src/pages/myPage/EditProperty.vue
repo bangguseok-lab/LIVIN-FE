@@ -192,7 +192,7 @@ const handleEditSection = section => {
 </script>
 
 <template>
-  <div class="property-details-wrap">
+  <div class="EditProperty property-details-wrap">
     <div class="img-wrap">
       <swiper
         :slidesPerView="1"
@@ -575,13 +575,6 @@ const handleEditSection = section => {
   justify-content: flex-start;
   width: 100%;
 }
-.property-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: rem(30px);
-  width: 100%;
-}
 .property-title-row {
   display: flex;
   justify-content: space-between;
@@ -605,25 +598,6 @@ const handleEditSection = section => {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-}
-.property-checklist {
-  width: 100%;
-  height: rem(30px);
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.checklist-btn {
-  width: rem(150px);
-  height: 100%;
-  font-size: rem(12px);
-  padding-top: rem(7px);
-  padding-bottom: rem(7px);
-  border: none;
-  background-color: var(--primary-color);
-  color: var(--white);
-  border-radius: rem(8px);
 }
 .content-title-row {
   font-size: rem(20px);
@@ -667,11 +641,6 @@ const handleEditSection = section => {
   height: rem(50px);
   object-fit: contain;
 }
-.option-name {
-  font-size: rem(14px);
-  color: var(--dark-gray);
-  white-space: nowrap;
-}
 .content-property-description {
   color: rgba($color: #000000, $alpha: 0.3);
 }
@@ -688,22 +657,6 @@ const handleEditSection = section => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.edit-img-btn-wrapper {
-  position: absolute;
-  top: 0.625rem;
-  right: 0.625rem;
-  width: 2rem;
-  height: 2rem;
-  z-index: 10;
-  background-color: rgba(255, 255, 255, 0.7);
-  border: none;
-  border-radius: 50%;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .editing-text {
@@ -730,29 +683,6 @@ const handleEditSection = section => {
 }
 .management-type {
   min-width: rem(40px);
-}
-.editing-input-small {
-  width: auto;
-  max-width: rem(80px);
-  font-size: rem(15px);
-  font-weight: var(--font-weight-md);
-  color: var(--primary-color);
-  border: none;
-  background-color: transparent;
-  padding: 0;
-  text-align: center;
-  margin-left: rem(8px);
-}
-.editing-input-small:focus {
-  outline: none;
-}
-.management-unit {
-  min-width: rem(15px);
-}
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
 }
 
 .done-button {
