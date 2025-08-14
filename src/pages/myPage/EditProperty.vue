@@ -716,6 +716,7 @@ const handleEditSection = section => {
   background-color: transparent;
   padding: 0;
   width: 100%;
+  font-size: rem(16px);
 }
 .editing-input:focus {
   outline: none;
@@ -774,6 +775,7 @@ input[type='number']::-webkit-outer-spin-button {
   font-size: rem(15px);
   color: var(--primary-color);
   resize: none;
+  font-size: rem(16px);
 }
 
 .editing-textarea-no-border:focus {
