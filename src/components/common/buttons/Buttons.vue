@@ -19,9 +19,15 @@ const props = defineProps({
     type: String,
     default: 'OK',
   },
-  isChecked: {
+  // 기존 isActive prop을 그대로 유지
+  isActive: {
     type: Boolean,
     default: false,
+  },
+  // 새롭게 추가된 isChecked prop
+  isChecked: {
+    type: Boolean,
+    default: undefined, // 기존 isActive와 충돌하지 않도록 기본값을 undefined로 설정
   },
   type: {
     type: String,
@@ -59,8 +65,8 @@ const props = defineProps({
   },
 })
 
-// Emit 정의 (버튼 토글 상태를 외부로 보냄)
-const emit = defineEmits(['update:isChecked'])
+// Emit 정의 (기존 'update:isActive'와 새로운 'update:isChecked'를 모두 포함)
+const emit = defineEmits(['update:isActive', 'update:isChecked'])
 
 // Click 시 상태 반전
 const handleClick = () => {
@@ -68,7 +74,12 @@ const handleClick = () => {
   if (props.togo) {
     router.push(props.togo) // props에서 전달해준 페이지로 이동
   } else {
-    emit('update:isChecked', !props.isChecked) // 토글 처리가 필요하면, 토글 처리
+    // isChecked prop이 정의되었으면 해당 상태를, 그렇지 않으면 isActive 상태를 토글
+    if (props.isChecked !== undefined) {
+      emit('update:isChecked', !props.isChecked)
+    } else {
+      emit('update:isActive', !props.isActive)
+    }
   }
 }
 
@@ -78,7 +89,7 @@ const handelClose = async () => {
   // if (!confirmed) return;
 
   // try {
-  //   await deleteMyChecklistItem(id, item_id);   // id: checklist id, item_id: my-checklist-id
+  //   await deleteMyChecklistItem(id, item_id);  // id: checklist id, item_id: my-checklist-id
   //   alert('삭제되었습니다.');
 
   //   // 삭제 후 나만의 항목 다시 조회
@@ -93,7 +104,12 @@ const handelClose = async () => {
 const typeClass = computed(() => `btn-${props.type}`)
 const activeClass = computed(() => {
   const activeTypes = ['default', 'md', 'sm', 'ok', 'go', 'go-lg', 'my-option'] // props.type이 이 중에 있으면, 버튼 전체를 채우는 fill-active 스타일이 적용
-  return props.isChecked
+
+  // isChecked가 정의되었으면 isChecked 값을 사용하고, 아니면 isActive 값을 사용
+  const activeState =
+    props.isChecked !== undefined ? props.isChecked : props.isActive
+
+  return activeState
     ? activeTypes.includes(props.type)
       ? 'fill-active'
       : 'border-active'
@@ -101,7 +117,6 @@ const activeClass = computed(() => {
 })
 
 // iconType 에 따른 아이콘별 주소 지정
-
 const iconComponent = computed(() => {
   switch (props.iconType) {
     case 'white':
