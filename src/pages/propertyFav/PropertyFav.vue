@@ -16,33 +16,46 @@ const propertyList = ref([])
 
 // (임시) 지역 옵션
 const dummyDistricts = [
-  { sido: '서울특별시', sigungu: '서초구',        eupmyeondong: '반포동' },
-  { sido: '서울특별시', sigungu: '강남구',        eupmyeondong: '논현1동' },
-  { sido: '서울특별시', sigungu: '마포구',        eupmyeondong: '서교동' },
-  { sido: '경기도',     sigungu: '수원시 팔달구', eupmyeondong: '매산동' },
-  { sido: '경기도',     sigungu: '수원시 팔달구', eupmyeondong: '인계동' },
+  { sido: '서울특별시', sigungu: '서초구', eupmyeondong: '반포동' },
+  { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '논현1동' },
+  { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '서교동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매산동' },
+  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '인계동' },
 ]
 
 // 지역 옵션 계산
 const getRegionData = computed(() => {
-  const cities = [...new Set(dummyDistricts.map(d => d.sido))].map(name => ({ code: name, name }))
+  const cities = [...new Set(dummyDistricts.map(d => d.sido))].map(name => ({
+    code: name,
+    name,
+  }))
   const districts = dummyDistricts
     .filter(d => d.sido === favRegion.value.city)
     .map(d => d.sigungu)
-  const uniqueDistricts = [...new Set(districts)].map(name => ({ code: name, name }))
+  const uniqueDistricts = [...new Set(districts)].map(name => ({
+    code: name,
+    name,
+  }))
   const parishes = dummyDistricts
-    .filter(d => d.sido === favRegion.value.city && d.sigungu === favRegion.value.district)
+    .filter(
+      d =>
+        d.sido === favRegion.value.city &&
+        d.sigungu === favRegion.value.district,
+    )
     .map(d => d.eupmyeondong)
-  const uniqueParishes = [...new Set(parishes)].map(name => ({ code: name, name }))
+  const uniqueParishes = [...new Set(parishes)].map(name => ({
+    code: name,
+    name,
+  }))
   return { cities, districts: uniqueDistricts, parishes: uniqueParishes }
 })
 
-
 const checklistRules = {
-  '체크리스트A': src => src.ownerMatch === true,
-  '체크리스트B': src => src.mortgage === true,
-  '체크리스트C': src => src.illegalBuilding === true,
-  '체크리스트D': src => typeof src.jeonseRate === 'number' && src.jeonseRate >= 80,
+  체크리스트A: src => src.ownerMatch === true,
+  체크리스트B: src => src.mortgage === true,
+  체크리스트C: src => src.illegalBuilding === true,
+  체크리스트D: src =>
+    typeof src.jeonseRate === 'number' && src.jeonseRate >= 80,
 }
 function deriveChecklistTags(src) {
   const tags = []
@@ -56,16 +69,15 @@ function deriveChecklistTags(src) {
   return tags
 }
 
-
 function toCard(item) {
   const src = item.property ?? item
   const txn = src.transactionType ?? src.dealType ?? 'JEONSE'
 
   const raw = {
-    mortgage:        src.mortgage ?? src.hasMortgage ?? false,
-    ownerMatch:      src.ownerMatch ?? src.residentMatch ?? false,
+    mortgage: src.mortgage ?? src.hasMortgage ?? false,
+    ownerMatch: src.ownerMatch ?? src.residentMatch ?? false,
     illegalBuilding: src.illegalBuilding ?? false,
-    jeonseRate:      src.jeonseRate ?? null,
+    jeonseRate: src.jeonseRate ?? null,
   }
 
   return {
@@ -91,22 +103,24 @@ function toCard(item) {
 
     // 필터 재료
     region: {
-      city:    src.region?.city     ?? src.sido        ?? null,
-      district:src.region?.district ?? src.sigungu     ?? null,
-      parish:  src.region?.parish   ?? src.eupmyeondong?? null,
+      city: src.region?.city ?? src.sido ?? null,
+      district: src.region?.district ?? src.sigungu ?? null,
+      parish: src.region?.parish ?? src.eupmyeondong ?? null,
     },
     ...raw,
     checklistTags: deriveChecklistTags(raw),
   }
 }
 
-
 async function loadFavorites() {
   try {
     const params = {}
 
     if (favOnlySecure.value) params.onlySecure = true
-    if (favSelectedChecklist.value !== '전체' && !isNaN(Number(favSelectedChecklist.value))) {
+    if (
+      favSelectedChecklist.value !== '전체' &&
+      !isNaN(Number(favSelectedChecklist.value))
+    ) {
       params.checklistId = Number(favSelectedChecklist.value)
     }
 
@@ -117,7 +131,9 @@ async function loadFavorites() {
     const res = await api.getFavProperties(params)
     const arr = Array.isArray(res)
       ? res
-      : (Array.isArray(res?.content) ? res.content : [])
+      : Array.isArray(res?.content)
+        ? res.content
+        : []
 
     propertyList.value = arr.map(toCard)
   } catch (err) {
@@ -130,29 +146,37 @@ async function loadFavorites() {
 onMounted(loadFavorites)
 watch(() => propertyStore.favoriteVersion, loadFavorites)
 
-
 const filteredList = computed(() =>
   propertyList.value.filter(item => {
     if (favOnlySecure.value && !item.isSafe) return false
     if (favSelectedChecklist.value && favSelectedChecklist.value !== '전체') {
-      if (!item.checklistTags?.includes(favSelectedChecklist.value)) return false
+      if (!item.checklistTags?.includes(favSelectedChecklist.value))
+        return false
     }
     const sel = favRegion.value
     if (sel.city && item.region?.city !== sel.city) return false
     if (sel.district && item.region?.district !== sel.district) return false
     if (sel.parish && item.region?.parish !== sel.parish) return false
     return true
-  })
+  }),
 )
 </script>
 
 <template>
   <div class="PropertyFav">
-    <h2 class="title">찜하신 관심매물이에요</h2>
+    <div class="guide-text">
+      <p class="nickname">{{ user }}님이</p>
+      <h1 class="title">찜하신 관심매물이에요</h1>
+    </div>
 
     <!-- 필터바 -->
     <FilterBarFavorite
-      :checklist-items="['체크리스트A','체크리스트B','체크리스트C','체크리스트D']"
+      :checklist-items="[
+        '체크리스트A',
+        '체크리스트B',
+        '체크리스트C',
+        '체크리스트D',
+      ]"
       :selected="favSelectedChecklist"
       :onlySecure="favOnlySecure"
       :region="favRegion"
@@ -179,15 +203,31 @@ const filteredList = computed(() =>
 <style scoped lang="scss">
 .PropertyFav {
   width: 100%;
-  padding: 2rem;
-  padding-top: 6rem;
+  padding-left: rem(40px);
+  padding-right: rem(40px);
+  padding-top: rem(100px);
+  padding-bottom: rem(62px);
   background-color: #fff;
+}
+
+.guide-text {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; // 수평 왼쪽 정렬
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.nickname {
+  font-size: 0.9rem;
+  color: var(--black);
+  margin-bottom: 0.4rem;
 }
 
 .title {
   font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+  font-weight: 700;
 }
 
 .card-list {

@@ -19,21 +19,26 @@ export const usePropertyStore = defineStore('property', {
       propertyNum: '', // 부동산 고유번호
       propertyType: '', // 거래유형
       propertyDeposit: '', // 보증금 금액
+      direction: '', // 주실 방향
+      selectOptions: [], // 옵션들 (옵션 id 번호로 가지고 있음)
+      moveDate: Date, // 이사 가능 날짜
     },
   }),
   actions: {
-     bumpFavoriteVersion() {
-     this.favoriteVersion++
+    bumpFavoriteVersion() {
+      this.favoriteVersion++
     },
     async fetchFavoriteProperties(params) {
       this.favLoading = true
       this.lastFavParams = params
       try {
-      const res = await api.getFavorite(params)
-      this.favoriteProperties = Array.isArray(res)
-        ? res
-        : (Array.isArray(res?.content) ? res.content : [])
-    } catch (error) {
+        const res = await api.getFavorite(params)
+        this.favoriteProperties = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.content)
+            ? res.content
+            : []
+      } catch (error) {
         console.error('찜한 매물 데이터를 불러오는 데 실패했습니다:', error)
         this.favoriteProperties = []
       } finally {
@@ -76,6 +81,9 @@ export const usePropertyStore = defineStore('property', {
         propertyNum: '', // 부동산 고유번호
         propertyType: '', // 거래유형
         propertyDeposit: '', // 보증금 금액
+        direction: '', // 주실 방향
+        selectOptions: [], // 선택된 옵션들
+        moveDate: Date, // 이사 가능 날짜
       }
     },
     async fetchPropertyDetails(params) {
