@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router';
 import Buttons from '@/components/common/buttons/Buttons.vue';
 import { usePropertyStore } from '@/stores/property';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const router = useRouter()
 const propertyStore = usePropertyStore()
@@ -10,7 +10,10 @@ const propertyStore = usePropertyStore()
 // 선택된 관리 항목 리스트
 const selectedItems = ref([])
 
-const isManagement = ref(false)
+// "관리비 없음" 체크
+const isNoManagement = ref(false)
+
+// 버튼별 상태
 const waterBtn = ref(false)
 const powerBtn = ref(false)
 const internetBtn = ref(false)
@@ -34,14 +37,24 @@ const itemsMap = [
   { label: '승강기 유지비', state: elevatorBtn },
 ]
 
+// 숫자만 입력 허용
+const onFeeInput = (item, e) => {
+  const value = e.target.value.replace(/[^\d]/g, '')
+  item.managementFee = value
+}
+
+// "쓴 만큼" 클릭 시 관리비 금액을 '쓴 만큼'으로 저장
+const onToggleUsed = (item) => {
+  if (item.used) item.managementFee = '쓴 만큼'
+}
+
 // 각 버튼 상태 변화를 감지해서 selectedItems에 반영
-// 버튼 상태 감시 → selectedItems 동기화
 itemsMap.forEach(({ label, state }) => {
   watch(state, (newVal) => {
     if (newVal) {
       // 선택 시 추가 (중복 방지)
       if (!selectedItems.value.find(item => item.managementType === label)) {
-        isManagement.value = false  // 관리비 없음 해제
+        isNoManagement.value = false  // 관리비 없음 해제
         selectedItems.value.push({
           managementType: label,
           managementFee: '',
@@ -53,24 +66,87 @@ itemsMap.forEach(({ label, state }) => {
       selectedItems.value = selectedItems.value.filter(item => item.managementType !== label)
       // 선택된 항목이 하나도 없으면, 관리비 없음 활성화
       if (selectedItems.value.length === 0) {
-        isManagement.value = true
+        isNoManagement.value = true
       }
     }
   })
 })
 
-// 숫자만 입력 가능하게
-const onFeeInput = (item, e) => {
-  const value = e.target.value.replace(/[^\d]/g, '')
-  item.managementFee = value
+// "관리비 없음" 체크 → 전체 초기화
+watch(isNoManagement, (noMgmt) => {
+  if (noMgmt) {
+    // 모두 해제
+    itemsMap.forEach(m => (m.state.value = false))
+    selectedItems.value = []
+  }
+})
+
+// 저장용 변환 함수 (Next에서만 사용)
+const buildManagementList = () => {
+  if (isNoManagement.value || selectedItems.value.length === 0) {
+    return [{ managementType: '관리비 없음', managementFee: '0' }]
+  }
+  return selectedItems.value.map(({ managementType, managementFee, used }) => ({
+    managementType,
+    managementFee: used ? '쓴 만큼' : String(managementFee ?? '').trim(),
+  }))
 }
 
+// 페이지 재진입 시 스토어에서 선택해뒀던 값 가져오기
+onMounted(() => {
+  isNoManagement.value = !!propertyStore.getNewProperty?.noManagement
+  const saved = propertyStore.getNewProperty?.managementList ?? []
 
-const handlePrevClick = () => {
+  if (saved.length > 0) {
+    // 저장되었던 값이 관리비 없음이었던 경우 처리
+    if (saved[0].managementType === '관리비 없음') {
+      selectedItems.value = [{ managementType: '관리비 없음', managementFee: '0' }]
+      isNoManagement.value = true
+    } else {
+      // 그 외 관리비 항목이 저장되었던 경우 처리
+      selectedItems.value = saved.map(({ managementType, managementFee }) => ({
+        managementType,
+        managementFee: managementFee === '쓴 만큼' ? '' : String(managementFee ?? ''),
+        used: managementFee === '쓴 만큼',
+      }))
+      itemsMap.forEach(({ label, state }) => {
+        state.value = selectedItems.value.some(i => i.managementType === label)
+      })
+      isNoManagement.value = false
+    }
+  } else {
+    if (!isNoManagement.value) isNoManagement.value = true
+  }
+})
+
+const handlePrevClick = () => {  // 관리비 없음이 아닌 경우 필수 검증
+  if (!isNoManagement.value) {
+    const invalidItem = selectedItems.value.find(item => !item.used && (!item.managementFee || item.managementFee.trim() === ''))
+    if (invalidItem) {
+      alert(`${invalidItem.managementType} 금액을 입력해주세요`)
+      return
+    }
+  }
+
+  // 스토어에 저장
+  propertyStore.updateNewProperty('managementList', buildManagementList())
+
   router.push({ name: "roomDetailPage" })
 }
 
 const handleNextClick = () => {
+  // 관리비 없음이 아닌 경우 필수 검증
+  if (!isNoManagement.value) {
+    const invalidItem = selectedItems.value.find(item => !item.used && (!item.managementFee || item.managementFee.trim() === ''))
+    if (invalidItem) {
+      alert(`${invalidItem.managementType} 금액을 입력해주세요`)
+      return
+    }
+  }
+
+  // 스토어에 저장
+  propertyStore.updateNewProperty('managementList', buildManagementList())
+
   router.push({ name: "otherInfoPage" })
 }
 </script>
@@ -79,7 +155,7 @@ const handleNextClick = () => {
   <div class="ManagementPage">
     <div class="management-container">
       <section class="no-managemet">
-        <input type="checkbox" name="noManagement" id="noManagement" v-model="isManagement"> <label for="noManagement"
+        <input type="checkbox" name="noManagement" id="noManagement" v-model="isNoManagement"> <label for="noManagement"
           class="used-label">관리비 없음</label>
       </section>
       <section class="include-items">
@@ -107,7 +183,8 @@ const handleNextClick = () => {
               <div class="input-label">
                 {{ item.managementType }}
                 <div class="used-checkbox-wrapper">
-                  <input type="checkbox" :id="`used-${idx}`" v-model="item.used" class="used-checkbox" />
+                  <input type="checkbox" :id="`used-${idx}`" v-model="item.used" class="used-checkbox"
+                    @change="onToggleUsed(item)" />
                   <label :for="`used-${idx}`" class="used-label">쓴 만큼</label>
                 </div>
               </div>
@@ -120,28 +197,7 @@ const handleNextClick = () => {
                 </div>
               </div>
             </div>
-            <!-- <div class="management-input-wrapper">
-              <div class="input-label">보증금</div>
-              <div class="input-field">
-                <div class="input-group">
-                  <input type="text" v-model="wolseStr" inputmode="numeric" placeholder="금액(만원)을 입력하세요"
-                    id="wolseDeposit" @input="onWolseNumberInput" />
-                  <span class="unit">만원</span>
-                </div>
-              </div>
-            </div>
-            <div class="management-input-wrapper">
-              <div class="input-label">보증금</div>
-              <div class="input-field">
-                <div class="input-group">
-                  <input type="text" v-model="wolseStr" inputmode="numeric" placeholder="금액(만원)을 입력하세요"
-                    id="wolseDeposit" @input="onWolseNumberInput" />
-                  <span class="unit">만원</span>
-                </div>
-              </div>
-            </div> -->
           </div>
-
         </div>
       </section>
     </div>

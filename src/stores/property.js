@@ -34,6 +34,7 @@ export const usePropertyStore = defineStore('property', {
       isDuplex: false, // 복층 여부
       roomCnt: '', // 방 개수
       bathRoomCnt: '', // 욕실 개수
+      managementList: [], // 관리비 항목들[{ managementType: '수도료', managementFee: '20000' }, ...]
     },
   }),
   actions: {
@@ -73,6 +74,24 @@ export const usePropertyStore = defineStore('property', {
         console.warn(`${key} 필드는 newProperty에 존재하지 않습니다.`)
       }
     },
+    // 관리비 항목 등록용 액션
+    addManagementItem(item) {
+      if (!this.newProperty.managementList) this.newProperty.managementList = []
+      this.newProperty.managementList.push({
+        managementType: item?.managementType ?? '',
+        managementFee: item?.managementFee ?? '',
+      })
+    },
+    // 관리비 항목 업데이트 액션
+    updateManagementItem(index, patch) {
+      const item = this.newProperty.managementList?.[index]
+      if (!item) return
+      this.newProperty.managementList[index] = { ...item, ...patch }
+    },
+    // 관리비 항목 삭제 액션
+    removeManagementItem(index) {
+      this.newProperty.managementList?.splice(index, 1)
+    },
     // 매물 등록 API 호출 액션
     async createNewProperty() {
       try {
@@ -108,6 +127,7 @@ export const usePropertyStore = defineStore('property', {
         isDuplex: false, // 복층 여부
         roomCnt: '', // 방 개수
         bathRoomCnt: '', // 욕실 개수
+        managementList: [], // 관리비 항목들
       }
     },
     async fetchPropertyDetails(params) {
