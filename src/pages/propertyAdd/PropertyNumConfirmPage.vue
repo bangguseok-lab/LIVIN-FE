@@ -4,6 +4,7 @@ import router from '@/router';
 import { usePropertyStore } from '@/stores/property';
 import { useUserStore } from '@/stores/user';
 import { onMounted, ref } from 'vue';
+import api from '@/api/property';
 
 // 매물 등록에 사용하려고 둔 스토어
 const propertyStore = usePropertyStore()
@@ -16,6 +17,8 @@ const inputPropertyNum = ref('');
 const serverUserName = ref('');
 const serverUserBirth = ref('');
 const serverUserPhoneNum = ref('');
+
+const ownerName = ref('');
 
 // 이 고유번호가 아니에요 클릭 시 이전 페이지로 이동
 const handleClickNoPropertyNum = () => {
@@ -32,11 +35,21 @@ onMounted(async () => {
   inputAddress.value = propertyStore.getNewProperty.address + " " + propertyStore.getNewProperty.detailAddress + propertyStore.getNewProperty.extraAddress;
   // 입력 받은 부동산 고유번호 가져오기
   inputPropertyNum.value = propertyStore.getNewProperty.propertyNum
+
   // 가입된 회원정보 가져오기
   await userStore.fetchUserInfo()
   serverUserName.value = userStore.userInfo.data.name
   serverUserBirth.value = userStore.userInfo.data.birthDate[0] + '.' + userStore.userInfo.data.birthDate[1] + '.' + userStore.userInfo.data.birthDate[2]
   serverUserPhoneNum.value = userStore.userInfo.data.phone
+
+  const commUniqueNo = propertyStore.getNewProperty.propertyNum; // "- 포함" 그대로
+  const userName = userStore.userInfo.data.name;
+
+  // 부동산 고유번호 결과 조회 => Todo: 스피너 붙이기
+  // const result = await api.getPropertyNum({ commUniqueNo, userName });
+  // console.log(result)
+  // ownerName.value = result.data?.ownerName || '서동주';
+
 })
 </script>
 
@@ -49,12 +62,12 @@ onMounted(async () => {
             @click="handleClickNoPropertyNum">이 고유번호가 아니에요</span></div>
         <div class="propertyNum-content-wrapper">
           <div>
-            <div class="propertyNum-content-text"><span class="content-text">이름</span>배영현</div>
+            <div class="propertyNum-content-text"><span class="content-text">부동산 등기부등본상 이름</span>{{ ownerName }}</div>
           </div>
         </div>
       </div>
       <div class="propertyNumberConfirm-info-wrapper">
-        <div class="propertyNum-title-wrapper">Livin 회원 정보</div>
+        <div class="propertyNum-title-wrapper">Livin에 가입된 임대인 회원 정보</div>
         <div class="propertyNum-content-wrapper">
           <div>
             <div class="propertyNum-content-text"><span class="content-text">이름</span>{{ serverUserName }}</div>
