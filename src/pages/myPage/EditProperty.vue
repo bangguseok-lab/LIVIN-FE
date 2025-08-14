@@ -37,6 +37,7 @@ const optionMap = {
 }
 
 const isPriceEditing = ref(false)
+const isDescriptionEditing = ref(false) // 기타 정보 수정 모드 상태 추가
 
 const { kakao } = window
 const route = useRoute()
@@ -184,6 +185,8 @@ const calculate = computed(() => {
 const handleEditSection = section => {
   if (section === 'price') {
     isPriceEditing.value = !isPriceEditing.value
+  } else if (section === 'description') {
+    isDescriptionEditing.value = !isDescriptionEditing.value
   }
 }
 </script>
@@ -468,10 +471,28 @@ const handleEditSection = section => {
       <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">기타 정보</div>
-          <EditButton @click="handleEditSection('description')" />
+          <button
+            v-if="isDescriptionEditing"
+            class="done-button"
+            @click="handleEditSection('description')"
+          >
+            완료
+          </button>
+          <EditButton v-else @click="handleEditSection('description')" />
         </div>
-        <div class="content-property-description">
-          {{ property.getPropertyDetails.description }}
+        <div
+          class="content-property-description"
+          :class="{ 'editing-text': isDescriptionEditing }"
+        >
+          <template v-if="isDescriptionEditing">
+            <textarea
+              v-model="property.getPropertyDetails.description"
+              class="editing-textarea-no-border"
+            ></textarea>
+          </template>
+          <template v-else>
+            {{ property.getPropertyDetails.description }}
+          </template>
         </div>
       </div>
     </div>
@@ -741,5 +762,21 @@ input[type='number']::-webkit-outer-spin-button {
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.editing-textarea-no-border {
+  width: 100%;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  min-height: 100px;
+  box-sizing: border-box;
+  font-size: rem(15px);
+  color: var(--primary-color);
+  resize: none;
+}
+
+.editing-textarea-no-border:focus {
+  outline: none;
 }
 </style>
