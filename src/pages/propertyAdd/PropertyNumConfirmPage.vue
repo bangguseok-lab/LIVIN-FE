@@ -51,14 +51,6 @@ onMounted(async () => {
           <div>
             <div class="propertyNum-content-text"><span class="content-text">이름</span>배영현</div>
           </div>
-          <div>
-            <div class="propertyNum-content-text"><span class="content-text">생년월일</span><span
-                id="birth-text">2001.01.01</span></div>
-          </div>
-          <div>
-            <div class="propertyNum-content-text"><span class="content-text">연락처</span><span
-                id="phone-text">010-4538-0387</span></div>
-          </div>
         </div>
       </div>
       <div class="propertyNumberConfirm-info-wrapper">
