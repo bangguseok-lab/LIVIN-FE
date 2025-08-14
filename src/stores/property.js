@@ -38,6 +38,7 @@ export const usePropertyStore = defineStore('property', {
       loan: '', // 대출 유무
       pet: '', // 반려동물 여부
       parking: '', // 주차 가능 여부
+      description: '', // 매물 설명
     },
   }),
   actions: {
@@ -134,6 +135,7 @@ export const usePropertyStore = defineStore('property', {
         loan: '', // 대출 유무
         pet: '', // 반려동물 여부
         parking: '', // 주차 가능 여부
+        description: '', // 매물 설명
       }
     },
     async fetchPropertyDetails(params) {
