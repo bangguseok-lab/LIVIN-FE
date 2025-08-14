@@ -519,8 +519,8 @@ const handleEditSection = section => {
   position: relative;
   width: 100%;
   height: rem(270px);
-  border-top: 2px solid rgba($color: #000000, $alpha: 0.2);
-  border-bottom: 2px solid rgba($color: #000000, $alpha: 0.2);
+  border-top: rem(2px) solid rgba($color: #000000, $alpha: 0.2);
+  border-bottom: rem(2px) solid rgba($color: #000000, $alpha: 0.2);
 }
 
 .property-img {
@@ -622,7 +622,7 @@ const handleEditSection = section => {
   border: none;
   background-color: var(--primary-color);
   color: var(--white);
-  border-radius: 8px;
+  border-radius: rem(8px);
 }
 .content-title-row {
   font-size: rem(20px);
@@ -637,7 +637,7 @@ const handleEditSection = section => {
   justify-content: space-between;
   align-items: flex-start;
   padding: 1rem 0;
-  border-bottom: 1px solid rgba($color: #000000, $alpha: 0.1);
+  border-bottom: rem(1px) solid rgba($color: #000000, $alpha: 0.1);
 }
 .content-details-row:last-child {
   border: none;
@@ -677,7 +677,7 @@ const handleEditSection = section => {
 #kakaomap {
   width: 100%;
   height: rem(300px);
-  border-radius: 20px;
+  border-radius: rem(20px);
 }
 .transaction-type {
   font-size: rem(12px);
@@ -724,15 +724,15 @@ const handleEditSection = section => {
 .management-item {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: rem(5px);
   white-space: nowrap;
 }
 .management-type {
-  min-width: 40px;
+  min-width: rem(40px);
 }
 .editing-input-small {
   width: auto;
-  max-width: 80px;
+  max-width: rem(80px);
   font-size: rem(15px);
   font-weight: var(--font-weight-md);
   color: var(--primary-color);
@@ -740,13 +740,13 @@ const handleEditSection = section => {
   background-color: transparent;
   padding: 0;
   text-align: center;
-  margin-left: 8px;
+  margin-left: rem(8px);
 }
 .editing-input-small:focus {
   outline: none;
 }
 .management-unit {
-  min-width: 15px;
+  min-width: rem(15px);
 }
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
@@ -758,9 +758,9 @@ input[type='number']::-webkit-outer-spin-button {
   background-color: var(--primary-color);
   color: var(--white);
   border: none;
-  padding: 5px 14px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: rem(5px) rem(14px);
+  border-radius: rem(8px);
+  font-size: rem(12px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -770,7 +770,7 @@ input[type='number']::-webkit-outer-spin-button {
   border: none;
   background-color: transparent;
   padding: 0;
-  min-height: 100px;
+  min-height: rem(100px);
   box-sizing: border-box;
   font-size: rem(15px);
   color: var(--primary-color);
