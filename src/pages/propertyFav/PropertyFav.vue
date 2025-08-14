@@ -6,50 +6,59 @@ import Navbar from '@/components/layouts/Navbar.vue'
 import { usePropertyStore } from '@/stores/property'
 import api from '@/api/property'
 
+// /search에서 쓰는 동일한 지역 데이터 소스 사용
+import districtData from '@/assets/data/order-district.json'
+
 const propertyStore = usePropertyStore()
 
+// (닉네임 표기 안전장치: 없으면 경고나지 않게 기본값)
+const userName = ref('')
+
+// 필터 상태
 const favOnlySecure = ref(false)
 const favSelectedChecklist = ref('전체')
 const favRegion = ref({ city: null, district: null, parish: null })
 
+// 매물 리스트 상태
 const propertyList = ref([])
 
-// (임시) 지역 옵션
-const dummyDistricts = [
-  { sido: '서울특별시', sigungu: '서초구', eupmyeondong: '반포동' },
-  { sido: '서울특별시', sigungu: '강남구', eupmyeondong: '논현1동' },
-  { sido: '서울특별시', sigungu: '마포구', eupmyeondong: '서교동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '매산동' },
-  { sido: '경기도', sigungu: '수원시 팔달구', eupmyeondong: '인계동' },
-]
+// /search 페이지 방식의 지역 데이터 계산 (도시/군구/읍면동)
+const regionData = computed(() => {
+  const cities = [...new Set(districtData.map(d => d.sido))].map(name => ({
+    code: name,
+    name,
+  }))
 
-// 지역 옵션 계산
-const getRegionData = computed(() => {
-  const cities = [...new Set(dummyDistricts.map(d => d.sido))].map(name => ({
-    code: name,
-    name,
-  }))
-  const districts = dummyDistricts
-    .filter(d => d.sido === favRegion.value.city)
-    .map(d => d.sigungu)
-  const uniqueDistricts = [...new Set(districts)].map(name => ({
-    code: name,
-    name,
-  }))
-  const parishes = dummyDistricts
-    .filter(
-      d =>
-        d.sido === favRegion.value.city &&
-        d.sigungu === favRegion.value.district,
-    )
-    .map(d => d.eupmyeondong)
-  const uniqueParishes = [...new Set(parishes)].map(name => ({
-    code: name,
-    name,
-  }))
-  return { cities, districts: uniqueDistricts, parishes: uniqueParishes }
+  const currentCity = favRegion.value.city
+  const currentDistrict = favRegion.value.district
+
+  const districtNamesRaw = [
+    ...new Set(
+      districtData
+        .filter(d => d.sido === currentCity)
+        .map(d => (d.sigungu ?? '').trim()),
+    ),
+  ]
+  const hasRealDistricts = districtNamesRaw.some(Boolean)
+
+  const districts = hasRealDistricts
+    ? districtNamesRaw.filter(Boolean).map(name => ({ code: name, name }))
+    : [{ code: '__NONE__', name: '해당없음' }]
+
+  const parishRows = hasRealDistricts
+    ? districtData.filter(
+        d => d.sido === currentCity && d.sigungu === currentDistrict,
+      )
+    : districtData.filter(d => d.sido === currentCity)
+
+  const parishes = [
+    ...new Set(parishRows.map(d => d.eupmyeondong).filter(Boolean)),
+  ].map(name => ({ code: name, name }))
+
+  return { cities, districts, parishes }
 })
 
+// 체크리스트 규칙
 const checklistRules = {
   체크리스트A: src => src.ownerMatch === true,
   체크리스트B: src => src.mortgage === true,
@@ -57,13 +66,14 @@ const checklistRules = {
   체크리스트D: src =>
     typeof src.jeonseRate === 'number' && src.jeonseRate >= 80,
 }
+
 function deriveChecklistTags(src) {
   const tags = []
   for (const [tag, rule] of Object.entries(checklistRules)) {
     try {
       if (rule(src)) tags.push(tag)
-    } catch {
-      // 규칙 평가 중 오류는 무시
+    } catch  {
+      // intentionally ignored (eslint no-unused-vars 회피)
     }
   }
   return tags
@@ -98,10 +108,8 @@ function toCard(item) {
     totalFloors: src.totalFloors ?? '',
     direction: src.mainDirection ?? src.direction ?? '',
     address: src.roadAddress ?? src.address ?? '',
-    isFavorite: true, // 관심 목록이므로 true로 고정
+    isFavorite: true, // 관심 목록 고정
     isSafe: src.isSafe ?? src.safe ?? false,
-
-    // 필터 재료
     region: {
       city: src.region?.city ?? src.sido ?? null,
       district: src.region?.district ?? src.sigungu ?? null,
@@ -123,7 +131,6 @@ async function loadFavorites() {
     ) {
       params.checklistId = Number(favSelectedChecklist.value)
     }
-
     if (favRegion.value.city) params.sido = favRegion.value.city
     if (favRegion.value.district) params.sigungu = favRegion.value.district
     if (favRegion.value.parish) params.eupmyeondong = favRegion.value.parish
@@ -142,10 +149,11 @@ async function loadFavorites() {
   }
 }
 
-// 최초 로딩 + 찜 변경 시 재로딩
+// 최초 로드 + 즐겨찾기 변경시 갱신
 onMounted(loadFavorites)
 watch(() => propertyStore.favoriteVersion, loadFavorites)
 
+// 화면 표시용 필터링 리스트
 const filteredList = computed(() =>
   propertyList.value.filter(item => {
     if (favOnlySecure.value && !item.isSafe) return false
@@ -165,22 +173,17 @@ const filteredList = computed(() =>
 <template>
   <div class="PropertyFav">
     <div class="guide-text">
-      <p class="nickname">{{ user }}님이</p>
+      <p class="nickname" v-if="userName">{{ userName }}님이</p>
       <h1 class="title">찜하신 관심매물이에요</h1>
     </div>
 
     <!-- 필터바 -->
     <FilterBarFavorite
-      :checklist-items="[
-        '체크리스트A',
-        '체크리스트B',
-        '체크리스트C',
-        '체크리스트D',
-      ]"
+      :checklist-items="['체크리스트A', '체크리스트B', '체크리스트C', '체크리스트D']"
       :selected="favSelectedChecklist"
       :onlySecure="favOnlySecure"
       :region="favRegion"
-      :region-data="getRegionData"
+      :region-data="regionData"
       @update:selected="val => (favSelectedChecklist = val)"
       @update:onlySecure="val => (favOnlySecure = val)"
       @update:region="val => (favRegion = val)"
@@ -214,7 +217,7 @@ const filteredList = computed(() =>
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; // 수평 왼쪽 정렬
+  align-items: flex-start;
   text-align: left;
   margin-bottom: 30px;
 }
