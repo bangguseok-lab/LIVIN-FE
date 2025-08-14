@@ -94,7 +94,7 @@ const handleRegionUpdate = region => {
       @click="e => togglePanel(e, 'region')"
     >
       지역별
-      <!-- <span class="arrow-down">⌄</span> -->
+      <span class="arrow-down">▼</span>
     </button>
 
     <!-- 체크리스트 버튼들 -->
