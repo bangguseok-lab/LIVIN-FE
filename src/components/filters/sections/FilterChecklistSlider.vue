@@ -109,7 +109,9 @@ const handleRegionUpdate = region => {
   border-bottom: rem(1px) solid var(--whitish);
   position: relative;
 
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   button {
     padding: rem(6px) rem(14px);
@@ -129,15 +131,28 @@ const handleRegionUpdate = region => {
 
     &.dropdown-button {
       font-weight: 600;
-      color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
+      color: var(--grey);
+      border-color: var(--grey);
+      position: relative; // ::after 위치 기준
+      padding: 0 rem(24px) 0 rem(12px);
 
-    .arrow-down { margin-left: rem(4px); }
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: rem(8px);
+        transform: translateY(-50%) rotate(45deg);
+        width: rem(6px);
+        height: rem(6px);
+        border: solid #b3b3b3;
+        border-width: 0 rem(1px) rem(1px) 0;
+        pointer-events: none;
+      }
+    }
   }
 
   .dropdown-panel {
-    position: fixed;   /* 화면 중앙 정렬 계산대로 표시 */
+    position: fixed;
     top: 0;
     left: 0;
     z-index: 9999;
