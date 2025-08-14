@@ -35,6 +35,9 @@ export const usePropertyStore = defineStore('property', {
       roomCnt: '', // 방 개수
       bathRoomCnt: '', // 욕실 개수
       managementList: [], // 관리비 항목들[{ managementType: '수도료', managementFee: '20000' }, ...]
+      loan: '', // 대출 유무
+      pet: '', // 반려동물 여부
+      parking: '', // 주차 가능 여부
     },
   }),
   actions: {
@@ -128,6 +131,9 @@ export const usePropertyStore = defineStore('property', {
         roomCnt: '', // 방 개수
         bathRoomCnt: '', // 욕실 개수
         managementList: [], // 관리비 항목들
+        loan: '', // 대출 유무
+        pet: '', // 반려동물 여부
+        parking: '', // 주차 가능 여부
       }
     },
     async fetchPropertyDetails(params) {
