@@ -8,9 +8,6 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/free-mode'
-import sample1 from '../../assets/images/home/sample-img1.png'
-import sample2 from '../../assets/images/home/sample-img2.png'
-import sample3 from '../../assets/images/home/sample-img3.png'
 import badge from '../../assets/images/landing/SecureBadge.png'
 import FavoriteButton from '@/components/common/buttons/FavoriteButton.vue'
 import SafePropertyModal from '@/components/modals/SafePropertyModal.vue'
@@ -77,8 +74,6 @@ const chunkedOptions = computed(() => {
   }
   return chunks
 })
-
-const imgUrls = [sample1, sample2, sample3]
 const property = usePropertyStore()
 const modules = [Navigation, Pagination]
 
@@ -157,6 +152,7 @@ const formatPrice = (price, isRent) => {
 const formatMonthlyDetail = price => {
   if (price === null || price === undefined || price === '')
     return '가격 정보 없음'
+  if (price === '쓴 만큼') return price
   const n = Number(price)
   if (!Number.isFinite(n)) return '가격 정보 없음'
 
@@ -199,15 +195,43 @@ const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
 const calculate = computed(() => {
   const propertyDetails = property.getPropertyDetails
   const total = propertyDetails.management?.reduce((acc, crr) => {
-    if (crr.managementFee !== null && crr.managementFee !== undefined) {
-      return acc + parseInt(crr.managementFee, 10)
+    if (crr && crr.managementFee !== null && crr.managementFee !== undefined) {
+      const fee = crr.managementFee
+
+      if (fee !== '쓴 만큼') {
+        const parsedFee = parseInt(fee, 10)
+        if (!isNaN(parsedFee)) {
+          return acc + parsedFee
+        }
+      }
     }
     return acc
   }, 0)
+
   if (total === 0) {
+    const hasOnlyVariableFees = managementList.every(
+      m => m && m.managementFee === '쓴 만큼',
+    )
+    if (hasOnlyVariableFees) {
+      return '별도 부과'
+    }
     return '관련 정보 없음'
   }
-  return '매월' + formatMonthlyDetail(total)
+
+  return '매월 ' + formatMonthlyDetail(total)
+})
+
+const sortedImgUrls = computed(() => {
+  const imgUrls = property.getPropertyDetails?.imgUrls || []
+  return [...imgUrls].sort((a, b) => {
+    if (a.represent && !b.represent) {
+      return -1
+    }
+    if (!a.represent && b.represent) {
+      return 1
+    }
+    return 0
+  })
 })
 </script>
 
@@ -222,8 +246,8 @@ const calculate = computed(() => {
         :modules="modules"
         class="mySwiper"
       >
-        <swiper-slide v-for="(img, index) in imgUrls" :key="index">
-          <img :src="img" class="property-img" alt="매물 이미지" />
+        <swiper-slide v-for="(img, index) in sortedImgUrls" :key="index">
+          <img :src="img.imageUrl" class="property-img" alt="매물 이미지" />
         </swiper-slide>
       </swiper>
     </div>
@@ -319,12 +343,6 @@ const calculate = computed(() => {
             <div class="content-details-row-title">상세 주소</div>
             <div class="content-details-row-content">
               {{ property.getPropertyDetails.detailAddress }}
-            </div>
-          </div>
-          <div class="content-details-row">
-            <div class="content-details-row-title">종류</div>
-            <div class="content-details-row-content">
-              {{ property.getPropertyDetails.propertyType }}
             </div>
           </div>
           <div class="content-details-row">
@@ -471,6 +489,21 @@ const calculate = computed(() => {
       <div class="content-box">
         <div class="content-title-row">위치 및 주변 정보</div>
         <div id="kakaomap" class="content-map"></div>
+      </div>
+    </div>
+    <div class="content-box">
+      <div class="content-title-row">임대인 정보</div>
+      <div class="content-details-row">
+        <div class="content-details-row-title">이름</div>
+        <div class="content-details-row-content">
+          {{ property.getPropertyDetails.land?.name }}
+        </div>
+      </div>
+      <div class="content-details-row">
+        <div class="content-details-row-title">전화번호</div>
+        <div class="content-details-row-content">
+          {{ property.getPropertyDetails.land?.phone }}
+        </div>
       </div>
     </div>
     <div class="content-box">
