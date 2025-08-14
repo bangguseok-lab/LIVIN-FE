@@ -53,6 +53,26 @@ const userAPI = {
     const { data } = await apiClient.get('/users/nickname')
     return data.nickname
   },
+
+  // 9. 보증금 조회
+  async fetchDeposit() {
+    const { data } = await apiClient.get('/users/deposit')
+    // 기대 응답 예: { deposit: number|null, updatedAt?: string }
+    return data.data
+  },
+
+  // 11. 보증금 저장/수정 - PUT
+  async updateDeposit(payload) {
+    // payload 예: { deposit: number }
+    const { data } = await apiClient.put('/users/deposit', payload)
+    return data.data
+  },
+
+  // 12. 보증금 삭제 - DELETE
+  async deleteDeposit() {
+    const { data } = await apiClient.delete('/users/deposit')
+    return data.data
+  },
 }
 
 export default userAPI

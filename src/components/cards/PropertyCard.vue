@@ -32,19 +32,6 @@ const props = defineProps({
   address: String,
   isFavorite: Boolean,
   isSafe: Boolean,
-  mortgage: Boolean,
-  ownerMatch: Boolean,
-  illegalBuilding: Boolean,
-  jeonseRate: Number,
-})
-
-const propertyInfo = computed(() => {
-  return {
-    mortgage: props.mortgage,
-    ownerMatch: props.ownerMatch,
-    illegalBuilding: props.illegalBuilding,
-    jeonseRate: props.jeonseRate,
-  }
 })
 
 // props에서 초기 상태를 가져와 ref로 설정
@@ -156,10 +143,9 @@ function goToDetail() {
 
 <template>
   <SafePropertyModal
-    v-if="modalVisible"
-    :modelValue="modalVisible"
-    :propertyInfo="propertyInfo"
-    @update:modelValue="modalVisible = $event"
+    v-model="modalVisible"
+    :property-id="propertyId"
+    @cta="router.push({ name: 'DepositInput' })"
   />
   <div class="property-card" @click="goToDetail()">
     <div class="image-wrapper">
@@ -172,13 +158,19 @@ function goToDetail() {
 
       <!-- 안심 매물 뱃지 -->
       <div class="property-card-badge">
-        <img
-          v-if="isSafe"
-          :src="badge"
-          alt="안심매물 뱃지"
-          class="badge-img"
+        <button
+          type="button"
+          class="badge-btn"
           @click.stop="modalVisible = true"
-        />
+          aria-label="안심매물 리포트 열기"
+        >
+          <img
+            v-if="isSafe"
+            :src="badge"
+            alt="안심매물 뱃지"
+            class="badge-img"
+          />
+        </button>
       </div>
     </div>
 
@@ -242,7 +234,10 @@ function goToDetail() {
   color: var(--whitish);
   text-align: center;
 }
-.property-card-badge {
+.property-card-badge .badge-btn {
+  background: transparent;
+  border: 0;
+  padding: 0;
   position: absolute;
   top: 6px;
   left: 2px;
@@ -250,6 +245,7 @@ function goToDetail() {
   z-index: 2;
   width: 50px;
   height: auto;
+  display: block;
 }
 
 .badge-img {

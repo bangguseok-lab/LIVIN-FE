@@ -14,7 +14,8 @@ const router = useRouter()
 const userStore = useUserStore()
 
 // Store의 상태를 직접 참조 (반응성을 유지하기 위해 storeToRefs 사용)
-const { userInfo } = storeToRefs(userStore)
+const { userInfo, formattedDeposit, depositLoading, depositAmount } =
+  storeToRefs(userStore)
 const nickname = computed(() => userInfo.value?.data?.nickname || '닉네임')
 const name = computed(() => userInfo.value?.data?.name || '이름')
 const birth = computed(() => {
@@ -154,6 +155,14 @@ function handleManageClick(buttonTitle) {
   }
 }
 
+const goToDepositInput = () => {
+  router.push({ name: 'DepositInput' }) // 라우터에 등록한 이름 사용
+}
+
+const hasDeposit = computed(
+  () => typeof depositAmount.value === 'number' && depositAmount.value > 0,
+)
+
 function startEdit(field) {
   editingField.value = field
   // 수정 시작 시 유효성 상태 초기화
@@ -186,6 +195,11 @@ async function onProfileImageChange(imgNumber) {
 // ✅ 마운트 시 사용자 정보 및 프로필 이미지 불러오기
 onMounted(async () => {
   await userStore.fetchUserInfo()
+  try {
+    await userStore.fetchDeposit()
+  } catch (e) {
+    /* noop */
+  }
 })
 </script>
 
@@ -299,6 +313,17 @@ onMounted(async () => {
             {{ editingField === 'phone' ? '수정완료' : '수정하기' }}
           </button>
         </li>
+        <li>
+          <span class="label">보증금</span>
+          <span class="value">
+            <template v-if="depositLoading">불러오는 중…</template>
+            <template v-else-if="hasDeposit">{{ formattedDeposit }}</template>
+            <template v-else>설정하지 않음</template>
+          </span>
+          <button class="edit-btn" @click="goToDepositInput">
+            {{ hasDeposit ? '수정하기' : '설정하기' }}
+          </button>
+        </li>
       </ul>
     </section>
 
@@ -324,6 +349,21 @@ onMounted(async () => {
       >
         <div class="top-text">{{ manageButton.desc }}</div>
         <div class="bottom-text">{{ manageButton.title }}</div>
+      </Buttons>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- 보증금 설정 -->
+    <section class="deposit-section">
+      <Buttons
+        v-if="role === 'TENANT'"
+        type="xl"
+        @click="goToDepositInput"
+        class="set-deposit-btn"
+      >
+        <div class="top-text">더 안전한 매물을 원한다면?</div>
+        <div class="bottom-text">내 보증금 설정하기</div>
       </Buttons>
     </section>
 
@@ -555,6 +595,17 @@ onMounted(async () => {
 }
 
 .create-property-btn {
+  height: rem(100px);
+  margin-bottom: 1rem;
+}
+
+.deposit-section {
+  padding: 0 rem(50px);
+  margin-top: rem(20px);
+  margin-bottom: rem(20px);
+}
+
+.set-deposit-btn {
   height: rem(100px);
   margin-bottom: 1rem;
 }

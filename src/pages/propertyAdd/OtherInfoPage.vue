@@ -15,7 +15,9 @@ const handleNextClick = () => {
 
 <template>
   <div class="OtherInfoPage">
-    <div class="otherInfo-container"></div>
+    <div class="otherInfo-container">
+      
+    </div>
     <div class="button-wrapper">
       <Buttons type="default" label="이전" @click="handlePrevClick" class="prevBtn" />
       <Buttons type="default" label="다음" @click="handleNextClick" class="nextBtn" />

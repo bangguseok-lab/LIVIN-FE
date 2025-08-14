@@ -45,7 +45,7 @@ export const usePropertyStore = defineStore('property', {
       this.favLoading = true
       this.lastFavParams = params
       try {
-        const res = await api.getFavorite(params)
+        const res = await api.getFavProperties(params)
         this.favoriteProperties = Array.isArray(res)
           ? res
           : Array.isArray(res?.content)
