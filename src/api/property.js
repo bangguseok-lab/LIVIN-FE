@@ -59,4 +59,13 @@ export default {
       console.error('부동산 고유번호 조회 과정에서 에러가 발생했습니다.', error)
     }
   },
+  // 위험도 분석 요청
+  async postRiskAnalysis(body) {
+    try {
+      const { data } = await apiClient.post('/risk/risk-analysis', body)
+      return data
+    } catch (error) {
+      console.error('위험도 분석 과정에서 에러가 발생했습니다.', error)
+    }
+  },
 }

@@ -25,6 +25,9 @@ export const usePropertyStore = defineStore('property', {
       imageFiles: '', // 업로드 사진들
       imgRepresentList: '', // 대표이미지 지정을 위한 리스트
       selectedIndex: '', // 대표이미지로 선택된 이미지 인덱스
+      buildingNo: '', // 본번
+      buildingSubNo: '', // 부번
+      riskAnalyzed: false, // 분석 완료 여부
     },
   }),
   actions: {
@@ -90,6 +93,9 @@ export const usePropertyStore = defineStore('property', {
         imageFiles: '', // 업로드 사진들
         imgRepresentList: '', // 대표이미지 지정을 위한 리스트
         selectedIndex: '', // 대표이미지로 선택된 이미지 인덱스
+        buildingNo: '', // 본번
+        buildingSubNo: '', // 부번
+        riskAnalyzed: false, // 분석 완료 여부
       }
     },
     async fetchPropertyDetails(params) {
