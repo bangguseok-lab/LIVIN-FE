@@ -21,7 +21,6 @@ import GasStoveIcon from '@/assets/icons/property/gas-stove.svg'
 import InductionIcon from '@/assets/icons/property/induction-stove.svg'
 import BedIcon from '@/assets/icons/property/bed.svg'
 import { useRoute } from 'vue-router'
-import api from '@/api/property'
 import EditButton from '@/components/common/buttons/edit-btn.vue'
 
 const optionMap = {
@@ -38,11 +37,9 @@ const optionMap = {
 const isPriceEditing = ref(false)
 const isDescriptionEditing = ref(false)
 
-// ✨ 시작: 수정 모드에서 사용할 보증금과 월세 ref 추가
 const editableDeposit = ref('')
 const editableRent = ref('')
 
-// ✨ 보증금 포맷팅을 위한 computed
 const formattedEditableDeposit = computed({
   get() {
     if (!editableDeposit.value) return ''
@@ -55,7 +52,6 @@ const formattedEditableDeposit = computed({
   },
 })
 
-// ✨ 월세 포맷팅을 위한 computed
 const formattedEditableRent = computed({
   get() {
     if (!editableRent.value) return ''
@@ -67,7 +63,6 @@ const formattedEditableRent = computed({
     editableRent.value = value.replace(/,/g, '')
   },
 })
-// ✨ 끝
 
 const { kakao } = window
 const route = useRoute()
@@ -212,30 +207,24 @@ const calculate = computed(() => {
   return '매월' + formatMonthlyDetail(total)
 })
 
-// ✨ 시작: 전세/월세 분기 처리 로직으로 수정
 const handleEditSection = section => {
   if (section === 'price') {
     const details = property.getPropertyDetails
 
-    // 수정 완료 시
     if (isPriceEditing.value) {
       if (details.transactionType === '월세') {
         details.price = `${editableDeposit.value}/${editableRent.value}`
       } else {
-        // 전세의 경우
         details.price = editableDeposit.value
       }
-    }
-    // 수정 시작 시
-    else {
+    } else {
       if (details.transactionType === '월세') {
         const [deposit, rent] = String(details.price).split('/')
         editableDeposit.value = deposit
         editableRent.value = rent
       } else {
-        // 전세의 경우
         editableDeposit.value = details.price
-        editableRent.value = '' // 월세 값은 초기화
+        editableRent.value = ''
       }
     }
     isPriceEditing.value = !isPriceEditing.value
@@ -243,7 +232,6 @@ const handleEditSection = section => {
     isDescriptionEditing.value = !isDescriptionEditing.value
   }
 }
-// ✨ 끝
 </script>
 
 <template>
@@ -796,5 +784,27 @@ const handleEditSection = section => {
   color: var(--primary-color);
   font-size: rem(16px);
   padding: 0 rem(8px) 0 rem(3px);
+}
+
+@media (min-width: 381px) and (max-width: 768px) {
+  .option-item {
+    width: 25%;
+  }
+}
+
+@media (max-width: 380px) {
+  .option-item {
+    width: 50%;
+  }
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+.col-sm-6,
+.col-md-3 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 </style>
