@@ -1,5 +1,7 @@
 <script setup>
 import { usePropertyStore } from '@/stores/property'
+import { useRegisteredPropertyStore } from '@/stores/registeredProperty'
+import { useUserStore } from '@/stores/user'
 import { onMounted, computed, ref, watch, nextTick } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Pagination } from 'swiper/modules'
@@ -7,9 +9,6 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/free-mode'
-import sample1 from '../../assets/images/home/sample-img1.png'
-import sample2 from '../../assets/images/home/sample-img2.png'
-import sample3 from '../../assets/images/home/sample-img3.png'
 import badge from '../../assets/images/landing/SecureBadge.png'
 
 import WasherIcon from '@/assets/icons/property/washing-machine.svg'
@@ -98,6 +97,18 @@ const { kakao } = window
 const route = useRoute()
 const propertyId = route.params.id
 
+const property = usePropertyStore()
+const registeredPropertyStore = useRegisteredPropertyStore()
+const userStore = useUserStore()
+
+const landlordInfo = computed(() => {
+  return userStore.userInfo?.data || null
+})
+
+const propertyImages = computed(() => {
+  return property.getPropertyDetails?.propertyImageVOList || []
+})
+
 const chunkedOptions = computed(() => {
   const options = property.getPropertyDetails?.options || []
   const mappedOptions = options
@@ -120,8 +131,6 @@ const chunkedOptions = computed(() => {
   return chunks
 })
 
-const imgUrls = [sample1, sample2, sample3]
-const property = usePropertyStore()
 const modules = [Navigation, Pagination]
 
 const loadKakaoMap = address => {
@@ -151,8 +160,12 @@ const loadKakaoMap = address => {
     }
   })
 }
+
 onMounted(async () => {
-  await property.fetchPropertyDetails(propertyId)
+  await Promise.all([
+    property.fetchPropertyDetails(propertyId),
+    userStore.fetchUserInfo(),
+  ])
 
   loadKakaoMap(property.getPropertyDetails.building.roadAddress)
 })
@@ -227,7 +240,6 @@ const formattedPrice = computed(() => {
 const calculate = computed(() => {
   const propertyDetails = property.getPropertyDetails
   const total = propertyDetails.management?.reduce((acc, crr) => {
-    // isNaN 체크 추가
     const fee = parseInt(crr.managementFee, 10)
     return acc + (isNaN(fee) ? 0 : fee)
   }, 0)
@@ -237,15 +249,31 @@ const calculate = computed(() => {
   return '매월' + formatMonthlyDetail(total)
 })
 
-const handleEditSection = section => {
-  if (section === 'price') {
-    const details = property.getPropertyDetails
+const handleEditSection = async section => {
+  const details = property.getPropertyDetails
 
+  if (section === 'price') {
     if (isPriceEditing.value) {
-      if (details.transactionType === '월세') {
-        details.price = `${editableDeposit.value}/${editableRent.value}`
-      } else {
-        details.price = editableDeposit.value
+      try {
+        const payload = {
+          propertyId: propertyId,
+          description: details.description,
+          transactionType: details.transactionType,
+        }
+
+        if (details.transactionType === '월세') {
+          payload.monthlyDeposit = editableDeposit.value
+          payload.monthlyRent = editableRent.value
+        } else if (details.transactionType === '전세') {
+          payload.jeonseDeposit = editableDeposit.value
+        }
+
+        await registeredPropertyStore.updateProperty(propertyId, payload)
+        await property.fetchPropertyDetails(propertyId)
+
+        isPriceEditing.value = false
+      } catch (error) {
+        console.error('가격 정보 수정 실패:', error)
       }
     } else {
       if (details.transactionType === '월세') {
@@ -256,10 +284,34 @@ const handleEditSection = section => {
         editableDeposit.value = details.price
         editableRent.value = ''
       }
+      isPriceEditing.value = true
     }
-    isPriceEditing.value = !isPriceEditing.value
   } else if (section === 'description') {
-    isDescriptionEditing.value = !isDescriptionEditing.value
+    if (isDescriptionEditing.value) {
+      try {
+        const payload = {
+          propertyId: propertyId,
+          description: details.description,
+          transactionType: details.transactionType,
+        }
+        if (details.transactionType === '월세') {
+          const [deposit, rent] = String(details.price).split('/')
+          payload.monthlyDeposit = deposit
+          payload.monthlyRent = rent
+        } else if (details.transactionType === '전세') {
+          payload.jeonseDeposit = details.price
+        }
+
+        await registeredPropertyStore.updateProperty(propertyId, payload)
+        await property.fetchPropertyDetails(propertyId)
+
+        isDescriptionEditing.value = false
+      } catch (error) {
+        console.error('기타 정보 수정 실패:', error)
+      }
+    } else {
+      isDescriptionEditing.value = true
+    }
   }
 }
 </script>
@@ -275,8 +327,8 @@ const handleEditSection = section => {
         :modules="modules"
         class="mySwiper"
       >
-        <swiper-slide v-for="(img, index) in imgUrls" :key="index">
-          <img :src="img" class="property-img" alt="매물 이미지" />
+        <swiper-slide v-for="image in propertyImages" :key="image.imageUrl">
+          <img :src="image.imageUrl" class="property-img" alt="매물 이미지" />
         </swiper-slide>
       </swiper>
     </div>
@@ -588,13 +640,13 @@ const handleEditSection = section => {
         <div class="content-details-row">
           <div class="content-details-row-title">이름</div>
           <div class="content-details-row-content">
-            {{ property.getPropertyDetails.land?.name }}
+            {{ landlordInfo?.name }}
           </div>
         </div>
         <div class="content-details-row">
           <div class="content-details-row-title">전화번호</div>
           <div class="content-details-row-content">
-            {{ property.getPropertyDetails.land?.phone }}
+            {{ landlordInfo?.phone }}
           </div>
         </div>
       </div>
