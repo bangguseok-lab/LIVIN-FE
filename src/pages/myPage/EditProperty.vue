@@ -910,7 +910,7 @@ const handleEditSection = async section => {
   font-size: rem(11px);
   color: var(--grey);
   margin-top: rem(1px);
-  margin-bottom: rem(16px);
+  margin-bottom: rem(32px);
 }
 
 .input-wrapper {
