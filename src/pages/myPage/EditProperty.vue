@@ -1,6 +1,6 @@
 <script setup>
 import { usePropertyStore } from '@/stores/property'
-import { onMounted, computed, ref } from 'vue'
+import { onMounted, computed, ref, watch, nextTick } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
@@ -63,6 +63,36 @@ const formattedEditableRent = computed({
     editableRent.value = value.replace(/,/g, '')
   },
 })
+
+const depositInput = ref(null)
+const rentInput = ref(null)
+const depositHelper = ref(null)
+const rentHelper = ref(null)
+const rentUnitLabel = ref(null)
+
+const adjustInputWidth = () => {
+  nextTick(() => {
+    if (depositInput.value && depositHelper.value) {
+      const depositWidth = depositHelper.value.offsetWidth || 60
+      depositInput.value.style.width = `${depositWidth + 2}px`
+    }
+    if (rentInput.value && rentHelper.value) {
+      const rentWidth = rentHelper.value.offsetWidth || 60
+      rentInput.value.style.width = `${rentWidth + 2}px`
+      if (rentUnitLabel.value) {
+        rentUnitLabel.value.style.left = `${rentWidth + 4}px`
+      }
+    }
+  })
+}
+
+watch(isPriceEditing, isEditing => {
+  if (isEditing) {
+    adjustInputWidth()
+  }
+})
+watch(formattedEditableDeposit, () => adjustInputWidth())
+watch(formattedEditableRent, () => adjustInputWidth())
 
 const { kakao } = window
 const route = useRoute()
@@ -308,26 +338,45 @@ const handleEditSection = section => {
                   v-if="property.getPropertyDetails.transactionType === '월세'"
                   class="editing-monthly-wrap"
                 >
-                  <input
-                    type="text"
-                    v-model="formattedEditableDeposit"
-                    class="editing-input"
-                    placeholder="보증금"
-                  />
+                  <div class="input-wrapper">
+                    <input
+                      ref="depositInput"
+                      type="text"
+                      v-model="formattedEditableDeposit"
+                      class="editing-input"
+                      placeholder="보증금"
+                    />
+                    <span ref="depositHelper" class="input-width-helper">{{
+                      formattedEditableDeposit
+                    }}</span>
+                  </div>
                   <span class="price-separator">/</span>
-                  <input
-                    type="text"
-                    v-model="formattedEditableRent"
-                    class="editing-input"
-                    placeholder="월세"
-                  />
+                  <div class="input-wrapper">
+                    <input
+                      ref="rentInput"
+                      type="text"
+                      v-model="formattedEditableRent"
+                      class="editing-input"
+                      placeholder="월세"
+                    />
+                    <span ref="rentHelper" class="input-width-helper">{{
+                      formattedEditableRent
+                    }}</span>
+                    <span class="unit-label" ref="rentUnitLabel">(만)</span>
+                  </div>
                 </div>
                 <template v-else>
-                  <input
-                    type="text"
-                    v-model="formattedEditableDeposit"
-                    class="editing-input"
-                  />
+                  <div class="input-wrapper">
+                    <input
+                      ref="depositInput"
+                      type="text"
+                      v-model="formattedEditableDeposit"
+                      class="editing-input"
+                    />
+                    <span ref="depositHelper" class="input-width-helper">{{
+                      formattedEditableDeposit
+                    }}</span>
+                  </div>
                 </template>
               </template>
               <template v-else>
@@ -742,15 +791,15 @@ const handleEditSection = section => {
 .editing-text {
   color: var(--primary-color) !important;
 }
+
 .editing-input {
-  font-size: rem(15px);
   font-weight: var(--font-weight-md);
   color: var(--primary-color);
   border: none;
   background-color: transparent;
   padding: 0;
-  width: rem(110px);
   font-size: rem(16px);
+  min-width: rem(60px);
 }
 .editing-input:focus {
   outline: none;
@@ -810,6 +859,30 @@ const handleEditSection = section => {
   color: var(--grey);
   margin-top: rem(1px);
   margin-bottom: rem(16px);
+}
+
+.input-wrapper {
+  display: inline-block;
+  position: relative;
+}
+.input-width-helper {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  visibility: hidden;
+  white-space: pre;
+
+  font-weight: var(--font-weight-md);
+  font-size: rem(16px);
+}
+
+.unit-label {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-54%);
+  color: var(--primary-color);
+  font-size: rem(16px);
+  pointer-events: none;
 }
 
 @media (min-width: 381px) and (max-width: 768px) {
