@@ -36,7 +36,38 @@ const optionMap = {
 }
 
 const isPriceEditing = ref(false)
-const isDescriptionEditing = ref(false) // 기타 정보 수정 모드 상태 추가
+const isDescriptionEditing = ref(false)
+
+// ✨ 시작: 수정 모드에서 사용할 보증금과 월세 ref 추가
+const editableDeposit = ref('')
+const editableRent = ref('')
+
+// ✨ 보증금 포맷팅을 위한 computed
+const formattedEditableDeposit = computed({
+  get() {
+    if (!editableDeposit.value) return ''
+    return Number(
+      String(editableDeposit.value).replace(/[^0-9]/g, ''),
+    ).toLocaleString()
+  },
+  set(value) {
+    editableDeposit.value = value.replace(/,/g, '')
+  },
+})
+
+// ✨ 월세 포맷팅을 위한 computed
+const formattedEditableRent = computed({
+  get() {
+    if (!editableRent.value) return ''
+    return Number(
+      String(editableRent.value).replace(/[^0-9]/g, ''),
+    ).toLocaleString()
+  },
+  set(value) {
+    editableRent.value = value.replace(/,/g, '')
+  },
+})
+// ✨ 끝
 
 const { kakao } = window
 const route = useRoute()
@@ -162,7 +193,7 @@ const formattedPrice = computed(() => {
   if (transactionType === '전세') {
     return formatPrice(price, false)
   } else if (transactionType === '월세') {
-    const [deposit, rent] = price.split('/')
+    const [deposit, rent] = String(price).split('/')
     return `${formatPrice(deposit, false)}/${formatPrice(rent, true)}`
   }
   return '가격 정보 없음'
@@ -181,13 +212,38 @@ const calculate = computed(() => {
   return '매월' + formatMonthlyDetail(total)
 })
 
+// ✨ 시작: 전세/월세 분기 처리 로직으로 수정
 const handleEditSection = section => {
   if (section === 'price') {
+    const details = property.getPropertyDetails
+
+    // 수정 완료 시
+    if (isPriceEditing.value) {
+      if (details.transactionType === '월세') {
+        details.price = `${editableDeposit.value}/${editableRent.value}`
+      } else {
+        // 전세의 경우
+        details.price = editableDeposit.value
+      }
+    }
+    // 수정 시작 시
+    else {
+      if (details.transactionType === '월세') {
+        const [deposit, rent] = String(details.price).split('/')
+        editableDeposit.value = deposit
+        editableRent.value = rent
+      } else {
+        // 전세의 경우
+        editableDeposit.value = details.price
+        editableRent.value = '' // 월세 값은 초기화
+      }
+    }
     isPriceEditing.value = !isPriceEditing.value
   } else if (section === 'description') {
     isDescriptionEditing.value = !isDescriptionEditing.value
   }
 }
+// ✨ 끝
 </script>
 
 <template>
@@ -260,11 +316,31 @@ const handleEditSection = section => {
               :class="{ 'editing-text': isPriceEditing }"
             >
               <template v-if="isPriceEditing">
-                <input
-                  type="text"
-                  v-model="property.getPropertyDetails.price"
-                  class="editing-input"
-                />
+                <div
+                  v-if="property.getPropertyDetails.transactionType === '월세'"
+                  class="editing-monthly-wrap"
+                >
+                  <input
+                    type="text"
+                    v-model="formattedEditableDeposit"
+                    class="editing-input"
+                    placeholder="보증금"
+                  />
+                  <span class="price-separator">/</span>
+                  <input
+                    type="text"
+                    v-model="formattedEditableRent"
+                    class="editing-input"
+                    placeholder="월세"
+                  />
+                </div>
+                <template v-else>
+                  <input
+                    type="text"
+                    v-model="formattedEditableDeposit"
+                    class="editing-input"
+                  />
+                </template>
               </template>
               <template v-else>
                 {{ formattedPrice }}
@@ -666,7 +742,7 @@ const handleEditSection = section => {
   border: none;
   background-color: transparent;
   padding: 0;
-  width: 100%;
+  width: rem(110px);
   font-size: rem(16px);
 }
 .editing-input:focus {
@@ -708,5 +784,17 @@ const handleEditSection = section => {
 
 .editing-textarea-no-border:focus {
   outline: none;
+}
+
+.editing-monthly-wrap {
+  display: flex;
+  align-items: center;
+  gap: rem(1px);
+}
+
+.price-separator {
+  color: var(--primary-color);
+  font-size: rem(16px);
+  padding: 0 rem(8px) 0 rem(3px);
 }
 </style>
