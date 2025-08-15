@@ -5,7 +5,6 @@ import { useUserStore } from '@/stores/user'
 import { useRegisteredPropertyStore } from '@/stores/registeredProperty' // 새로 만든 스토어 임포트
 
 import PropertyManageCard from '@/components/cards/PropertyManageCard.vue'
-import Navbar from '@/components/layouts/Navbar.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -107,8 +106,6 @@ onMounted(() => {
       </div>
     </div>
   </div>
-
-  <Navbar />
 
   <div v-if="isModalVisible" class="modal-overlay">
     <div class="modal-content">

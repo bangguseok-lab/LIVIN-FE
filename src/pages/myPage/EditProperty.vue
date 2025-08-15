@@ -3,7 +3,6 @@ import { usePropertyStore } from '@/stores/property'
 import { onMounted, computed, ref } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Pagination } from 'swiper/modules'
-import Navbar from '@/components/layouts/Navbar.vue'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
@@ -496,8 +495,6 @@ const handleEditSection = section => {
         </div>
       </div>
     </div>
-
-    <Navbar />
   </div>
 </template>
 
