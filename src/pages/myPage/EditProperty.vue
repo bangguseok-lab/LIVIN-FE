@@ -532,6 +532,25 @@ const handleEditSection = section => {
       </div>
 
       <div class="content-box">
+        <div class="content-title-row">임대인 정보</div>
+        <div class="info-subtitle">
+          임대인 정보는 마이페이지에서 변경할 수 있어요
+        </div>
+        <div class="content-details-row">
+          <div class="content-details-row-title">이름</div>
+          <div class="content-details-row-content">
+            {{ property.getPropertyDetails.land?.name }}
+          </div>
+        </div>
+        <div class="content-details-row">
+          <div class="content-details-row-title">전화번호</div>
+          <div class="content-details-row-content">
+            {{ property.getPropertyDetails.land?.phone }}
+          </div>
+        </div>
+      </div>
+
+      <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">기타 정보</div>
           <button
@@ -784,6 +803,13 @@ const handleEditSection = section => {
   color: var(--primary-color);
   font-size: rem(16px);
   padding: 0 rem(8px) 0 rem(3px);
+}
+
+.info-subtitle {
+  font-size: rem(11px);
+  color: var(--grey);
+  margin-top: rem(1px);
+  margin-bottom: rem(16px);
 }
 
 @media (min-width: 381px) and (max-width: 768px) {
