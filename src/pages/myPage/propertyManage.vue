@@ -55,9 +55,9 @@ onMounted(() => {
 <template>
   <div class="PropertyManage">
     <div class="propertyManage-title">
-      <p>
+      <p class="greeting-line">
         <span class="nickname">{{ nickname }}</span
-        >님이
+        ><span class="suffix">님이</span>
       </p>
       <p>등록하신 매물 정보예요</p>
     </div>
@@ -130,9 +130,16 @@ onMounted(() => {
   margin-bottom: 2rem;
 }
 
+.greeting-line {
+  font-size: 1.3rem;
+}
+.suffix {
+  font-weight: 400;
+}
+
 .nickname {
   color: var(--primary-color);
-  font-weight: 800; /* 👈 이 부분을 추가했습니다 */
+  font-weight: 800;
 }
 
 p {
@@ -185,7 +192,6 @@ p {
   line-height: 1.9;
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
