@@ -83,7 +83,7 @@ const landlordMenus = [
     alt: '매물 등록 아이콘',
   },
   {
-    path: '/property/manage',
+    path: '/propertymanage',
     icon: ManageIcon,
     activeIcon: ManageIconActive,
     alt: '매물 관리 아이콘',

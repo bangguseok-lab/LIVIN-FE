@@ -1,16 +1,14 @@
 <script setup>
 import { usePropertyStore } from '@/stores/property'
-import { onMounted, computed, ref } from 'vue'
+import { useRegisteredPropertyStore } from '@/stores/registeredProperty'
+import { useUserStore } from '@/stores/user'
+import { onMounted, computed, ref, watch, nextTick } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Pagination } from 'swiper/modules'
-import Navbar from '@/components/layouts/Navbar.vue'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/free-mode'
-import sample1 from '../../assets/images/home/sample-img1.png'
-import sample2 from '../../assets/images/home/sample-img2.png'
-import sample3 from '../../assets/images/home/sample-img3.png'
 import badge from '../../assets/images/landing/SecureBadge.png'
 
 import WasherIcon from '@/assets/icons/property/washing-machine.svg'
@@ -22,7 +20,6 @@ import GasStoveIcon from '@/assets/icons/property/gas-stove.svg'
 import InductionIcon from '@/assets/icons/property/induction-stove.svg'
 import BedIcon from '@/assets/icons/property/bed.svg'
 import { useRoute } from 'vue-router'
-import api from '@/api/property'
 import EditButton from '@/components/common/buttons/edit-btn.vue'
 
 const optionMap = {
@@ -37,11 +34,80 @@ const optionMap = {
 }
 
 const isPriceEditing = ref(false)
-const isDescriptionEditing = ref(false) // 기타 정보 수정 모드 상태 추가
+const isDescriptionEditing = ref(false)
+
+const editableDeposit = ref('')
+const editableRent = ref('')
+
+const formattedEditableDeposit = computed({
+  get() {
+    if (!editableDeposit.value) return ''
+    return Number(
+      String(editableDeposit.value).replace(/[^0-9]/g, ''),
+    ).toLocaleString()
+  },
+  set(value) {
+    editableDeposit.value = value.replace(/,/g, '')
+  },
+})
+
+const formattedEditableRent = computed({
+  get() {
+    if (!editableRent.value) return ''
+    return Number(
+      String(editableRent.value).replace(/[^0-9]/g, ''),
+    ).toLocaleString()
+  },
+  set(value) {
+    editableRent.value = value.replace(/,/g, '')
+  },
+})
+
+const depositInput = ref(null)
+const rentInput = ref(null)
+const depositHelper = ref(null)
+const rentHelper = ref(null)
+const rentUnitLabel = ref(null)
+
+const adjustInputWidth = () => {
+  nextTick(() => {
+    if (depositInput.value && depositHelper.value) {
+      const depositWidth = depositHelper.value.offsetWidth || 60
+      depositInput.value.style.width = `${depositWidth + 2}px`
+    }
+    if (rentInput.value && rentHelper.value) {
+      const rentWidth = rentHelper.value.offsetWidth || 60
+      rentInput.value.style.width = `${rentWidth + 2}px`
+      if (rentUnitLabel.value) {
+        rentUnitLabel.value.style.left = `${rentWidth + 4}px`
+      }
+    }
+  })
+}
+
+watch(isPriceEditing, isEditing => {
+  if (isEditing) {
+    adjustInputWidth()
+  }
+})
+watch(formattedEditableDeposit, () => adjustInputWidth())
+watch(formattedEditableRent, () => adjustInputWidth())
 
 const { kakao } = window
 const route = useRoute()
 const propertyId = route.params.id
+
+const property = usePropertyStore()
+const registeredPropertyStore = useRegisteredPropertyStore()
+const userStore = useUserStore()
+
+const landlordInfo = computed(() => {
+  return userStore.userInfo?.data || null
+})
+
+const propertyImages = computed(() => {
+  return property.getPropertyDetails?.propertyImageVOList || []
+})
 
 const chunkedOptions = computed(() => {
   const options = property.getPropertyDetails?.options || []
@@ -65,8 +131,6 @@ const chunkedOptions = computed(() => {
   return chunks
 })
 
-const imgUrls = [sample1, sample2, sample3]
-const property = usePropertyStore()
 const modules = [Navigation, Pagination]
 
 const loadKakaoMap = address => {
@@ -96,8 +160,12 @@ const loadKakaoMap = address => {
     }
   })
 }
+
 onMounted(async () => {
-  await property.fetchPropertyDetails(propertyId)
+  await Promise.all([
+    property.fetchPropertyDetails(propertyId),
+    userStore.fetchUserInfo(),
+  ])
 
   loadKakaoMap(property.getPropertyDetails.building.roadAddress)
 })
@@ -163,7 +231,7 @@ const formattedPrice = computed(() => {
   if (transactionType === '전세') {
     return formatPrice(price, false)
   } else if (transactionType === '월세') {
-    const [deposit, rent] = price.split('/')
+    const [deposit, rent] = String(price).split('/')
     return `${formatPrice(deposit, false)}/${formatPrice(rent, true)}`
   }
   return '가격 정보 없음'
@@ -172,7 +240,6 @@ const formattedPrice = computed(() => {
 const calculate = computed(() => {
   const propertyDetails = property.getPropertyDetails
   const total = propertyDetails.management?.reduce((acc, crr) => {
-    // isNaN 체크 추가
     const fee = parseInt(crr.managementFee, 10)
     return acc + (isNaN(fee) ? 0 : fee)
   }, 0)
@@ -182,11 +249,69 @@ const calculate = computed(() => {
   return '매월' + formatMonthlyDetail(total)
 })
 
-const handleEditSection = section => {
+const handleEditSection = async section => {
+  const details = property.getPropertyDetails
+
   if (section === 'price') {
-    isPriceEditing.value = !isPriceEditing.value
+    if (isPriceEditing.value) {
+      try {
+        const payload = {
+          propertyId: propertyId,
+          description: details.description,
+          transactionType: details.transactionType,
+        }
+
+        if (details.transactionType === '월세') {
+          payload.monthlyDeposit = editableDeposit.value
+          payload.monthlyRent = editableRent.value
+        } else if (details.transactionType === '전세') {
+          payload.jeonseDeposit = editableDeposit.value
+        }
+
+        await registeredPropertyStore.updateProperty(propertyId, payload)
+        await property.fetchPropertyDetails(propertyId)
+
+        isPriceEditing.value = false
+      } catch (error) {
+        console.error('가격 정보 수정 실패:', error)
+      }
+    } else {
+      if (details.transactionType === '월세') {
+        const [deposit, rent] = String(details.price).split('/')
+        editableDeposit.value = deposit
+        editableRent.value = rent
+      } else {
+        editableDeposit.value = details.price
+        editableRent.value = ''
+      }
+      isPriceEditing.value = true
+    }
   } else if (section === 'description') {
-    isDescriptionEditing.value = !isDescriptionEditing.value
+    if (isDescriptionEditing.value) {
+      try {
+        const payload = {
+          propertyId: propertyId,
+          description: details.description,
+          transactionType: details.transactionType,
+        }
+        if (details.transactionType === '월세') {
+          const [deposit, rent] = String(details.price).split('/')
+          payload.monthlyDeposit = deposit
+          payload.monthlyRent = rent
+        } else if (details.transactionType === '전세') {
+          payload.jeonseDeposit = details.price
+        }
+
+        await registeredPropertyStore.updateProperty(propertyId, payload)
+        await property.fetchPropertyDetails(propertyId)
+
+        isDescriptionEditing.value = false
+      } catch (error) {
+        console.error('기타 정보 수정 실패:', error)
+      }
+    } else {
+      isDescriptionEditing.value = true
+    }
   }
 }
 </script>
@@ -202,8 +327,8 @@ const handleEditSection = section => {
         :modules="modules"
         class="mySwiper"
       >
-        <swiper-slide v-for="(img, index) in imgUrls" :key="index">
-          <img :src="img" class="property-img" alt="매물 이미지" />
+        <swiper-slide v-for="image in propertyImages" :key="image.imageUrl">
+          <img :src="image.imageUrl" class="property-img" alt="매물 이미지" />
         </swiper-slide>
       </swiper>
     </div>
@@ -261,11 +386,50 @@ const handleEditSection = section => {
               :class="{ 'editing-text': isPriceEditing }"
             >
               <template v-if="isPriceEditing">
-                <input
-                  type="text"
-                  v-model="property.getPropertyDetails.price"
-                  class="editing-input"
-                />
+                <div
+                  v-if="property.getPropertyDetails.transactionType === '월세'"
+                  class="editing-monthly-wrap"
+                >
+                  <div class="input-wrapper">
+                    <input
+                      ref="depositInput"
+                      type="text"
+                      v-model="formattedEditableDeposit"
+                      class="editing-input"
+                      placeholder="보증금"
+                    />
+                    <span ref="depositHelper" class="input-width-helper">{{
+                      formattedEditableDeposit
+                    }}</span>
+                  </div>
+                  <span class="price-separator">/</span>
+                  <div class="input-wrapper">
+                    <input
+                      ref="rentInput"
+                      type="text"
+                      v-model="formattedEditableRent"
+                      class="editing-input"
+                      placeholder="월세"
+                    />
+                    <span ref="rentHelper" class="input-width-helper">{{
+                      formattedEditableRent
+                    }}</span>
+                    <span class="unit-label" ref="rentUnitLabel">(만)</span>
+                  </div>
+                </div>
+                <template v-else>
+                  <div class="input-wrapper">
+                    <input
+                      ref="depositInput"
+                      type="text"
+                      v-model="formattedEditableDeposit"
+                      class="editing-input"
+                    />
+                    <span ref="depositHelper" class="input-width-helper">{{
+                      formattedEditableDeposit
+                    }}</span>
+                  </div>
+                </template>
               </template>
               <template v-else>
                 {{ formattedPrice }}
@@ -469,6 +633,25 @@ const handleEditSection = section => {
       </div>
 
       <div class="content-box">
+        <div class="content-title-row">임대인 정보</div>
+        <div class="info-subtitle">
+          임대인 정보는 마이페이지에서 변경할 수 있어요
+        </div>
+        <div class="content-details-row">
+          <div class="content-details-row-title">이름</div>
+          <div class="content-details-row-content">
+            {{ landlordInfo?.name }}
+          </div>
+        </div>
+        <div class="content-details-row">
+          <div class="content-details-row-title">전화번호</div>
+          <div class="content-details-row-content">
+            {{ landlordInfo?.phone }}
+          </div>
+        </div>
+      </div>
+
+      <div class="content-box">
         <div class="content-title-row-with-icon">
           <div class="content-title-row">기타 정보</div>
           <button
@@ -496,8 +679,6 @@ const handleEditSection = section => {
         </div>
       </div>
     </div>
-
-    <Navbar />
   </div>
 </template>
 
@@ -662,15 +843,15 @@ const handleEditSection = section => {
 .editing-text {
   color: var(--primary-color) !important;
 }
+
 .editing-input {
-  font-size: rem(15px);
   font-weight: var(--font-weight-md);
   color: var(--primary-color);
   border: none;
   background-color: transparent;
   padding: 0;
-  width: 100%;
   font-size: rem(16px);
+  min-width: rem(60px);
 }
 .editing-input:focus {
   outline: none;
@@ -711,5 +892,70 @@ const handleEditSection = section => {
 
 .editing-textarea-no-border:focus {
   outline: none;
+}
+
+.editing-monthly-wrap {
+  display: flex;
+  align-items: center;
+  gap: rem(1px);
+}
+
+.price-separator {
+  color: var(--primary-color);
+  font-size: rem(16px);
+  padding: 0 rem(8px) 0 rem(3px);
+}
+
+.info-subtitle {
+  font-size: rem(11px);
+  color: var(--grey);
+  margin-top: rem(1px);
+  margin-bottom: rem(32px);
+}
+
+.input-wrapper {
+  display: inline-block;
+  position: relative;
+}
+.input-width-helper {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  visibility: hidden;
+  white-space: pre;
+
+  font-weight: var(--font-weight-md);
+  font-size: rem(16px);
+}
+
+.unit-label {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-54%);
+  color: var(--primary-color);
+  font-size: rem(16px);
+  pointer-events: none;
+}
+
+@media (min-width: 381px) and (max-width: 768px) {
+  .option-item {
+    width: 25%;
+  }
+}
+
+@media (max-width: 380px) {
+  .option-item {
+    width: 50%;
+  }
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+.col-sm-6,
+.col-md-3 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 </style>

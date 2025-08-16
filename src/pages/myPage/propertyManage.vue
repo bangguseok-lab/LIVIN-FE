@@ -2,21 +2,18 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { useRegisteredPropertyStore } from '@/stores/registeredProperty' // 새로 만든 스토어 임포트
+import { useRegisteredPropertyStore } from '@/stores/registeredProperty'
 
 import PropertyManageCard from '@/components/cards/PropertyManageCard.vue'
-import Navbar from '@/components/layouts/Navbar.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
-const registeredPropertyStore = useRegisteredPropertyStore() // 스토어 인스턴스 생성
+const registeredPropertyStore = useRegisteredPropertyStore()
 
 const isModalVisible = ref(false)
 const propertyToDeleteId = ref(null)
 
 const nickname = computed(() => userStore.getNickname)
-
-// 백엔드 API로부터 가져온 데이터와 개수를 스토어에서 계산된 속성으로 가져옵니다.
 const myPropertyList = computed(() => registeredPropertyStore.getProperties)
 const totalCount = computed(() => registeredPropertyStore.getPropertyCount)
 
@@ -24,20 +21,16 @@ const goToAppliedList = () => {
   router.push({ name: 'propertyAdd' })
 }
 
-// 스토어의 액션을 호출하여 내 매물 리스트를 가져오는 함수
 const fetchMyProperties = async () => {
   await registeredPropertyStore.fetchMyProperties()
 }
 
-// 삭제 모달을 띄우는 함수
 const handleDelete = propertyId => {
   propertyToDeleteId.value = propertyId
   isModalVisible.value = true
 }
 
-// 삭제 API를 호출하고 스토어의 액션을 통해 데이터를 업데이트하는 함수
 const confirmDelete = async () => {
-  // 로컬에서 필터링하는 대신, 스토어 액션을 통해 백엔드 API를 호출합니다.
   await registeredPropertyStore.deleteProperty(propertyToDeleteId.value)
   console.log(`${propertyToDeleteId.value}번 매물이 삭제되었습니다.`)
   isModalVisible.value = false
@@ -62,7 +55,10 @@ onMounted(() => {
 <template>
   <div class="PropertyManage">
     <div class="propertyManage-title">
-      <p>{{ nickname }}님이</p>
+      <p class="greeting-line">
+        <span class="nickname">{{ nickname }}</span
+        ><span class="suffix">님이</span>
+      </p>
       <p>등록하신 매물 정보예요</p>
     </div>
 
@@ -81,7 +77,6 @@ onMounted(() => {
           :key="item.propertyId"
           v-bind="{
             ...item,
-            // 백엔드 응답 필드와 프론트엔드 컴포넌트 props 매핑
             price:
               item.transactionType === 'JEONSE'
                 ? item.jeonseDeposit
@@ -108,8 +103,6 @@ onMounted(() => {
     </div>
   </div>
 
-  <Navbar />
-
   <div v-if="isModalVisible" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-body">
@@ -135,6 +128,18 @@ onMounted(() => {
 .propertyManage-title {
   font-size: 1.5rem;
   margin-bottom: 2rem;
+}
+
+.greeting-line {
+  font-size: 1.3rem;
+}
+.suffix {
+  font-weight: 400;
+}
+
+.nickname {
+  color: var(--primary-color);
+  font-weight: 800;
 }
 
 p {
@@ -187,7 +192,6 @@ p {
   line-height: 1.9;
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
