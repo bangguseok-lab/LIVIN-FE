@@ -35,6 +35,13 @@ const isLoading = ref(false)
 const hasMore = ref(true)
 const lastId = ref(null) // 서버로 넘길 커서
 
+const favSelectedLabel = computed({
+  get: () => selectedLabels.value[0] ?? '',
+  set: label => {
+    favFilters.setSelected(label ? [label] : []) // 항상 1개만 유지
+  },
+})
+
 // 세션 저장/복원
 const STORAGE = {
   onlySecure: 'fav.onlySecure',
@@ -270,14 +277,10 @@ async function loadFavorites(append = false) {
 }
 
 const selectedChecklistIds = computed(() => {
-  const labels = selectedLabels.value
-
-  return labels
-    .map(l => {
-      const found = checklistItemsForSlider.value.find(x => x.label === l)
-      return found ? found.id : null
-    })
-    .filter(v => typeof v === 'number') // ✅ 타입 주석 제거
+  const label = favSelectedLabel.value
+  if (!label) return []
+  const found = checklistItemsForSlider.value.find(x => x.label === label)
+  return found ? [found.id] : []
 })
 
 // 스크롤 핸들러
@@ -329,10 +332,9 @@ watch(
   () => propertyStore.favoriteVersion,
   () => loadFavorites(false),
 )
-watch(
-  [favOnlySecure, favRegionApplied, () => selectedLabels.value.slice()],
-  () => loadFavorites(false),
-)
+watch([favOnlySecure, favRegionApplied, favSelectedLabel], () => {
+  loadFavorites(false)
+})
 
 // 화면표시용(지역/안심만)
 const filteredList = computed(() =>
@@ -347,12 +349,8 @@ const filteredList = computed(() =>
 )
 
 // 이벤트 핸들러 (슬라이더에서 올라온 값 즉시 재조회)
-function onChangeSelected(labelOrArray) {
-  if (Array.isArray(labelOrArray)) {
-    favFilters.setSelected([...labelOrArray])
-  } else {
-    favFilters.toggle(labelOrArray)
-  }
+function onChangeSelected(label) {
+  favSelectedLabel.value = label
   saveFilters()
   loadFavorites(false)
 }
@@ -393,7 +391,7 @@ function onFilterCompleted() {
     <!-- 체크리스트: “전체” 없음 -->
     <FilterBarFavorite
       :checklist-items="checklistLabels"
-      :selected="selectedLabels"
+      :selected="favSelectedLabel"
       :onlySecure="favOnlySecure"
       :region="favRegionDraft"
       :region-applied="favRegionApplied"
