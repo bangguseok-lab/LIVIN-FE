@@ -77,7 +77,7 @@ onMounted(async () => {
       }
     } else {
       // 실패 시 처리 (에러 페이지 이동 등)
-      console.error('위험도 분석 실패', result)
+      console.error('부동산 고유번호 조회 실패', result)
     }
   }
 })

@@ -104,6 +104,7 @@ onBeforeUnmount(() => {
       <div class="photo-wrapper">
         <p class="title">매물 사진</p>
         <p class="sub-title">최대 6장까지 보여줄 수 있어요 ({{ images.length }}/6)</p>
+        <p class="choice-title">대표 이미지 한 장을 골라주세요!</p>
         <Buttons class="addPhotoBtn" v-model:is-active="photoBtn" type="photo" label="+ 사진 추가하기"
           @click="openFileDialog" />
         <input ref="fileInput" type="file" accept="image/*" multiple style="display:none" @change="onFilesSelected" />
@@ -153,6 +154,15 @@ onBeforeUnmount(() => {
   font-weight: var(--font-weight-regular);
   color: var(--sub-title-text);
   margin-bottom: 0;
+}
+
+.choice-title {
+  position: relative;
+  top: -1rem;
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-regular);
+  margin-bottom: 0;
+  color: var(--primary-color)
 }
 
 .addPhotoBtn:deep(.button) {
