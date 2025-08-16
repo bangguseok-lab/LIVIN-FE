@@ -33,9 +33,16 @@ export const useChecklistStore = defineStore('checklist', {
     async loadChecklists() {
       this.loading = true
       try {
-        this.checklists = await checklistAPI.fetchChecklists()
+        console.log('스토어 loadChecklists 시작')
+        // 매물 상세 페이지용 체크리스트 목록 API 사용
+        const checklists = await checklistAPI.getChecklistTitles()
+        console.log('스토어에서 받은 체크리스트:', checklists)
+        this.checklists = checklists || []
+        console.log('스토어 checklists 설정 완료:', this.checklists)
       } catch (err) {
+        console.error('스토어 loadChecklists 에러:', err)
         this.error = err
+        this.checklists = []
       } finally {
         this.loading = false
       }

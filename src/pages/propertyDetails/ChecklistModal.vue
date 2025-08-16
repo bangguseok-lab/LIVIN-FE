@@ -1,45 +1,120 @@
 <script setup>
 import { useChecklistStore } from '@/stores/checklist'
-import { defineProps, onMounted, ref } from 'vue'
-import api from '../../api/checklist'
+import { defineProps, onMounted, ref, computed } from 'vue'
+import checklistAPI from '../../api/checklist'
+import Buttons from '@/components/common/buttons/Buttons.vue'
+
 const props = defineProps({
   propertyId: {
     type: Number,
     required: true,
   },
 })
-// const applyChecklist = async checklistId => {
-//   if ('해당 체크리스트를 적용하시겠습니까?') {
-//     const payload = {
-//       checklistId: checklistId,
-//       propertyId: props.propertyId,
-//     }
-//     try {
-//       const data = await api.propretiesApplyChecklist(payload)
-//       alert(data)
-//     } catch (error) {
-//       console.error('체크리스트 적용에 실패했습니다.', error)
-//     }
-//   }
-// }
+
 const checklist = useChecklistStore()
 const emit = defineEmits(['close'])
 const close = () => {
   emit('close')
 }
-const modalState = ref('list')
+
+const modalState = ref('list') // 'list', 'confirm', 'options'
 const selectedChecklistId = ref(null)
-const selectChecklist = id => {
-  selectedChecklistId.value = id
-  modalState.value = 'confirm'
+const selectedChecklistTitle = ref('')
+const checklistItems = ref([])
+const checkedOptions = ref({}) // { itemId: boolean } - isChecked 값들을 저장
+const currentGroupIndex = ref(0) // 현재 표시되고 있는 그룹의 인덱스
+
+const selectChecklist = title => {
+  console.log('=== selectChecklist 함수 시작 ===')
+  console.log('전달받은 제목:', title)
+
+  // 체크리스트 제목으로 해당 체크리스트 찾기
+  const selectedChecklist = checklist.checklists.find(
+    item => item.title === title,
+  )
+
+  if (!selectedChecklist) {
+    console.error('선택된 체크리스트를 찾을 수 없습니다:', title)
+    alert('체크리스트를 찾을 수 없습니다.')
+    return
+  }
+
+  // 체크리스트 ID 추출 (여러 가능한 필드명 시도)
+  const checklistId =
+    selectedChecklist.id ||
+    selectedChecklist.checklistId ||
+    selectedChecklist.checklist_id
+
+  if (!checklistId) {
+    console.error('체크리스트 ID를 찾을 수 없습니다:', selectedChecklist)
+    alert('체크리스트 ID를 찾을 수 없습니다.')
+    return
+  }
+
+  console.log('선택된 체크리스트:', selectedChecklist)
+  console.log('체크리스트 ID:', checklistId)
+  console.log('체크리스트 제목:', title)
+
+  selectedChecklistId.value = checklistId
+  selectedChecklistTitle.value = title
+
+  // 체크리스트 아이템 가져오기
+  loadChecklistItems(checklistId)
 }
+
+const loadChecklistItems = async id => {
+  try {
+    console.log('API 요청 시작:', `/properties/checklist/${id}/items`)
+    const items = await checklistAPI.getChecklistItems(id)
+    console.log('받아온 체크리스트 아이템:', items)
+
+    if (items && Array.isArray(items)) {
+      checklistItems.value = items
+
+      // 각 아이템의 isChecked 상태를 checkedOptions에 초기화 (객체 형태로 변경)
+      checkedOptions.value = items.reduce((acc, item) => {
+        const itemId = item.id || item.itemId || item.checklistItemId
+        if (itemId) {
+          const isChecked = item.isChecked || item.checked || false
+          acc[itemId] = isChecked
+          console.log(`[DEBUG] checkedOptions 초기화: ${itemId} = ${isChecked}`)
+        }
+        return acc
+      }, {})
+      console.log('[DEBUG] 초기화된 checkedOptions:', checkedOptions.value)
+      console.log('[DEBUG] 원본 아이템들의 isChecked 상태:')
+      items.forEach((item, index) => {
+        const itemId = item.id || item.itemId || item.checklistItemId
+        console.log(
+          `[DEBUG] 아이템 ${index}: ID=${itemId}, isChecked=${item.isChecked}, checked=${item.checked}`,
+        )
+      })
+
+      currentGroupIndex.value = 0
+      modalState.value = 'options'
+    } else {
+      console.error('체크리스트 아이템이 배열이 아닙니다:', items)
+      alert('체크리스트 아이템을 가져오는데 실패했습니다.')
+    }
+  } catch (error) {
+    console.error('체크리스트 아이템 로딩 에러:', error)
+    if (error.response?.status === 500) {
+      alert(
+        `서버 오류가 발생했습니다. 체크리스트 ID: ${id} 제목: ${selectedChecklistTitle.value}\n잠시 후 다시 시도해주세요.`,
+      )
+    } else {
+      alert('체크리스트 아이템을 가져오는데 실패했습니다: ' + error.message)
+    }
+  }
+}
+
 const confirmApplyChecklist = async () => {
   const payload = {
     checklistId: selectedChecklistId.value,
     propertyId: props.propertyId,
   }
   try {
-    const data = await api.propretiesApplyChecklist(payload)
+    await checklistAPI.propretiesApplyChecklist(payload)
     alert('체크리스트가 성공적으로 적용되었습니다.')
     close()
   } catch (error) {
@@ -51,12 +126,205 @@ const confirmApplyChecklist = async () => {
 const cancelApplyChecklist = () => {
   modalState.value = 'list'
 }
-onMounted(() => {
-  checklist.checklists = [
-    { id: 1, title: '체크리스트 1' },
-    { id: 2, title: '체크리스트 2' },
-    { id: 3, title: '체크리스트 3' },
-  ]
+
+const goBackToList = () => {
+  modalState.value = 'list'
+}
+
+const updateItemState = (item, newValue) => {
+  const itemId = item.id || item.itemId || item.checklistItemId
+
+  console.log('=== updateItemState 함수 시작 ===')
+  console.log(`[DEBUG] 전달받은 매개변수:`, { item, newValue })
+  console.log(`[DEBUG] itemId: ${itemId}`)
+  console.log(`[DEBUG] newValue 타입: ${typeof newValue}, 값: ${newValue}`)
+  console.log(
+    `[DEBUG] 업데이트 전 checkedOptions[${itemId}]:`,
+    checkedOptions.value[itemId],
+  )
+  console.log(
+    `[DEBUG] 업데이트 전 전체 checkedOptions:`,
+    JSON.stringify(checkedOptions.value),
+  )
+
+  // checkedOptions 객체에서 해당 itemId의 상태만 업데이트
+  if (itemId) {
+    const oldValue = checkedOptions.value[itemId]
+    checkedOptions.value[itemId] = newValue
+    console.log(
+      `[DEBUG] checkedOptions[${itemId}] 업데이트: ${oldValue} → ${newValue}`,
+    )
+    console.log(
+      `[DEBUG] 업데이트 후 전체 checkedOptions:`,
+      JSON.stringify(checkedOptions.value),
+    )
+
+    // 값이 실제로 변경되었는지 확인
+    if (oldValue !== newValue) {
+      console.log(`[DEBUG] ✅ 값이 성공적으로 변경되었습니다!`)
+    } else {
+      console.log(`[DEBUG] ⚠️ 값이 변경되지 않았습니다.`)
+    }
+  } else {
+    console.error(`[DEBUG] ❌ itemId를 찾을 수 없습니다:`, item)
+  }
+
+  // 원본 아이템 배열도 업데이트 (UI 동기화를 위해)
+  const itemToUpdate = checklistItems.value.find(
+    i => (i.id || i.itemId || i.checklistItemId) === itemId,
+  )
+  if (itemToUpdate) {
+    const oldIsChecked = itemToUpdate.isChecked
+    const oldChecked = itemToUpdate.checked
+    itemToUpdate.isChecked = newValue
+    itemToUpdate.checked = newValue // 둘 중 하나만 사용하더라도 둘 다 업데이트
+    console.log(`[DEBUG] 원본 아이템 업데이트:`, {
+      itemId,
+      oldIsChecked,
+      oldChecked,
+      newIsChecked: itemToUpdate.isChecked,
+      newChecked: itemToUpdate.checked,
+    })
+  } else {
+    console.error(`[DEBUG] ❌ 원본 아이템을 찾을 수 없습니다:`, itemId)
+  }
+
+  console.log('=== updateItemState 함수 완료 ===')
+}
+
+const saveOptions = async () => {
+  try {
+    console.log('=== saveOptions 함수 시작 ===')
+    console.log(
+      '[DEBUG] 현재 checkedOptions 상태:',
+      JSON.stringify(checkedOptions.value),
+    )
+    console.log('[DEBUG] checkedOptions 타입:', typeof checkedOptions.value)
+    console.log(
+      '[DEBUG] checkedOptions 키 개수:',
+      Object.keys(checkedOptions.value).length,
+    )
+
+    // 각 아이템의 상태를 개별적으로 확인
+    Object.keys(checkedOptions.value).forEach(itemId => {
+      console.log(
+        `[DEBUG] 아이템 ${itemId}: ${checkedOptions.value[itemId]} (${typeof checkedOptions.value[itemId]})`,
+      )
+    })
+
+    // checkedOptions 객체를 기반으로 백엔드에 보낼 payload 생성
+    // [{ checklistItemId: 1, isChecked: true }, { checklistItemId: 2, isChecked: false }, ...]
+    const payload = Object.keys(checkedOptions.value).map(itemId => {
+      const payloadItem = {
+        checklistItemId: parseInt(itemId),
+        isChecked: checkedOptions.value[itemId],
+      }
+      console.log(`[DEBUG] payload 아이템 생성:`, payloadItem)
+      return payloadItem
+    })
+
+    console.log('[DEBUG] 백엔드로 보낼 최종 payload:', JSON.stringify(payload))
+    console.log('[DEBUG] selectedChecklistId:', selectedChecklistId.value)
+
+    // true 값을 가진 아이템이 있는지 확인
+    const trueItems = payload.filter(item => item.isChecked === true)
+    const falseItems = payload.filter(item => item.isChecked === false)
+    console.log(`[DEBUG] true 값 아이템 개수: ${trueItems.length}`)
+    console.log(`[DEBUG] false 값 아이템 개수: ${falseItems.length}`)
+    console.log(`[DEBUG] true 값 아이템들:`, trueItems)
+    console.log(`[DEBUG] false 값 아이템들:`, falseItems)
+
+    // TODO: 백엔드 API 엔드포인트에 맞춰 저장 로직 구현
+    // 아래는 백엔드 API의 URL과 형태에 맞게 수정된 예시입니다.
+    await checklistAPI.updateChecklistItems(selectedChecklistId.value, payload)
+
+    alert('옵션이 성공적으로 저장되었습니다.')
+    modalState.value = 'list'
+  } catch (error) {
+    console.error('옵션 저장에 실패했습니다.', error)
+    alert(
+      '옵션 저장에 실패했습니다: ' +
+        (error.response?.data?.message || error.message),
+    )
+  }
+}
+
+// 아이템들을 9개씩 그룹화
+const groupedItems = computed(() => {
+  const groups = []
+  for (let i = 0; i < checklistItems.value.length; i += 9) {
+    groups.push(checklistItems.value.slice(i, i + 9))
+  }
+  console.log('그룹화된 아이템들:', groups)
+  return groups
+})
+
+// 그룹 간 전환을 위한 내비게이션 함수들
+const nextGroup = () => {
+  if (currentGroupIndex.value < groupedItems.value.length - 1) {
+    currentGroupIndex.value++
+  }
+}
+
+const prevGroup = () => {
+  if (currentGroupIndex.value > 0) {
+    currentGroupIndex.value--
+  }
+}
+
+const goToGroup = groupIndex => {
+  if (groupIndex >= 0 && groupIndex < groupedItems.value.length) {
+    currentGroupIndex.value = groupIndex
+  }
+}
+
+onMounted(async () => {
+  try {
+    console.log('체크리스트 목록 요청 시작')
+
+    // 스토어의 메서드 사용
+    await checklist.loadChecklists()
+
+    // 직접 API 호출도 시도해보기
+    const directResponse = await checklistAPI.getChecklistTitles()
+    console.log('직접 API 응답 전체:', directResponse)
+    console.log('직접 API 응답 data:', directResponse?.data)
+    console.log('직접 API 응답 data.data:', directResponse?.data?.data)
+
+    // 스토어의 checklists 확인
+    console.log('스토어 checklists:', checklist.checklists)
+
+    // 스토어에 데이터가 없으면 직접 설정
+    if (!checklist.checklists || checklist.checklists.length === 0) {
+      console.log('스토어에 데이터가 없어 직접 설정')
+      if (directResponse?.data?.data) {
+        checklist.checklists = directResponse.data.data
+      } else if (directResponse?.data) {
+        checklist.checklists = directResponse.data
+      } else {
+        checklist.checklists = directResponse || []
+      }
+    }
+
+    // 각 체크리스트 아이템의 구조 상세 분석
+    console.log('최종 체크리스트 목록:', checklist.checklists)
+    if (checklist.checklists && checklist.checklists.length > 0) {
+      console.log('첫 번째 체크리스트 상세 구조:')
+      console.log('전체 객체:', checklist.checklists[0])
+      console.log('객체 키들:', Object.keys(checklist.checklists[0]))
+      console.log('id 값:', checklist.checklists[0].id)
+      console.log('checklistId 값:', checklist.checklists[0].checklistId)
+      console.log('title 값:', checklist.checklists[0].title)
+    }
+  } catch (error) {
+    console.error('체크리스트 목록을 가져오는데 실패했습니다:', error)
+    console.error('에러 상세:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    })
+    checklist.checklists = []
+  }
 })
 </script>
 <template>
@@ -64,21 +332,19 @@ onMounted(() => {
     <div class="modal-content">
       <div v-if="modalState === 'list'" class="modal-screen">
         <div class="modal-header">
-          <h2 class="modal-title">확인하고 싶은 리스트를 선택하세요</h2>
-          <p class="modal-subtitle">누르면 해당 체크리스트를 볼 수 있어요</p>
+          <h2 class="modal-title">체크리스트 선택</h2>
+          <p class="modal-subtitle">적용할 체크리스트를 선택해주세요</p>
         </div>
+
         <div class="modal-body">
-          <template v-if="checklist.checklists.length > 0">
-            <button
-              class="checklist-button"
-              v-for="item in checklist.checklists"
-              :key="item.id"
-              @click="selectChecklist(item.id)"
-            >
-              {{ item.title }}
-            </button>
-          </template>
-          <div v-else class="no-checklist">등록된 체크리스트가 없습니다.</div>
+          <button
+            v-for="checklist in checklist.checklists"
+            :key="checklist.id"
+            @click="selectChecklist(checklist.title)"
+            class="checklist-button"
+          >
+            {{ checklist.title }}
+          </button>
         </div>
       </div>
 
@@ -96,6 +362,80 @@ onMounted(() => {
           <button class="confirm-button no" @click="cancelApplyChecklist">
             아니오
           </button>
+        </div>
+      </div>
+
+      <div v-else-if="modalState === 'options'" class="modal-screen">
+        <div class="modal-options-header">
+          <h2 class="modal-options-title">{{ selectedChecklistTitle }}</h2>
+          <button class="apply-another-btn" @click="goBackToList">
+            다른 체크리스트 적용하기
+          </button>
+          <p class="modal-options-subtitle">확인을 마친 항목에 체크하세요</p>
+        </div>
+
+        <div class="modal-options-body">
+          <button
+            v-if="groupedItems.length > 1"
+            @click="prevGroup"
+            :disabled="currentGroupIndex === 0"
+            class="nav-button prev-button"
+          >
+            ‹
+          </button>
+
+          <div class="carousel-content-wrapper">
+            <div class="option-group">
+              <div class="option-grid">
+                <div
+                  v-for="item in groupedItems[currentGroupIndex]"
+                  :key="item.id || item.itemId || item.checklistItemId"
+                  class="option-button-container"
+                >
+                  <Buttons
+                    class="sm"
+                    type="sm"
+                    :is-checked="
+                      checkedOptions[
+                        item.id || item.itemId || item.checklistItemId
+                      ] || false
+                    "
+                    @update:is-checked="
+                      newValue => updateItemState(item, newValue)
+                    "
+                  >
+                    <div class="option-text">
+                      {{
+                        item.keyword || item.title || item.name || '제목 없음'
+                      }}
+                    </div>
+                  </Buttons>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="groupedItems.length > 1" class="pagination-dots">
+              <span
+                v-for="(dot, index) in groupedItems.length"
+                :key="index"
+                :class="['dot', { active: currentGroupIndex === index }]"
+                @click="goToGroup(index)"
+              ></span>
+            </div>
+          </div>
+
+          <button
+            v-if="groupedItems.length > 1"
+            @click="nextGroup"
+            :disabled="currentGroupIndex === groupedItems.length - 1"
+            class="nav-button next-button"
+          >
+            ›
+          </button>
+        </div>
+
+        <div class="modal-options-footer">
+          <button class="save-button" @click="saveOptions">저장</button>
         </div>
       </div>
     </div>
@@ -124,7 +464,7 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: relative; // 슬라이더 버튼의 절대 위치 기준점
 }
 
 .modal-header {
@@ -207,5 +547,217 @@ onMounted(() => {
 .confirm-button.no {
   background-color: #e0e0e0; // 회색
   color: #555;
+}
+
+// 옵션 모달 스타일
+.modal-options-header {
+  text-align: center;
+  margin-bottom: rem(24px);
+  position: relative;
+}
+
+.modal-options-title {
+  font-size: rem(28px); // 글자 크기를 더 키움
+  font-weight: bold;
+  margin-bottom: rem(8px);
+  color: #333;
+  text-align: left; // 좌측 정렬로 변경
+}
+
+.apply-another-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: var(--primary-color, #1e90ff);
+  font-size: rem(14px);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.modal-options-subtitle {
+  font-size: rem(14px);
+  color: #999;
+  margin: 0;
+  margin-top: rem(16px); // 제목과의 간격을 늘림
+}
+
+.modal-options-body {
+  // 위치 속성 제거, flex 속성과 패딩만 유지
+  flex: 1;
+  margin-bottom: rem(24px);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-content-wrapper {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: rem(10px) 0;
+}
+
+.option-group {
+  display: flex;
+  justify-content: center;
+  width: 100%; // 부모 너비를 꽉 채우도록 설정
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: rem(12px);
+  margin-bottom: rem(16px);
+  width: 100%; // 부모 너비를 꽉 채우도록 설정
+  max-width: rem(340px); // 그리드의 최대 너비를 약간 줄여 좌우 여백 확보
+  justify-content: center; // 그리드 내 아이템들을 중앙 정렬
+}
+
+.option-button-container {
+  display: flex;
+  justify-content: center;
+
+  .sm {
+    transition: all 0.2s ease; // 부드러운 전환 효과
+
+    &:hover {
+      transform: scale(1.02); // 호버 시 약간의 스케일 효과
+    }
+  }
+}
+
+.option-text {
+  font-size: rem(14px);
+  color: white; // 흰색 글자로 변경
+  text-align: center;
+  line-height: 1.2;
+  font-weight: 600; // 글자 굵기 늘림
+}
+
+.pagination-dots {
+  display: flex;
+  justify-content: center;
+  gap: rem(8px);
+  margin-top: rem(16px);
+}
+
+.dot {
+  width: rem(8px);
+  height: rem(8px);
+  border-radius: 50%;
+  background-color: #ccc;
+  transition: background-color 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #999;
+  }
+}
+
+.dot.active {
+  background-color: var(--primary-color, #1e90ff);
+}
+
+.modal-options-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.save-button {
+  width: 100%;
+  padding: rem(16px);
+  background-color: var(--primary-color, #1e90ff);
+  color: white;
+  border: none;
+  border-radius: rem(8px);
+  font-size: rem(16px);
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// 네비게이션 버튼 절대 위치 설정
+.nav-button {
+  background: #1e90ff; // 단순한 파란색 배경
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: rem(32px); // 크기를 약간 줄여서 더 깔끔하게
+  height: rem(32px);
+  font-size: rem(16px); // 화살표 크기도 적절하게 조정
+  font-weight: normal; // 굵기를 normal로 변경하여 더 깔끔하게
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease; // 부드러운 전환 효과
+  flex-shrink: 0;
+
+  // 새로운 절대 위치 설정
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%); // 수직 중앙 정렬
+  z-index: 10;
+
+  &:hover:not(:disabled) {
+    background: #0066cc; // 호버 시 더 진한 파란색
+    transform: scale(1.05) translateY(-50%); // 호버 시에도 중앙 정렬 유지, 스케일 효과 줄임
+  }
+
+  &:disabled {
+    background: #cccccc; // 비활성화 시 회색
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.nav-button.prev-button {
+  left: rem(16px); // modal-content의 좌측 가장자리 기준으로 위치
+}
+
+.nav-button.next-button {
+  right: rem(16px); // modal-content의 우측 가장자리 기준으로 위치
+}
+
+// 다른 버튼들이 이 스타일을 상속받지 않도록 설정
+.confirm-button,
+.save-button {
+  position: relative;
+}
+
+.error-message {
+  text-align: center;
+  color: #ff0000;
+  margin-top: rem(20px);
+  padding: rem(10px);
+  background-color: #ffebee;
+  border-radius: rem(8px);
+  border: 1px solid #ffcdd2;
+}
+
+.retry-button {
+  margin-top: rem(10px);
+  padding: rem(8px) rem(16px);
+  background-color: var(--primary-color, #1e90ff);
+  color: white;
+  border: none;
+  border-radius: rem(8px);
+  font-size: rem(14px);
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 </style>

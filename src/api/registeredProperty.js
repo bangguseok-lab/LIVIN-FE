@@ -18,6 +18,15 @@ const registeredPropertyAPI = {
     const { data } = await apiClient.delete(`/properties/${propertyId}`)
     return data
   },
+
+  // 4. 사용자 등록 매물 수정
+  async updateProperty(propertyId, propertyData) {
+    const { data } = await apiClient.put(
+      `/properties/${propertyId}`,
+      propertyData,
+    )
+    return data
+  },
 }
 
 export default registeredPropertyAPI
