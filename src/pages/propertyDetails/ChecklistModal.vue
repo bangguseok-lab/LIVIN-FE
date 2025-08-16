@@ -17,13 +17,187 @@ const close = () => {
   emit('close')
 }
 
-const modalState = ref('list') // 'list', 'confirm', 'options'
-const selectedChecklistId = ref(null)
+// --- 상태 변수 수정 ---
+const modalState = ref('loading') // 'loading', 'list', 'applyConfirm', 'replaceConfirm', 'options'
+const templateToApply = ref(null) // 사용자가 선택한 템플릿을 임시 저장
+const selectedChecklistId = ref(null) // 현재 보고있는 개인화 체크리스트의 ID
 const selectedChecklistTitle = ref('')
 const checklistItems = ref([])
 const checkedOptions = ref({}) // { itemId: boolean } - isChecked 값들을 저장
 const currentGroupIndex = ref(0) // 현재 표시되고 있는 그룹의 인덱스
 
+// --- 핵심 로직 함수들 ---
+
+// 1. 매물 페이지 진입 시 실행되는 메인 함수
+const initializePropertyChecklist = async () => {
+  modalState.value = 'loading'
+  try {
+    console.log('=== initializePropertyChecklist 시작 ===')
+
+    // ✅ [수정] 템플릿 목록을 가장 먼저 불러옵니다.
+    // 이렇게 하면 어떤 화면으로 이동하든 목록 데이터가 항상 준비되어 있습니다.
+    await loadTemplateChecklists()
+
+    console.log('매물 ID:', props.propertyId)
+
+    // [1단계] 이 매물에 이미 생성된 개인화 체크리스트가 있는지 조회
+    const personalizedItems =
+      await checklistAPI.getPersonalizedChecklistForProperty(props.propertyId)
+    console.log('개인화 체크리스트 조회 결과:', personalizedItems)
+
+    if (personalizedItems && personalizedItems.length > 0) {
+      // [2-A단계] 있으면, 해당 아이템들을 바로 화면에 표시
+      console.log('기존 개인화 체크리스트를 발견했습니다.', personalizedItems)
+      setupOptionsScreen(personalizedItems)
+    } else {
+      // [2-B단계] 없으면, 템플릿 선택 화면으로 전환
+      console.log(
+        '개인화 체크리스트가 없습니다. 템플릿 목록 화면으로 이동합니다.',
+      )
+      modalState.value = 'list'
+    }
+  } catch (error) {
+    console.error('체크리스트 초기화 중 에러 발생:', error)
+    alert('체크리스트 정보를 가져오는 데 실패했습니다.')
+    close()
+  }
+}
+
+// 2. 템플릿 체크리스트 목록 로딩
+const loadTemplateChecklists = async () => {
+  try {
+    console.log('템플릿 체크리스트 목록 로딩 시작')
+
+    // 스토어의 메서드 사용
+    await checklist.loadChecklists()
+
+    // 직접 API 호출도 시도해보기
+    const directResponse = await checklistAPI.getChecklistTitles()
+    console.log('직접 API 응답 전체:', directResponse)
+
+    // 스토어에 데이터가 없으면 직접 설정
+    if (!checklist.checklists || checklist.checklists.length === 0) {
+      console.log('스토어에 데이터가 없어 직접 설정')
+      if (directResponse?.data?.data) {
+        checklist.checklists = directResponse.data.data
+      } else if (directResponse?.data) {
+        checklist.checklists = directResponse.data
+      } else {
+        checklist.checklists = directResponse || []
+      }
+    }
+
+    console.log('최종 템플릿 체크리스트 목록:', checklist.checklists)
+  } catch (error) {
+    console.error('템플릿 체크리스트 목록을 가져오는데 실패했습니다:', error)
+    checklist.checklists = []
+  }
+}
+
+// 4. 옵션 화면을 설정하는 공통 함수
+const setupOptionsScreen = items => {
+  console.log('=== setupOptionsScreen 시작 ===')
+  console.log('설정할 아이템들:', items)
+
+  checklistItems.value = items
+
+  // 첫 번째 아이템에서 checklistId와 title을 가져옴 (모든 아이템이 동일)
+  if (items[0]) {
+    selectedChecklistId.value = items[0].checklistId || items[0].id
+
+    // --- [핵심 수정] ---
+    // 백엔드 조회 API는 현재 아이템 목록만 반환하므로, 제목 정보가 없습니다.
+    // 이전에 복제된 제목 형식(예: '기본 체크리스트(53)')을 DB에서 직접 가져와야 합니다.
+    // (추가 제안 참조)
+    // 여기서는 임시로, 가장 최근에 선택했던 템플릿 제목을 사용하거나
+    // DB에서 가져온 제목을 표시해야 합니다.
+    // 현재 API 구조상 제목을 알 수 없으므로, title을 조회하는 API가 필요합니다.
+    // 지금은 임시로 아래와 같이 표시합니다.
+    selectedChecklistTitle.value = `매물 #${props.propertyId} 체크리스트` // TODO: API에서 실제 제목 받아오기
+  }
+
+  // isChecked 상태 초기화
+  checkedOptions.value = items.reduce((acc, item) => {
+    const itemId = item.checklistItemId || item.id || item.itemId
+    if (itemId) {
+      const isChecked = item.isChecked || item.checked || false
+      acc[itemId] = isChecked
+      console.log(`[DEBUG] checkedOptions 초기화: ${itemId} = ${isChecked}`)
+    }
+    return acc
+  }, {})
+
+  console.log('[DEBUG] 초기화된 checkedOptions:', checkedOptions.value)
+  currentGroupIndex.value = 0
+  modalState.value = 'options' // 옵션 화면으로 전환
+}
+
+// 5. 사용자가 목록에서 템플릿을 클릭하면, 먼저 확인창을 띄움
+const selectTemplate = template => {
+  console.log('=== selectTemplate 함수 시작 ===')
+  console.log('선택된 템플릿:', template)
+
+  templateToApply.value = template
+  modalState.value = 'applyConfirm'
+}
+
+// '아니오'를 눌렀을 때 목록으로 돌아감
+const cancelApply = () => {
+  templateToApply.value = null
+  modalState.value = 'list'
+}
+
+// '예'를 눌렀을 때 복제 로직 실행
+const confirmAndClone = async () => {
+  if (!templateToApply.value) return
+
+  try {
+    console.log('=== confirmAndClone 시작 ===')
+    console.log('적용할 템플릿:', templateToApply.value)
+
+    // 체크리스트 ID 추출 (여러 가능한 필드명 시도)
+    const sourceChecklistId =
+      templateToApply.value.id ||
+      templateToApply.value.checklistId ||
+      templateToApply.value.checklist_id
+
+    if (!sourceChecklistId) {
+      console.error(
+        '템플릿 체크리스트 ID를 찾을 수 없습니다:',
+        templateToApply.value,
+      )
+      alert('템플릿 체크리스트 ID를 찾을 수 없습니다.')
+      return
+    }
+
+    console.log('소스 체크리스트 ID:', sourceChecklistId)
+
+    // [3단계] 선택한 템플릿으로 '복제 생성' API 호출
+    const response = await checklistAPI.cloneChecklistForProperty(
+      props.propertyId,
+      sourceChecklistId,
+    )
+    console.log('복제 생성 API 응답:', response)
+
+    const newChecklistId = response.newChecklistId || response.id
+
+    if (!newChecklistId) {
+      throw new Error('복제된 체크리스트 ID를 받지 못했습니다.')
+    }
+
+    console.log('새로 생성된 체크리스트 ID:', newChecklistId)
+
+    // [4단계] 생성 성공 후, 생성된 체크리스트 정보를 다시 조회하여 화면에 표시
+    await initializePropertyChecklist()
+  } catch (error) {
+    console.error('체크리스트 복제 및 적용에 실패했습니다.', error)
+    alert('체크리스트를 적용하는 데 실패했습니다: ' + error.message)
+  } finally {
+    templateToApply.value = null
+  }
+}
+
+// 기존 selectChecklist 함수를 selectTemplate으로 대체
 const selectChecklist = title => {
   console.log('=== selectChecklist 함수 시작 ===')
   console.log('전달받은 제목:', title)
@@ -39,75 +213,104 @@ const selectChecklist = title => {
     return
   }
 
-  // 체크리스트 ID 추출 (여러 가능한 필드명 시도)
-  const checklistId =
-    selectedChecklist.id ||
-    selectedChecklist.checklistId ||
-    selectedChecklist.checklist_id
-
-  if (!checklistId) {
-    console.error('체크리스트 ID를 찾을 수 없습니다:', selectedChecklist)
-    alert('체크리스트 ID를 찾을 수 없습니다.')
-    return
-  }
-
   console.log('선택된 체크리스트:', selectedChecklist)
-  console.log('체크리스트 ID:', checklistId)
-  console.log('체크리스트 제목:', title)
 
-  selectedChecklistId.value = checklistId
-  selectedChecklistTitle.value = title
-
-  // 체크리스트 아이템 가져오기
-  loadChecklistItems(checklistId)
+  // 템플릿 선택 확인창으로 이동
+  selectTemplate(selectedChecklist)
 }
 
-const loadChecklistItems = async id => {
+// 6. 옵션 상태 변경 (기존과 유사)
+const updateItemState = (item, newValue) => {
+  const itemId = item.checklistItemId || item.id || item.itemId
+
+  console.log('=== updateItemState 함수 시작 ===')
+  console.log(`[DEBUG] 전달받은 매개변수:`, { item, newValue })
+  console.log(`[DEBUG] itemId: ${itemId}`)
+  console.log(`[DEBUG] newValue 타입: ${typeof newValue}, 값: ${newValue}`)
+
+  // checkedOptions 객체에서 해당 itemId의 상태만 업데이트
+  if (itemId) {
+    const oldValue = checkedOptions.value[itemId]
+    checkedOptions.value[itemId] = newValue
+    console.log(
+      `[DEBUG] checkedOptions[${itemId}] 업데이트: ${oldValue} → ${newValue}`,
+    )
+
+    // 값이 실제로 변경되었는지 확인
+    if (oldValue !== newValue) {
+      console.log(`[DEBUG] ✅ 값이 성공적으로 변경되었습니다!`)
+    } else {
+      console.log(`[DEBUG] ⚠️ 값이 변경되지 않았습니다.`)
+    }
+  } else {
+    console.error(`[DEBUG] ❌ itemId를 찾을 수 없습니다:`, item)
+  }
+
+  // 원본 아이템 배열도 업데이트 (UI 동기화를 위해)
+  const itemToUpdate = checklistItems.value.find(
+    i => (i.checklistItemId || i.id || i.itemId) === itemId,
+  )
+  if (itemToUpdate) {
+    const oldIsChecked = itemToUpdate.isChecked
+    const oldChecked = itemToUpdate.checked
+    itemToUpdate.isChecked = newValue
+    itemToUpdate.checked = newValue
+    console.log(`[DEBUG] 원본 아이템 업데이트:`, {
+      itemId,
+      oldIsChecked,
+      oldChecked,
+      newIsChecked: itemToUpdate.isChecked,
+      newChecked: itemToUpdate.checked,
+    })
+  } else {
+    console.error(`[DEBUG] ❌ 원본 아이템을 찾을 수 없습니다:`, itemId)
+  }
+
+  console.log('=== updateItemState 함수 완료 ===')
+}
+
+// 7. 변경된 옵션을 저장하는 함수
+const saveOptions = async () => {
   try {
-    console.log('API 요청 시작:', `/properties/checklist/${id}/items`)
-    const items = await checklistAPI.getChecklistItems(id)
-    console.log('받아온 체크리스트 아이템:', items)
+    console.log('=== saveOptions 함수 시작 ===')
+    console.log(
+      '[DEBUG] 현재 checkedOptions 상태:',
+      JSON.stringify(checkedOptions.value),
+    )
 
-    if (items && Array.isArray(items)) {
-      checklistItems.value = items
+    // checkedOptions 객체를 기반으로 백엔드에 보낼 payload 생성
+    const payload = Object.keys(checkedOptions.value).map(itemId => {
+      const payloadItem = {
+        checklistItemId: parseInt(itemId),
+        isChecked: checkedOptions.value[itemId],
+      }
+      console.log(`[DEBUG] payload 아이템 생성:`, payloadItem)
+      return payloadItem
+    })
 
-      // 각 아이템의 isChecked 상태를 checkedOptions에 초기화 (객체 형태로 변경)
-      checkedOptions.value = items.reduce((acc, item) => {
-        const itemId = item.id || item.itemId || item.checklistItemId
-        if (itemId) {
-          const isChecked = item.isChecked || item.checked || false
-          acc[itemId] = isChecked
-          console.log(`[DEBUG] checkedOptions 초기화: ${itemId} = ${isChecked}`)
-        }
-        return acc
-      }, {})
-      console.log('[DEBUG] 초기화된 checkedOptions:', checkedOptions.value)
-      console.log('[DEBUG] 원본 아이템들의 isChecked 상태:')
-      items.forEach((item, index) => {
-        const itemId = item.id || item.itemId || item.checklistItemId
-        console.log(
-          `[DEBUG] 아이템 ${index}: ID=${itemId}, isChecked=${item.isChecked}, checked=${item.checked}`,
-        )
-      })
+    console.log('[DEBUG] 백엔드로 보낼 최종 payload:', JSON.stringify(payload))
+    console.log('[DEBUG] selectedChecklistId:', selectedChecklistId.value)
+    console.log('[DEBUG] propertyId:', props.propertyId)
 
-      currentGroupIndex.value = 0
-      modalState.value = 'options'
-    } else {
-      console.error('체크리스트 아이템이 배열이 아닙니다:', items)
-      alert('체크리스트 아이템을 가져오는데 실패했습니다.')
-    }
+    // 수정된 '업데이트' API 호출 - propertyId 포함
+    await checklistAPI.updateChecklistItemsWithProperty(
+      props.propertyId,
+      selectedChecklistId.value,
+      payload,
+    )
+
+    alert('옵션이 성공적으로 저장되었습니다.')
+    close() // 저장 후 모달 닫기
   } catch (error) {
-    console.error('체크리스트 아이템 로딩 에러:', error)
-    if (error.response?.status === 500) {
-      alert(
-        `서버 오류가 발생했습니다. 체크리스트 ID: ${id} 제목: ${selectedChecklistTitle.value}\n잠시 후 다시 시도해주세요.`,
-      )
-    } else {
-      alert('체크리스트 아이템을 가져오는데 실패했습니다: ' + error.message)
-    }
+    console.error('옵션 저장에 실패했습니다.', error)
+    alert(
+      '옵션 저장에 실패했습니다: ' +
+        (error.response?.data?.message || error.message),
+    )
   }
 }
 
+// 8. 기존 함수들 (UI 관련)
 const confirmApplyChecklist = async () => {
   const payload = {
     checklistId: selectedChecklistId.value,
@@ -127,126 +330,19 @@ const cancelApplyChecklist = () => {
   modalState.value = 'list'
 }
 
-const goBackToList = () => {
+// '다른 체크리스트 적용하기' 버튼을 누르면 확인창을 띄움
+const promptToReplace = () => {
+  modalState.value = 'replaceConfirm'
+}
+
+// '예'를 눌렀을 때 목록으로 이동
+const confirmReplace = () => {
   modalState.value = 'list'
 }
 
-const updateItemState = (item, newValue) => {
-  const itemId = item.id || item.itemId || item.checklistItemId
-
-  console.log('=== updateItemState 함수 시작 ===')
-  console.log(`[DEBUG] 전달받은 매개변수:`, { item, newValue })
-  console.log(`[DEBUG] itemId: ${itemId}`)
-  console.log(`[DEBUG] newValue 타입: ${typeof newValue}, 값: ${newValue}`)
-  console.log(
-    `[DEBUG] 업데이트 전 checkedOptions[${itemId}]:`,
-    checkedOptions.value[itemId],
-  )
-  console.log(
-    `[DEBUG] 업데이트 전 전체 checkedOptions:`,
-    JSON.stringify(checkedOptions.value),
-  )
-
-  // checkedOptions 객체에서 해당 itemId의 상태만 업데이트
-  if (itemId) {
-    const oldValue = checkedOptions.value[itemId]
-    checkedOptions.value[itemId] = newValue
-    console.log(
-      `[DEBUG] checkedOptions[${itemId}] 업데이트: ${oldValue} → ${newValue}`,
-    )
-    console.log(
-      `[DEBUG] 업데이트 후 전체 checkedOptions:`,
-      JSON.stringify(checkedOptions.value),
-    )
-
-    // 값이 실제로 변경되었는지 확인
-    if (oldValue !== newValue) {
-      console.log(`[DEBUG] ✅ 값이 성공적으로 변경되었습니다!`)
-    } else {
-      console.log(`[DEBUG] ⚠️ 값이 변경되지 않았습니다.`)
-    }
-  } else {
-    console.error(`[DEBUG] ❌ itemId를 찾을 수 없습니다:`, item)
-  }
-
-  // 원본 아이템 배열도 업데이트 (UI 동기화를 위해)
-  const itemToUpdate = checklistItems.value.find(
-    i => (i.id || i.itemId || i.checklistItemId) === itemId,
-  )
-  if (itemToUpdate) {
-    const oldIsChecked = itemToUpdate.isChecked
-    const oldChecked = itemToUpdate.checked
-    itemToUpdate.isChecked = newValue
-    itemToUpdate.checked = newValue // 둘 중 하나만 사용하더라도 둘 다 업데이트
-    console.log(`[DEBUG] 원본 아이템 업데이트:`, {
-      itemId,
-      oldIsChecked,
-      oldChecked,
-      newIsChecked: itemToUpdate.isChecked,
-      newChecked: itemToUpdate.checked,
-    })
-  } else {
-    console.error(`[DEBUG] ❌ 원본 아이템을 찾을 수 없습니다:`, itemId)
-  }
-
-  console.log('=== updateItemState 함수 완료 ===')
-}
-
-const saveOptions = async () => {
-  try {
-    console.log('=== saveOptions 함수 시작 ===')
-    console.log(
-      '[DEBUG] 현재 checkedOptions 상태:',
-      JSON.stringify(checkedOptions.value),
-    )
-    console.log('[DEBUG] checkedOptions 타입:', typeof checkedOptions.value)
-    console.log(
-      '[DEBUG] checkedOptions 키 개수:',
-      Object.keys(checkedOptions.value).length,
-    )
-
-    // 각 아이템의 상태를 개별적으로 확인
-    Object.keys(checkedOptions.value).forEach(itemId => {
-      console.log(
-        `[DEBUG] 아이템 ${itemId}: ${checkedOptions.value[itemId]} (${typeof checkedOptions.value[itemId]})`,
-      )
-    })
-
-    // checkedOptions 객체를 기반으로 백엔드에 보낼 payload 생성
-    // [{ checklistItemId: 1, isChecked: true }, { checklistItemId: 2, isChecked: false }, ...]
-    const payload = Object.keys(checkedOptions.value).map(itemId => {
-      const payloadItem = {
-        checklistItemId: parseInt(itemId),
-        isChecked: checkedOptions.value[itemId],
-      }
-      console.log(`[DEBUG] payload 아이템 생성:`, payloadItem)
-      return payloadItem
-    })
-
-    console.log('[DEBUG] 백엔드로 보낼 최종 payload:', JSON.stringify(payload))
-    console.log('[DEBUG] selectedChecklistId:', selectedChecklistId.value)
-
-    // true 값을 가진 아이템이 있는지 확인
-    const trueItems = payload.filter(item => item.isChecked === true)
-    const falseItems = payload.filter(item => item.isChecked === false)
-    console.log(`[DEBUG] true 값 아이템 개수: ${trueItems.length}`)
-    console.log(`[DEBUG] false 값 아이템 개수: ${falseItems.length}`)
-    console.log(`[DEBUG] true 값 아이템들:`, trueItems)
-    console.log(`[DEBUG] false 값 아이템들:`, falseItems)
-
-    // TODO: 백엔드 API 엔드포인트에 맞춰 저장 로직 구현
-    // 아래는 백엔드 API의 URL과 형태에 맞게 수정된 예시입니다.
-    await checklistAPI.updateChecklistItems(selectedChecklistId.value, payload)
-
-    alert('옵션이 성공적으로 저장되었습니다.')
-    modalState.value = 'list'
-  } catch (error) {
-    console.error('옵션 저장에 실패했습니다.', error)
-    alert(
-      '옵션 저장에 실패했습니다: ' +
-        (error.response?.data?.message || error.message),
-    )
-  }
+// '아니오'를 눌렀을 때 옵션 화면에 머무름
+const cancelReplace = () => {
+  modalState.value = 'options'
 }
 
 // 아이템들을 9개씩 그룹화
@@ -278,59 +374,26 @@ const goToGroup = groupIndex => {
   }
 }
 
-onMounted(async () => {
-  try {
-    console.log('체크리스트 목록 요청 시작')
-
-    // 스토어의 메서드 사용
-    await checklist.loadChecklists()
-
-    // 직접 API 호출도 시도해보기
-    const directResponse = await checklistAPI.getChecklistTitles()
-    console.log('직접 API 응답 전체:', directResponse)
-    console.log('직접 API 응답 data:', directResponse?.data)
-    console.log('직접 API 응답 data.data:', directResponse?.data?.data)
-
-    // 스토어의 checklists 확인
-    console.log('스토어 checklists:', checklist.checklists)
-
-    // 스토어에 데이터가 없으면 직접 설정
-    if (!checklist.checklists || checklist.checklists.length === 0) {
-      console.log('스토어에 데이터가 없어 직접 설정')
-      if (directResponse?.data?.data) {
-        checklist.checklists = directResponse.data.data
-      } else if (directResponse?.data) {
-        checklist.checklists = directResponse.data
-      } else {
-        checklist.checklists = directResponse || []
-      }
-    }
-
-    // 각 체크리스트 아이템의 구조 상세 분석
-    console.log('최종 체크리스트 목록:', checklist.checklists)
-    if (checklist.checklists && checklist.checklists.length > 0) {
-      console.log('첫 번째 체크리스트 상세 구조:')
-      console.log('전체 객체:', checklist.checklists[0])
-      console.log('객체 키들:', Object.keys(checklist.checklists[0]))
-      console.log('id 값:', checklist.checklists[0].id)
-      console.log('checklistId 값:', checklist.checklists[0].checklistId)
-      console.log('title 값:', checklist.checklists[0].title)
-    }
-  } catch (error) {
-    console.error('체크리스트 목록을 가져오는데 실패했습니다:', error)
-    console.error('에러 상세:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-    })
-    checklist.checklists = []
-  }
+// 컴포넌트가 마운트될 때 메인 로직 실행
+onMounted(() => {
+  initializePropertyChecklist()
 })
 </script>
 <template>
   <div class="modal-overlay" @click.self="close">
     <div class="modal-content">
-      <div v-if="modalState === 'list'" class="modal-screen">
+      <div v-if="modalState === 'loading'" class="modal-screen">
+        <div class="modal-header">
+          <h2 class="modal-title">체크리스트 로딩 중...</h2>
+          <p class="modal-subtitle">매물 정보를 불러오고 있습니다.</p>
+        </div>
+        <div class="modal-body">
+          <div class="loading-spinner"></div>
+          <p>체크리스트 정보를 가져오는 데 시간이 걸릴 수 있습니다.</p>
+        </div>
+      </div>
+
+      <div v-else-if="modalState === 'list'" class="modal-screen">
         <div class="modal-header">
           <h2 class="modal-title">체크리스트 선택</h2>
           <p class="modal-subtitle">적용할 체크리스트를 선택해주세요</p>
@@ -365,10 +428,44 @@ onMounted(async () => {
         </div>
       </div>
 
+      <div v-else-if="modalState === 'applyConfirm'" class="modal-screen">
+        <div class="modal-confirm-header">
+          <h2 class="modal-confirm-title">
+            {{ templateToApply?.title }}(으)로 적용해 볼까요?
+          </h2>
+          <p class="modal-confirm-subtitle">
+            선택한 체크리스트는 변경하실 수 있어요!
+          </p>
+        </div>
+        <div class="modal-confirm-body">
+          <button class="confirm-button yes" @click="confirmAndClone">
+            예
+          </button>
+          <button class="confirm-button no" @click="cancelApply">아니오</button>
+        </div>
+      </div>
+
+      <div v-else-if="modalState === 'replaceConfirm'" class="modal-screen">
+        <div class="modal-confirm-header">
+          <h2 class="modal-confirm-title">
+            정말 다른 체크리스트로 적용하시겠어요?
+          </h2>
+          <p class="modal-confirm-subtitle">
+            이 경우에 기존에 생성하신 체크리스트 옵션 정보는 사라지게 돼요!
+          </p>
+        </div>
+        <div class="modal-confirm-body">
+          <button class="confirm-button yes" @click="confirmReplace">예</button>
+          <button class="confirm-button no" @click="cancelReplace">
+            아니오
+          </button>
+        </div>
+      </div>
+
       <div v-else-if="modalState === 'options'" class="modal-screen">
         <div class="modal-options-header">
           <h2 class="modal-options-title">{{ selectedChecklistTitle }}</h2>
-          <button class="apply-another-btn" @click="goBackToList">
+          <button class="apply-another-btn" @click="promptToReplace">
             다른 체크리스트 적용하기
           </button>
           <p class="modal-options-subtitle">확인을 마친 항목에 체크하세요</p>
@@ -758,6 +855,26 @@ onMounted(async () => {
 
   &:hover {
     opacity: 0.8;
+  }
+}
+
+// 로딩 스피너 스타일
+.loading-spinner {
+  width: rem(40px);
+  height: rem(40px);
+  border: rem(4px) solid #f3f3f3;
+  border-top: rem(4px) solid var(--primary-color, #1e90ff);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto rem(20px);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>
