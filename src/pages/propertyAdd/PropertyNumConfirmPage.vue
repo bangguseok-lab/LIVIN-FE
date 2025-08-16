@@ -3,12 +3,16 @@ import Buttons from '@/components/common/buttons/Buttons.vue';
 import router from '@/router';
 import { usePropertyStore } from '@/stores/property';
 import { useUserStore } from '@/stores/user';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { VueSpinnerIos } from 'vue3-spinners';
+import api from '@/api/property';
 
 // 매물 등록에 사용하려고 둔 스토어
 const propertyStore = usePropertyStore()
 // 회원 정보 가져올 스토어
 const userStore = useUserStore()
+
+const loading = ref(true)       // 로딩 상태
 
 const inputAddress = ref('');
 const inputPropertyNum = ref('');
@@ -16,6 +20,68 @@ const inputPropertyNum = ref('');
 const serverUserName = ref('');
 const serverUserBirth = ref('');
 const serverUserPhoneNum = ref('');
+
+const ownerName = ref('');
+
+// 로딩 중 스크롤 잠그기
+const prevOverflow = ref('')
+watch(loading, (v) => {
+  if (v) {
+    prevOverflow.value = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = prevOverflow.value || ''
+  }
+})
+
+onMounted(async () => {
+  // 이미 부동산 고유번호 조회 완료된 상태
+  if (propertyStore.getNewProperty.confirmPropertyNum) {
+    console.log('분석완료')
+    loading.value = false // 로딩 여부
+  } else {
+    // 입력 받은 주소 가져오기
+    inputAddress.value = propertyStore.getNewProperty.address + " " + propertyStore.getNewProperty.detailAddress + propertyStore.getNewProperty.extraAddress;
+    // 입력 받은 부동산 고유번호 가져오기
+    inputPropertyNum.value = propertyStore.getNewProperty.propertyNum   // "- 포함" 그대로
+
+    // 가입된 회원정보 가져오기
+    await userStore.fetchUserInfo()
+    serverUserName.value = userStore.userInfo.data.name
+    serverUserBirth.value = userStore.userInfo.data.birthDate[0] + '.' + userStore.userInfo.data.birthDate[1] + '.' + userStore.userInfo.data.birthDate[2]
+    serverUserPhoneNum.value = userStore.userInfo.data.phone
+
+    const commUniqueNo = inputPropertyNum.value
+    ownerName.value = serverUserName.value; // 가입된 임대인 이름
+
+    // 부동산 고유번호가 일치하는 지 요청 보내기
+    const result = await api.getPropertyNum({ commUniqueNo, ownerName });
+    if (result && result.statusCode === 200) {
+      loading.value = false
+      console.log('가져온 부동산 고유번호: ', result.data.commUniqueNo)
+      console.log('가져온 소유주 이름: ', result.data.ownerName)
+
+      const propertyNumStr = inputPropertyNum.value.replace(/-/g, "")
+
+      // 조회한 부동산 고유번호와 입력 받은 부동산 고유번호가 일치하는 경우
+      if (propertyNumStr === result.data.commUniqueNo) {
+        // ownerName.value = result.data?.ownerName || '서동주';
+        ownerName.value = result.data.ownerName
+
+        console.log('조회한 부동산 고유번호와 일치하는 경우에 렌더링 될 부동산 고유번호: ', inputPropertyNum.value)
+      } else {
+        if (confirm('서버와 부동산 고유번호가 일치하지 않습니다.')) {
+          // 부동산 고유번호가 일치하지 않으면, 다시 부동산 고유번호 입력 페이지로 이동
+          router.push({ name: 'propertyNum' })
+        }
+      }
+    } else {
+      // 실패 시 처리 (에러 페이지 이동 등)
+      console.error('부동산 고유번호 조회 실패', result)
+    }
+  }
+})
+
 
 // 이 고유번호가 아니에요 클릭 시 이전 페이지로 이동
 const handleClickNoPropertyNum = () => {
@@ -26,22 +92,16 @@ const handleClickNoPropertyNum = () => {
 const handleClick = () => {
   router.push({ name: 'propertyType' })
 }
-
-onMounted(async () => {
-  // 입력 받은 주소 가져오기
-  inputAddress.value = propertyStore.getNewProperty.address + " " + propertyStore.getNewProperty.detailAddress + propertyStore.getNewProperty.extraAddress;
-  // 입력 받은 부동산 고유번호 가져오기
-  inputPropertyNum.value = propertyStore.getNewProperty.propertyNum
-  // 가입된 회원정보 가져오기
-  await userStore.fetchUserInfo()
-  serverUserName.value = userStore.userInfo.data.name
-  serverUserBirth.value = userStore.userInfo.data.birthDate[0] + '.' + userStore.userInfo.data.birthDate[1] + '.' + userStore.userInfo.data.birthDate[2]
-  serverUserPhoneNum.value = userStore.userInfo.data.phone
-})
 </script>
 
 <template>
   <div class="PropertyNumConfirmPage">
+    <!-- 전체 화면 블랙 오버레이 + 스피너 -->
+    <Teleport to="body">
+      <div v-if="loading" class="loading-overlay" role="status" aria-live="polite">
+        <VueSpinnerIos size="48" color="#fff" />
+      </div>
+    </Teleport>
     <div class="propertyNumberConfirm-container">
       <p class="inputAddress-text">입력 받은 주소: {{ inputAddress }}</p>
       <div class="propertyNumberConfirm-info-wrapper">
@@ -49,20 +109,12 @@ onMounted(async () => {
             @click="handleClickNoPropertyNum">이 고유번호가 아니에요</span></div>
         <div class="propertyNum-content-wrapper">
           <div>
-            <div class="propertyNum-content-text"><span class="content-text">이름</span>배영현</div>
-          </div>
-          <div>
-            <div class="propertyNum-content-text"><span class="content-text">생년월일</span><span
-                id="birth-text">2001.01.01</span></div>
-          </div>
-          <div>
-            <div class="propertyNum-content-text"><span class="content-text">연락처</span><span
-                id="phone-text">010-4538-0387</span></div>
+            <div class="propertyNum-content-text"><span class="content-text">부동산 등기부등본상 이름</span>{{ ownerName }}</div>
           </div>
         </div>
       </div>
       <div class="propertyNumberConfirm-info-wrapper">
-        <div class="propertyNum-title-wrapper">Livin 회원 정보</div>
+        <div class="propertyNum-title-wrapper">Livin에 가입된 임대인 회원 정보</div>
         <div class="propertyNum-content-wrapper">
           <div>
             <div class="propertyNum-content-text"><span class="content-text">이름</span>{{ serverUserName }}</div>
