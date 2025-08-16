@@ -13,7 +13,7 @@ const modules = [FreeMode, A11y, Scrollbar]
 
 const props = defineProps({
   checklistItems: Array, // ['라벨1','라벨2', ...]
-  modelValue: { type: [Array, String], default: () => [] }, // 현재 선택 라벨
+  modelValue: String, // 현재 선택 라벨
   regionData: Object, // { cities, districts, parishes }
   region: Object, // { city, district, parish }
   regionApplied: { type: Object, default: null },
@@ -49,19 +49,13 @@ function setPanelPositionByElement(el) {
   }
 }
 
-const selectedArray = computed(() =>
-  Array.isArray(props.modelValue)
-    ? props.modelValue
-    : props.modelValue
-      ? [props.modelValue]
-      : [],
-)
-
 // ✅ 체크리스트 버튼 클릭 → 선택만 emit (모달/상세 없음)
 function handleSelect(label) {
-  const set = new Set(selectedArray.value)
-  set.has(label) ? set.delete(label) : set.add(label)
-  emit('update:modelValue', [...set])
+  if (props.modelValue === label) {
+    emit('update:modelValue', '') // 같은 항목 다시 누르면 해제
+  } else {
+    emit('update:modelValue', label)
+  }
 }
 
 function togglePanel(event, panelKey) {
@@ -148,7 +142,7 @@ function handleFilterCompleted() {
           class="slide-auto"
         >
           <button
-            :class="{ active: selectedArray.includes(item.label ?? item) }"
+            :class="{ active: modelValue === (item.label ?? item) }"
             @click="() => handleSelect(item.label ?? item)"
           >
             {{ item.label ?? item }}
