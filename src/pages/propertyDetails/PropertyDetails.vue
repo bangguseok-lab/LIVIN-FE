@@ -210,6 +210,12 @@ const calculate = computed(() => {
   }, 0)
 
   if (total === 0) {
+    const hasOnlyVariableFees = managementList.every(
+      m => m && m.managementFee === '쓴 만큼',
+    )
+    if (hasOnlyVariableFees) {
+      return '별도 부과'
+    }
     return '관련 정보 없음'
   }
 
