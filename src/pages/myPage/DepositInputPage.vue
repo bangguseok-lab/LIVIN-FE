@@ -70,6 +70,41 @@ async function handleSubmit() {
   }
 }
 
+const calculatedAmount = computed(() => {
+  const man = rawValue.value // "만원" 단위
+  if (man <= 0) return ''
+
+  const JO = 100_000_000 // 1조 = 100,000,000만원
+  const EOK = 10_000 // 1억 = 10,000만원
+  const CHEON = 1_000 // 1천 = 1,000만원
+
+  let rest = man
+  const parts = []
+
+  const jo = Math.floor(rest / JO)
+  if (jo) {
+    parts.push(`${jo}조`)
+    rest %= JO
+  }
+
+  const eok = Math.floor(rest / EOK)
+  if (eok) {
+    parts.push(`${eok}억`)
+    rest %= EOK
+  }
+
+  const cheon = Math.floor(rest / CHEON)
+  if (cheon) {
+    parts.push(`${cheon}천`)
+    rest %= CHEON
+  }
+
+  // 천 미만 남은 값은 "만원"으로 표기 (예: 300 -> 300만원)
+  if (rest) parts.push(`${rest}만원`)
+
+  return parts.join(' ')
+})
+
 async function handleReset() {
   if (!confirm('보증금을 초기화할까요?')) return
   try {
@@ -120,6 +155,10 @@ onMounted(async () => {
           @input="onInput"
         />
         <span class="deposit__suffix" v-show="hasValue">만원</span>
+      </div>
+
+      <div class="deposit__calculated" v-show="hasValue">
+        계산된 금액: {{ calculatedAmount }}
       </div>
 
       <p class="deposit__hint">
@@ -183,7 +222,7 @@ onMounted(async () => {
 .deposit__sub {
   margin: 0 0 16px;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--sub-title-text);
 }
 
 /* 입력 박스 */
@@ -221,6 +260,12 @@ onMounted(async () => {
   font-size: 14px;
   color: var(--grey);
   pointer-events: none;
+}
+
+.deposit__calculated {
+  margin: rem(10px) 0 rem(10px) rem(18px);
+  font-size: 12px;
+  color: var(--sub-title-text);
 }
 
 /* 도움 문구 */
