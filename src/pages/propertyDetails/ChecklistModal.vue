@@ -26,6 +26,13 @@ const checklistItems = ref([])
 const checkedOptions = ref({}) // { itemId: boolean } - isChecked 값들을 저장
 const currentGroupIndex = ref(0) // 현재 표시되고 있는 그룹의 인덱스
 
+// 제목에서 '(매물명)' 부분을 제거하는 함수
+const formatDisplayTitle = title => {
+  if (!title) return ''
+  // '(' 문자를 기준으로 문자열을 나누고, 첫 번째 부분의 양쪽 공백을 제거하여 반환
+  return title.split('(')[0].trim()
+}
+
 // 매물 페이지 진입 시 실행되는 메인 함수
 const initializePropertyChecklist = async () => {
   modalState.value = 'loading'
@@ -39,14 +46,16 @@ const initializePropertyChecklist = async () => {
     console.log('매물 ID:', props.propertyId)
 
     // 이 매물에 이미 생성된 개인화 체크리스트가 있는지 조회
-    const personalizedItems =
-      await checklistAPI.getPersonalizedChecklistForProperty(props.propertyId)
-    console.log('개인화 체크리스트 조회 결과:', personalizedItems)
+    const response = await checklistAPI.getPersonalizedChecklistForProperty(
+      props.propertyId,
+    )
+    console.log('개인화 체크리스트 조회 결과:', response)
 
-    if (personalizedItems && personalizedItems.length > 0) {
-      // 있으면, 해당 아이템들을 바로 화면에 표시
-      console.log('기존 개인화 체크리스트를 발견했습니다.', personalizedItems)
-      setupOptionsScreen(personalizedItems)
+    // response가 존재하고, 안에 items 배열이 있는지 확인
+    if (response && response.items && response.items.length > 0) {
+      // 있으면, 응답 객체 전체를 setup 함수로 넘겨준다
+      console.log('기존 개인화 체크리스트를 발견했습니다.', response)
+      setupOptionsScreen(response)
     } else {
       // 없으면, 템플릿 선택 화면으로 전환
       console.log(
@@ -69,7 +78,7 @@ const loadTemplateChecklists = async () => {
     // 스토어의 메서드 사용
     await checklist.loadChecklists()
 
-    // 직접 API 호출 시도해보기
+    // 직접 API 호출 시도
     const directResponse = await checklistAPI.getChecklistTitles()
     console.log('직접 API 응답 전체:', directResponse)
 
@@ -93,29 +102,17 @@ const loadTemplateChecklists = async () => {
 }
 
 // 옵션 화면을 설정하는 공통 함수
-const setupOptionsScreen = items => {
+const setupOptionsScreen = checklistData => {
   console.log('=== setupOptionsScreen 시작 ===')
-  console.log('설정할 아이템들:', items)
+  console.log('설정할 체크리스트 데이터:', checklistData)
 
-  checklistItems.value = items
-
-  // 첫 번째 옵션에서 checklistId와 title을 가져옴 (모든 옵션이 동일)
-  if (items[0]) {
-    selectedChecklistId.value = items[0].checklistId || items[0].id
-
-    // --- [핵심 수정] ---
-    // 백엔드 조회 API는 현재 아이템 목록만 반환하므로, 제목 정보가 없습니다.
-    // 이전에 복제된 제목 형식(예: '기본 체크리스트(53)')을 DB에서 직접 가져와야 합니다.
-    // (추가 제안 참조)
-    // 여기서는 임시로, 가장 최근에 선택했던 템플릿 제목을 사용하거나
-    // DB에서 가져온 제목을 표시해야 합니다.
-    // 현재 API 구조상 제목을 알 수 없으므로, title을 조회하는 API가 필요합니다.
-    // 지금은 임시로 아래와 같이 표시합니다.
-    selectedChecklistTitle.value = `매물 #${props.propertyId} 체크리스트` // TODO: API에서 실제 제목 받아오기
-  }
+  // API 응답에서 직접 제목과 ID, 아이템 목록을 설정
+  selectedChecklistId.value = checklistData.checklistId
+  selectedChecklistTitle.value = checklistData.title
+  checklistItems.value = checklistData.items
 
   // isChecked 상태 초기화
-  checkedOptions.value = items.reduce((acc, item) => {
+  checkedOptions.value = checklistData.items.reduce((acc, item) => {
     const itemId = item.checklistItemId || item.id || item.itemId
     if (itemId) {
       const isChecked = item.isChecked || item.checked || false
@@ -404,7 +401,7 @@ onMounted(() => {
             @click="selectChecklist(checklist.title)"
             class="checklist-button"
           >
-            {{ checklist.title }}
+            {{ formatDisplayTitle(checklist.title) }}
           </button>
         </div>
       </div>
@@ -462,7 +459,9 @@ onMounted(() => {
 
       <div v-else-if="modalState === 'options'" class="modal-screen">
         <div class="modal-options-header">
-          <h2 class="modal-options-title">{{ selectedChecklistTitle }}</h2>
+          <h2 class="modal-options-title">
+            {{ formatDisplayTitle(selectedChecklistTitle) }}
+          </h2>
           <button class="apply-another-btn" @click="promptToReplace">
             다른 체크리스트 적용하기
           </button>
@@ -536,6 +535,7 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
 <style scoped lang="scss">
 .modal-overlay {
   position: fixed;
@@ -652,11 +652,11 @@ onMounted(() => {
 }
 
 .modal-options-title {
-  font-size: rem(28px); // 글자 크기를 더 키움
+  font-size: rem(28px);
   font-weight: bold;
   margin-bottom: rem(8px);
   color: #333;
-  text-align: left; // 좌측 정렬로 변경
+  text-align: left; // 좌측 정렬
 }
 
 .apply-another-btn {
@@ -675,7 +675,7 @@ onMounted(() => {
   font-size: rem(14px);
   color: #999;
   margin: 0;
-  margin-top: rem(16px); // 제목과의 간격을 늘림
+  margin-top: rem(16px);
 }
 
 .modal-options-body {
@@ -728,10 +728,10 @@ onMounted(() => {
 
 .option-text {
   font-size: rem(14px);
-  color: white; // 흰색 글자로 변경
+  color: white;
   text-align: center;
   line-height: 1.2;
-  font-weight: 600; // 글자 굵기 늘림
+  font-weight: 600;
 }
 
 .pagination-dots {
@@ -786,10 +786,10 @@ onMounted(() => {
   color: white;
   border: none;
   border-radius: 50%;
-  width: rem(32px); // 크기를 약간 줄여서 더 깔끔하게
+  width: rem(32px);
   height: rem(32px);
-  font-size: rem(16px); // 화살표 크기도 적절하게 조정
-  font-weight: normal; // 굵기를 normal로 변경하여 더 깔끔하게
+  font-size: rem(16px);
+  font-weight: normal;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -805,7 +805,7 @@ onMounted(() => {
 
   &:hover:not(:disabled) {
     background: #0066cc; // 호버 시 더 진한 파란색
-    transform: scale(1.05) translateY(-50%); // 호버 시에도 중앙 정렬 유지, 스케일 효과 줄임
+    transform: scale(1.05) translateY(-50%);
   }
 
   &:disabled {

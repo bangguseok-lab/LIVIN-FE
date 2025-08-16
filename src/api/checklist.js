@@ -176,7 +176,7 @@ const checklistAPI = {
     }
   },
 
-  // 특정 매물을 위한 체크리스트 복제 생성 API
+  // 특정 매물을 위한 체크리스트 복제 생성
   async cloneChecklistForProperty(propertyId, sourceChecklistId) {
     try {
       console.log('cloneChecklistForProperty API 호출 시작')
