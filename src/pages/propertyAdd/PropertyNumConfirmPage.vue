@@ -65,7 +65,6 @@ onMounted(async () => {
 
       // 조회한 부동산 고유번호와 입력 받은 부동산 고유번호가 일치하는 경우
       if (propertyNumStr === result.data.commUniqueNo) {
-        inputPropertyNum.value = result.data.commUniqueNo
         // ownerName.value = result.data?.ownerName || '서동주';
         ownerName.value = result.data.ownerName
 
