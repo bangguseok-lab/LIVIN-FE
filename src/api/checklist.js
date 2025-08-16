@@ -1,6 +1,4 @@
-import ChecklistProperty from '@/pages/checklist/ChecklistProperty.vue'
 import apiClient from './apiClient'
-import property from './property'
 
 const checklistAPI = {
   // 체크리스트 전체 조회
@@ -80,6 +78,7 @@ const checklistAPI = {
   async fetchPropertiesFavChecklist() {
     const { data } = await apiClient.get('/checklist-filters')
     return data
+  },
 
   // 매물 상세 페이지 체크리스트 목록 조회
   async getChecklistTitles() {

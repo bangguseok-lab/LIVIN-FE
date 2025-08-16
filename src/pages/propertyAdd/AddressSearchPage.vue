@@ -14,6 +14,16 @@ const detailAddress = ref('')
 const extraAddress = ref('')
 const isPostcodeVisible = ref(false) // iframe 표시 여부
 
+// 본번/부번 추출 헬퍼
+function extractBuildingNo(addr) {
+  // 주소 끝의 "숫자" 또는 "숫자-숫자"만 추출 (도로명 끝의 본번·부번)
+  const m = addr.match(/(\d+)(?:-(\d+))?$/);
+  return {
+    buildingNo: m?.[1] ?? '0',
+    buildingSubNo: m?.[2] ?? '0',
+  };
+}
+
 // 주소 선택 시 동작할 콜백
 const handleComplete = (data) => {
   let addr = ''
@@ -22,9 +32,19 @@ const handleComplete = (data) => {
   // 주소 설정
   // 검색된 기본 주소 타입: R(도로명), J(지번)
   if (data.userSelectedType === 'R') {    // userSelectedType: 검색 결과에서 사용자가 선택한 주소의 타입
-    addr = data.roadAddress
+    addr = data.roadAddress;
+
+    // 도로명 주소일 때 본번/부번 추출
+    const { buildingNo, buildingSubNo } = extractBuildingNo(addr);
+    propertyStore.updateNewProperty('buildingNo', buildingNo);
+    propertyStore.updateNewProperty('buildingSubNo', buildingSubNo);
+
   } else {
     addr = data.jibunAddress
+    // 지번 선택 시 본번/부번 개념 없음 → 0 처리
+    extraAddress.value = '';
+    propertyStore.updateNewProperty('buildingNo', '0');
+    propertyStore.updateNewProperty('buildingSubNo', '0');
   }
 
   // 참고항목 설정 (도로명일 때만)
