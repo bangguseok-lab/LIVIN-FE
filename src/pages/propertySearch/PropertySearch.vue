@@ -185,6 +185,7 @@ function onClearFilter(chip) {
       <PropertyCard
         v-for="item in s.list"
         :key="item.propertyId"
+        :image-urls="item.imageUrls || item.images || []"
         :propertyId="item.propertyId"
         :transactionType="item.transactionType"
         :price="

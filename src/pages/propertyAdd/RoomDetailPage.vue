@@ -15,7 +15,77 @@ const handleNextClick = () => {
 
 <template>
   <div class="RoomDetailPage">
-    <div class="roomDetail-container"></div>
+    <div class="roomDetail-container">
+      <section class="detail-wrapper">
+        <div class="title">면적</div>
+        <div class="area-wrapper">
+          <div class="area-input-wrapper">
+            <div class="input-label">전용면적</div>
+            <div class="input-field">
+              <div class="input-group area-input">
+                <input type="text" inputmode="numeric" placeholder="면적을 입력하세요" id="exclusiveArea"
+                  @input="onWolseNumberInput" />
+                <span class="unit">㎡</span>
+              </div>
+            </div>
+          </div>
+          <div class="area-input-wrapper">
+            <div class="input-label">공급면적</div>
+            <div class="input-field">
+              <div class="input-group">
+                <input type="text" inputmode="numeric" placeholder="면적을 입력하세요" id="supplyArea"
+                  @input="onWolseNumberInput" />
+                <span class="unit">㎡</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="detail-wrapper">
+        <div class="title">방 / 욕실</div>
+        <div class="room-count-wrapper">
+          <div class="room-count-box">
+            <div class="input-label">방 개수</div>
+            <div class="count-input-field">
+              <div class="input-group">
+                <input type="text" inputmode="numeric" placeholder="0" id="supplyArea" @input="onWolseNumberInput" />
+                <span class="unit">개</span>
+              </div>
+            </div>
+          </div>
+          <div class="room-count-box">
+            <div class="input-label">욕실 개수</div>
+            <div class="count-input-field">
+              <div class="input-group">
+                <input type="text" inputmode="numeric" placeholder="0" id="supplyArea" @input="onWolseNumberInput" />
+                <span class="unit">개</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="detail-wrapper">
+        <div class="title">층</div>
+        <div class="duplex-wrapper">
+          <div class="area-input-wrapper">
+            <div class="input-label">층수</div>
+            <div class="input-field">
+              <div class="input-group">
+                <input type="text" inputmode="numeric" placeholder="매물의 층을 입력하세요" id="supplyArea"
+                  @input="onWolseNumberInput" />
+                <span class="unit">층</span>
+              </div>
+            </div>
+          </div>
+          <div class="duplex-button-wrapper">
+            <div class="input-label">복층 여부</div>
+            <div class="input-field">
+              <Buttons v-model:is-active="floorBtn1" type="floor" label="복층입니다" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
     <div class="button-wrapper">
       <Buttons type="default" label="이전" @click="handlePrevClick" class="prevBtn" />
       <Buttons type="default" label="다음" @click="handleNextClick" class="nextBtn" />
@@ -37,6 +107,140 @@ const handleNextClick = () => {
   height: 70%;
 }
 
+.detail-wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  border-top: .2rem solid var(--whitish);
+  // border-bottom: .2rem solid var(--whitish);
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--title-text);
+}
+
+.area-wrapper {
+  margin-top: 1rem;
+}
+
+// 방 / 욕실 개수 section
+.room-count-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: 100%;
+  column-gap: 1rem;
+  margin-top: 1rem;
+}
+
+.room-count-box {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.room-count-box>.input-label {
+  margin-bottom: .4rem;
+  padding-left: .2rem;
+}
+
+// 복층 여부 section
+.duplex-wrapper {
+  display: flex;
+  flex-direction: column;
+  row-gap: .4rem;
+  margin-top: 1rem;
+}
+
+.duplex-button-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.duplex-button-wrapper>.input-label {
+  width: 20%;
+}
+
+.duplex-button-wrapper>.input-field>.Buttons:deep(.btn-floor) {
+  width: 100%;
+}
+
+.duplex-button-wrapper>.input-field>.Buttons:deep(.btn-floor):hover {
+  cursor: pointer;
+  border: .1rem solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+// 입력창 관련 스타일
+.area-input-wrapper {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: .6rem;
+}
+
+.input-label {
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--title-text);
+}
+
+.input-field {
+  width: 100%;
+}
+
+.input-group {
+  position: relative;
+  border: rem(1px) solid #e5e7eb;
+  border-radius: 0.625rem;
+  background-color: #f9fafb;
+}
+
+.input-group input {
+  width: 100%;
+  height: 2.4rem;
+  padding-right: 3.25rem;
+  padding-left: .875rem;
+  border: 0; // 만원 글씨랑 겹쳐서 무테로 적용
+  background: transparent;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.input-group input::placeholder {
+  font-size: .8rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--sub-title-text);
+}
+
+.input-group input:focus {
+  outline: none;
+}
+
+.input-group:has(input:focus) {
+  caret-color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+  background: #fff;
+}
+
+.unit {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: var(--font-weight-medium);
+  font-size: 1rem;
+  color: #9ca3af;
+  pointer-events: none; // 클릭 비활성화
+}
+
+
 .button-wrapper {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -49,5 +253,81 @@ const handleNextClick = () => {
   width: 100%;
   height: rem(50px);
   margin-bottom: 5rem;
+}
+
+@media (max-width: 375px) {
+  .detail-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 1.6rem;
+    border-top: .2rem solid var(--whitish);
+    // border-bottom: .2rem solid var(--whitish);
+  }
+
+  .title {
+    font-size: 1rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--title-text);
+  }
+
+  .input-label {
+    font-size: .8rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--title-text);
+  }
+
+  .input-field {
+    width: 100%;
+  }
+
+  .input-group input {
+    width: 100%;
+    height: 2rem;
+    padding-right: 3.25rem;
+    padding-left: .875rem;
+    border: 0; // 만원 글씨랑 겹쳐서 무테로 적용
+    background: transparent;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+
+  .input-group input::placeholder {
+    font-size: .6rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--sub-title-text);
+  }
+
+  .input-group input:focus {
+    outline: none;
+  }
+
+  .input-group:has(input:focus) {
+    caret-color: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+    background: #fff;
+  }
+
+  .unit {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: var(--font-weight-semibold);
+    font-size: .6rem;
+    color: #9ca3af;
+    pointer-events: none; // 클릭 비활성화
+  }
+
+  .duplex-button-wrapper>.input-label {
+    width: 40%;
+  }
+
+  .duplex-button-wrapper>.input-field>.Buttons:deep(.btn-floor):hover {
+    cursor: pointer;
+    border: .1rem solid var(--primary-color);
+    color: var(--primary-color);
+  }
 }
 </style>

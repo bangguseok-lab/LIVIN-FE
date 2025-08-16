@@ -106,15 +106,27 @@ onMounted(async () => {
             const longitude = position.coords.longitude
             searchAddressByCoords(latitude, longitude)
           },
-          error => {
+          async error => {
             console.error('Geolocation 오류:', error)
             addressErrorMessage.value =
               '현재 위치를 가져올 수 없습니다. 브라우저 설정에서 위치 정보 접근을 허용했는지 확인해주세요.'
+            const initialProperties = {
+              limit: 4,
+              sido: '서울특별시',
+              sigungu: '강남구',
+              eupmyendong: '대치동',
+            }
             switch (error.code) {
               case error.PERMISSION_DENIED:
+                propertyMessage.value = propertyMessage.value =
+                  '위치 정보 접근이 거부되었습니다.\n 서울특별시 강남구 대치동의 매물을 보여드릴게요.'
+                await property.fetchProperties(initialProperties)
                 console.error('사용자가 위치 정보 접근을 거부했습니다.')
                 break
               case error.POSITION_UNAVAILABLE:
+                propertyMessage.value = propertyMessage.value =
+                  '위치 정보를 사용할 수 없습니다.\n 서울특별시 강남구 대치동의 매물을 보여드릴게요.'
+                await property.fetchProperties(initialProperties)
                 console.error('위치 정보를 사용할 수 없습니다.')
                 break
               case error.TIMEOUT:

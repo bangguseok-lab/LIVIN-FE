@@ -57,5 +57,20 @@ export const useRegisteredPropertyStore = defineStore('registeredProperty', {
         this.loading = false
       }
     },
+
+    async updateProperty(propertyId, propertyData) {
+      this.loading = true
+      this.error = null
+      try {
+        await registeredPropertyAPI.updateProperty(propertyId, propertyData)
+        await this.fetchMyProperties()
+      } catch (err) {
+        this.error = err
+        console.error('매물 수정 중 오류 발생:', err)
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
   },
 })

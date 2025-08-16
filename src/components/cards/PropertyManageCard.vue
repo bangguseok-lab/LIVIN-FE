@@ -89,15 +89,10 @@ const handleEditClick = () => {
 const handleDeleteClick = () => {
   emit('delete', props.propertyId)
 }
-
-function goToDetail() {
-  console.log('[goToDetail] propertyId:', props.propertyId)
-  router.push({ name: 'propertyDetails', params: { id: props.propertyId } })
-}
 </script>
 
 <template>
-  <div class="property-card" @click="goToDetail()">
+  <div class="property-card">
     <div class="image-wrapper">
       <template v-if="imageUrl">
         <img :src="imageUrl" alt="매물 이미지" class="property-thumbnail" />

@@ -2,13 +2,15 @@
 import api from '@/api/property'
 import FavoriteButton from '@/components/common/buttons/FavoriteButton.vue'
 import badge from '@/assets/images/landing/SecureBadge.png'
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import SafePropertyModal from '@/components/modals/SafePropertyModal.vue'
 import { usePropertyStore } from '@/stores/property'
 
 const router = useRouter()
 const propertyStore = usePropertyStore()
+
+defineOptions({ name: 'PropertyCard', inheritAttrs: false })
 
 const modalVisible = ref(false)
 
@@ -24,42 +26,48 @@ const props = defineProps({
   imageUrls: Array,
   propertyType: String,
   detailAddress: String,
-  exclusiveArea: String,
-  supplyArea: String,
-  floor: String,
-  totalFloors: String,
+  exclusiveArea: [String, Number],
+  supplyArea: [String, Number],
+  floor: [String, Number],
+  totalFloors: [String, Number],
   direction: String,
   address: String,
   isFavorite: Boolean,
   isSafe: Boolean,
-  mortgage: Boolean,
-  ownerMatch: Boolean,
-  illegalBuilding: Boolean,
-  jeonseRate: Number,
-})
-
-const propertyInfo = computed(() => {
-  return {
-    mortgage: props.mortgage,
-    ownerMatch: props.ownerMatch,
-    illegalBuilding: props.illegalBuilding,
-    jeonseRate: props.jeonseRate,
-  }
 })
 
 // props에서 초기 상태를 가져와 ref로 설정
 const localIsFavorite = ref(props.isFavorite)
 
-// 백엔드 이미지 url 받아올 때 주석 해제하고 아래의 동일 이름의 함수 삭제.
-// const imageUrl = computed(() => {
-//   return props.imageUrls?.[0]?.imageUrl || null
-// })
-
 import sample1 from '../../assets/images/home/sample-img1.png'
+const FORCE_SAMPLE = import.meta.env.VITE_FORCE_SAMPLE_IMAGE === 'true'
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || ''
 
-const imageUrl = computed(() => {
-  return props.imageUrls?.[0]?.imageUrl || sample1
+const pickFirstUrl = arr => {
+  if (!Array.isArray(arr) || arr.length === 0) return ''
+  const first = arr.find(v => typeof v !== 'string' && v?.represent) ?? arr[0]
+  return typeof first === 'string'
+    ? first
+    : first?.imageUrl || first?.url || first?.thumbnailUrl || first?.path || ''
+}
+
+const rawUrl = computed(() => pickFirstUrl(props.imageUrls))
+const imageSrc = ref(sample1)
+
+watchEffect(() => {
+  let u = rawUrl.value
+
+  // 상대경로면 BASE 붙여 절대 URL로
+  if (u && !/^https?:\/\//i.test(u)) {
+    u = IMAGE_BASE ? `${IMAGE_BASE}/${u.replace(/^\/+/, '')}` : u
+  }
+
+  // 강제 샘플 or 빈 값 or http(혼합콘텐츠)면 샘플
+  imageSrc.value = FORCE_SAMPLE || !u || /^http:\/\//i.test(u) ? sample1 : u
 })
+function handleImgError(e) {
+  if (e?.target) e.target.src = sample1
+}
 
 // 금액 단위 포맷 함수
 function formatDepositPrice(value) {
@@ -156,15 +164,20 @@ function goToDetail() {
 
 <template>
   <SafePropertyModal
-    v-if="modalVisible"
-    :modelValue="modalVisible"
-    :propertyInfo="propertyInfo"
-    @update:modelValue="modalVisible = $event"
+    v-model="modalVisible"
+    :property-id="propertyId"
+    @cta="router.push({ name: 'DepositInput' })"
   />
   <div class="property-card" @click="goToDetail()">
     <div class="image-wrapper">
-      <template v-if="imageUrl">
-        <img :src="imageUrl" alt="매물 이미지" class="property-thumbnail" />
+      <template v-if="imageSrc">
+        <img
+          :src="imageSrc"
+          alt="매물 이미지"
+          class="property-thumbnail"
+          loading="lazy"
+          @error="handleImgError"
+        />
       </template>
       <template v-else>
         <div class="property-image-placeholder">이미지 없음</div>
@@ -172,13 +185,19 @@ function goToDetail() {
 
       <!-- 안심 매물 뱃지 -->
       <div class="property-card-badge">
-        <img
-          v-if="isSafe"
-          :src="badge"
-          alt="안심매물 뱃지"
-          class="badge-img"
+        <button
+          type="button"
+          class="badge-btn"
           @click.stop="modalVisible = true"
-        />
+          aria-label="안심매물 리포트 열기"
+        >
+          <img
+            v-if="isSafe"
+            :src="badge"
+            alt="안심매물 뱃지"
+            class="badge-img"
+          />
+        </button>
       </div>
     </div>
 
@@ -196,8 +215,8 @@ function goToDetail() {
     <!-- 관심 하트 버튼 -->
     <div class="card-favorite-btn" @click.stop>
       <FavoriteButton
-        width="16"
-        height="16"
+        :width="16"
+        :height="16"
         :isFavorite="localIsFavorite"
         :propertyId="propertyId"
         @toggle-favorite="handleFavoriteToggle"
@@ -226,7 +245,7 @@ function goToDetail() {
 .property-thumbnail {
   width: 100%;
   height: 100%;
-  // background-color: #ddd;
+  object-fit: cover;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -242,7 +261,10 @@ function goToDetail() {
   color: var(--whitish);
   text-align: center;
 }
-.property-card-badge {
+.property-card-badge .badge-btn {
+  background: transparent;
+  border: 0;
+  padding: 0;
   position: absolute;
   top: 6px;
   left: 2px;
@@ -250,6 +272,7 @@ function goToDetail() {
   z-index: 2;
   width: 50px;
   height: auto;
+  display: block;
 }
 
 .badge-img {
