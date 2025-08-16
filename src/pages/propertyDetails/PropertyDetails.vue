@@ -194,6 +194,7 @@ const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
 // 관리비 관련
 const calculate = computed(() => {
   const propertyDetails = property.getPropertyDetails
+  const managementList = propertyDetails?.management || []
   const total = propertyDetails.management?.reduce((acc, crr) => {
     if (crr && crr.managementFee !== null && crr.managementFee !== undefined) {
       const fee = crr.managementFee
@@ -209,12 +210,6 @@ const calculate = computed(() => {
   }, 0)
 
   if (total === 0) {
-    const hasOnlyVariableFees = managementList.every(
-      m => m && m.managementFee === '쓴 만큼',
-    )
-    if (hasOnlyVariableFees) {
-      return '별도 부과'
-    }
     return '관련 정보 없음'
   }
 
@@ -496,13 +491,13 @@ const sortedImgUrls = computed(() => {
       <div class="content-details-row">
         <div class="content-details-row-title">이름</div>
         <div class="content-details-row-content">
-          {{ property.getPropertyDetails.land?.name }}
+          {{ property.getPropertyDetails.landlord?.name }}
         </div>
       </div>
       <div class="content-details-row">
         <div class="content-details-row-title">전화번호</div>
         <div class="content-details-row-content">
-          {{ property.getPropertyDetails.land?.phone }}
+          {{ property.getPropertyDetails.landlord?.phone }}
         </div>
       </div>
     </div>
