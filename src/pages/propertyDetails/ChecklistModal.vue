@@ -26,31 +26,29 @@ const checklistItems = ref([])
 const checkedOptions = ref({}) // { itemId: boolean } - isChecked 값들을 저장
 const currentGroupIndex = ref(0) // 현재 표시되고 있는 그룹의 인덱스
 
-// --- 핵심 로직 함수들 ---
-
-// 1. 매물 페이지 진입 시 실행되는 메인 함수
+// 매물 페이지 진입 시 실행되는 메인 함수
 const initializePropertyChecklist = async () => {
   modalState.value = 'loading'
   try {
     console.log('=== initializePropertyChecklist 시작 ===')
 
-    // ✅ [수정] 템플릿 목록을 가장 먼저 불러옵니다.
-    // 이렇게 하면 어떤 화면으로 이동하든 목록 데이터가 항상 준비되어 있습니다.
+    // 템플릿 목록을 가장 먼저 불러오도록 구현
+    // 어떤 화면으로 이동하든 목록 데이터가 항상 준비되어 있는 상태 (그렇지 않을 경우, '다른 목록 적용하기' 버튼 클릭 시 빈 목록 출력)
     await loadTemplateChecklists()
 
     console.log('매물 ID:', props.propertyId)
 
-    // [1단계] 이 매물에 이미 생성된 개인화 체크리스트가 있는지 조회
+    // 이 매물에 이미 생성된 개인화 체크리스트가 있는지 조회
     const personalizedItems =
       await checklistAPI.getPersonalizedChecklistForProperty(props.propertyId)
     console.log('개인화 체크리스트 조회 결과:', personalizedItems)
 
     if (personalizedItems && personalizedItems.length > 0) {
-      // [2-A단계] 있으면, 해당 아이템들을 바로 화면에 표시
+      // 있으면, 해당 아이템들을 바로 화면에 표시
       console.log('기존 개인화 체크리스트를 발견했습니다.', personalizedItems)
       setupOptionsScreen(personalizedItems)
     } else {
-      // [2-B단계] 없으면, 템플릿 선택 화면으로 전환
+      // 없으면, 템플릿 선택 화면으로 전환
       console.log(
         '개인화 체크리스트가 없습니다. 템플릿 목록 화면으로 이동합니다.',
       )
@@ -63,7 +61,7 @@ const initializePropertyChecklist = async () => {
   }
 }
 
-// 2. 템플릿 체크리스트 목록 로딩
+// 템플릿 체크리스트 목록 로딩
 const loadTemplateChecklists = async () => {
   try {
     console.log('템플릿 체크리스트 목록 로딩 시작')
@@ -71,7 +69,7 @@ const loadTemplateChecklists = async () => {
     // 스토어의 메서드 사용
     await checklist.loadChecklists()
 
-    // 직접 API 호출도 시도해보기
+    // 직접 API 호출 시도해보기
     const directResponse = await checklistAPI.getChecklistTitles()
     console.log('직접 API 응답 전체:', directResponse)
 
@@ -94,14 +92,14 @@ const loadTemplateChecklists = async () => {
   }
 }
 
-// 4. 옵션 화면을 설정하는 공통 함수
+// 옵션 화면을 설정하는 공통 함수
 const setupOptionsScreen = items => {
   console.log('=== setupOptionsScreen 시작 ===')
   console.log('설정할 아이템들:', items)
 
   checklistItems.value = items
 
-  // 첫 번째 아이템에서 checklistId와 title을 가져옴 (모든 아이템이 동일)
+  // 첫 번째 옵션에서 checklistId와 title을 가져옴 (모든 옵션이 동일)
   if (items[0]) {
     selectedChecklistId.value = items[0].checklistId || items[0].id
 
@@ -132,7 +130,7 @@ const setupOptionsScreen = items => {
   modalState.value = 'options' // 옵션 화면으로 전환
 }
 
-// 5. 사용자가 목록에서 템플릿을 클릭하면, 먼저 확인창을 띄움
+// 사용자가 목록에서 템플릿을 클릭하면, 먼저 확인창을 띄움
 const selectTemplate = template => {
   console.log('=== selectTemplate 함수 시작 ===')
   console.log('선택된 템플릿:', template)
@@ -172,7 +170,7 @@ const confirmAndClone = async () => {
 
     console.log('소스 체크리스트 ID:', sourceChecklistId)
 
-    // [3단계] 선택한 템플릿으로 '복제 생성' API 호출
+    // 선택한 템플릿으로 '복제 생성' API 호출
     const response = await checklistAPI.cloneChecklistForProperty(
       props.propertyId,
       sourceChecklistId,
@@ -187,7 +185,7 @@ const confirmAndClone = async () => {
 
     console.log('새로 생성된 체크리스트 ID:', newChecklistId)
 
-    // [4단계] 생성 성공 후, 생성된 체크리스트 정보를 다시 조회하여 화면에 표시
+    // 생성 성공 후, 생성된 체크리스트 정보를 다시 조회하여 화면에 표시
     await initializePropertyChecklist()
   } catch (error) {
     console.error('체크리스트 복제 및 적용에 실패했습니다.', error)
@@ -219,7 +217,7 @@ const selectChecklist = title => {
   selectTemplate(selectedChecklist)
 }
 
-// 6. 옵션 상태 변경 (기존과 유사)
+// 옵션 상태 변경
 const updateItemState = (item, newValue) => {
   const itemId = item.checklistItemId || item.id || item.itemId
 
@@ -269,7 +267,7 @@ const updateItemState = (item, newValue) => {
   console.log('=== updateItemState 함수 완료 ===')
 }
 
-// 7. 변경된 옵션을 저장하는 함수
+// 변경된 옵션을 저장하는 함수
 const saveOptions = async () => {
   try {
     console.log('=== saveOptions 함수 시작 ===')
@@ -310,7 +308,7 @@ const saveOptions = async () => {
   }
 }
 
-// 8. 기존 함수들 (UI 관련)
+// 기존 함수들 (UI 관련)
 const confirmApplyChecklist = async () => {
   const payload = {
     checklistId: selectedChecklistId.value,
@@ -638,11 +636,11 @@ onMounted(() => {
   }
 }
 .confirm-button.yes {
-  background-color: var(--primary-color, #1e90ff); // 파란색
+  background-color: var(--primary-color, #1e90ff);
   color: #fff;
 }
 .confirm-button.no {
-  background-color: #e0e0e0; // 회색
+  background-color: #e0e0e0;
   color: #555;
 }
 
@@ -784,7 +782,7 @@ onMounted(() => {
 
 // 네비게이션 버튼 절대 위치 설정
 .nav-button {
-  background: #1e90ff; // 단순한 파란색 배경
+  background: #1e90ff;
   color: white;
   border: none;
   border-radius: 50%;

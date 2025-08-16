@@ -36,7 +36,7 @@ const checklistAPI = {
 
   // 나의 체크리스트 항목 수정(db)
   async editMyChecklistItem(checklistId, items) {
-    console.log('✅ 보내는 payload:', items)
+    console.log('보내는 payload:', items)
     const { data } = await apiClient.put(`/checklists/${checklistId}/items`, {
       items,
     })
@@ -206,7 +206,7 @@ const checklistAPI = {
     }
   },
 
-  // 체크리스트 아이템 상태 업데이트 (propertyId 포함) - 최신 버전
+  // 체크리스트 아이템 상태 업데이트 (propertyId 포함)
   async updateChecklistItemsWithProperty(propertyId, checklistId, payload) {
     try {
       console.log('updateChecklistItemsWithProperty API 호출 시작')
@@ -238,7 +238,7 @@ const checklistAPI = {
     }
   },
 
-  // 체크리스트 아이템 상태 업데이트 (기존 버전 - 하위 호환성 유지)
+  // 체크리스트 아이템 상태 업데이트
   async updateChecklistItems(checklistId, payload) {
     try {
       console.log(
