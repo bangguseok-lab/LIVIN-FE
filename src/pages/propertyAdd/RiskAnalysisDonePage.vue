@@ -14,11 +14,12 @@ const riskResult = ref(null)    // 위험도 분석 결과 저장
 
 const propertyStore = usePropertyStore()
 
+// 다음 버튼 클릭 시 이벤트 처리
 const handleClick = () => {
   router.push({ name: "photoPage" })
 }
 
-// (선택) 로딩 중 스크롤 잠그기
+// 로딩 중 스크롤 잠그기
 const prevOverflow = ref('')
 watch(loading, (v) => {
   if (v) {
@@ -37,9 +38,8 @@ onMounted(async () => {
   } else {
     // console.log('분석 해야 함')
     // 3초 대기 → 스피너 테스트
-    await new Promise(resolve => setTimeout(resolve, 3000))
-    loading.value = false
-    propertyStore.updateNewProperty('riskAnalyzed', true)   // 분석된 상태 업데이트
+    // await new Promise(resolve => setTimeout(resolve, 3000))
+    // loading.value = false
 
     const inputPostcode = propertyStore.getNewProperty.postcode
     const inputAddress = propertyStore.getNewProperty.address
@@ -47,46 +47,57 @@ onMounted(async () => {
     const inputPropertyDeposit = propertyStore.getNewProperty.propertyDeposit
     let dong = '';
     let ho = '';
-    // console.log(inputDetailAddress)
+    console.log(inputDetailAddress)
 
-    // // 동과 호 추출 (숫자만 또는 '동', '호' 포함해서)
-    // const match = inputDetailAddress.match(/(\d+)동\s*(\d+)호/);
+    // 동과 호 추출 (숫자만 또는 '동', '호' 포함해서)
+    const match = inputDetailAddress.match(/(\d+)동\s*(\d+)호/);
 
-    // if (match) {
-    //   dong = match[1].concat('동'); // 103동
-    //   ho = match[2];   // 3001
+    if (match) {
+      dong = match[1].concat('동'); // 103동
+      ho = match[2];   // 3001
 
-    // } else {
-    //   console.log("형식이 맞지 않습니다.");
-    // }
+    } else {
+      console.log("형식이 맞지 않습니다.");
+    }
 
-    // try {
-    //   const body = {
-    //     "jeonseDeposit": inputPropertyDeposit,
-    //     "roadNo": inputAddress,
-    //     "buildingNo": "60",
-    //     "buildingSubNo": "0",
-    //     "dong": dong,
-    //     "ho": ho,
-    //     "zipCode": inputPostcode,
-    //     "isGeneral": false
-    //   }
+    try {
+      const body = {
+        "jeonseDeposit": inputPropertyDeposit,
+        "roadNo": inputAddress,
+        "buildingNo": "60",
+        "buildingSubNo": "0",
+        "dong": dong,
+        "ho": ho,
+        "zipCode": inputPostcode,
+        "isGeneral": false
+      }
 
-    //   const result = await api.postRiskAnalysis(body)
-    //   riskResult.value = result
+      // 위험도 분석 요청 보내기
+      const result = await api.postRiskAnalysis(body)
+      riskResult.value = result
 
-    //   // 성공 시만 로딩 해제
-    //   loading.value = true
-    //   if (result && result.statusCode === 200) {
-    //     loading.value = false
-    //   } else {
-    //     // 실패 시 처리 (에러 페이지 이동 등)
-    //     console.error('위험도 분석 실패', result)
-    //   }
-    // } catch (err) {
-    //   console.error('위험도 분석 에러', err)
-    //   // 필요시 에러 페이지 이동
-    // }
+      // 성공 시만 로딩 해제
+      loading.value = true
+      if (result && result.statusCode === 200) {
+        loading.value = false // 로딩 상태 없애기
+
+        console.log('sido: ', result.data.sido)
+        console.log('sigungu: ', result.data.sigungu)
+        console.log('eupmyeondong: ', result.data.eupmyeondong)
+
+        // 행정구역 스토어에 업데이트 하기
+        propertyStore.updateNewProperty('sido', result.data.sido)
+        propertyStore.updateNewProperty('sigungu', result.data.sigungu)
+        propertyStore.updateNewProperty('eupmyeondong', result.data.eupmyeondong)
+        propertyStore.updateNewProperty('riskAnalyzed', true)   // 분석된 상태 업데이트
+      } else {
+        // 실패 시 처리 (에러 페이지 이동 등)
+        console.error('위험도 분석 실패', result)
+      }
+    } catch (err) {
+      console.error('위험도 분석 에러', err)
+      // 필요시 에러 페이지 이동
+    }
   }
 })
 </script>

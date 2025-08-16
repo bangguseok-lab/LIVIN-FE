@@ -40,6 +40,9 @@ export const usePropertyStore = defineStore('property', {
       parking: '', // 주차 가능 여부
       description: '', // 매물 설명
       confirmPropertyNum: false, // 부동산 고유번호 조회 완료 여부
+      sido: '', // 시/도
+      sigungu: '', // 시/군/구
+      eupmyeondong: '', // 읍/면/동
     },
   }),
   actions: {
@@ -138,6 +141,9 @@ export const usePropertyStore = defineStore('property', {
         parking: '', // 주차 가능 여부
         description: '', // 매물 설명
         confirmPropertyNum: false, // 부동산 고유번호 조회 완료 여부
+        sido: '', // 시/도
+        sigungu: '', // 시/군/구
+        eupmyeondong: '', // 읍/면/동
       }
     },
     async fetchPropertyDetails(params) {
