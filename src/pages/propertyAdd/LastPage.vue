@@ -88,17 +88,22 @@ const handleSubmit = async () => {
     }
 
     // FormData 조립 (JSON은 propertyRequest / 이미지는 images)
+    const files = np.imageFiles ?? []       // [File, File, ...]
     const fd = new FormData()
+    // propertyRequest (JSON) 먼저 추가
     fd.append(
       'propertyRequest',
-      new Blob([JSON.stringify(propertyRequest)], { type: 'application/json' })
+      new Blob([JSON.stringify({
+        ...propertyRequest,
+        // 여기서는 imgRepresentList를 비워두고, 아래에서 별도 필드로 보냄
+      })], { type: 'application/json' })
+    )
+    // 파일과 대표사진 여부를 순서대로 매칭해서 FormData에 추가
+    files.forEach(file => fd.append("images", file) // 파일 순서 대로
     )
 
-    const files = np.imageFiles ?? []                // File[]
-    files.forEach(file => fd.append('images', file)) // 순서 유지!
-
     // 매물 등록 요청 전송 (성공 시에만 페이지 이동)
-    const res = await api.post('/api/properties', fd)
+    const res = await api.postNewProperty(fd)
 
     const ok = res?.status === 200 || res?.status === 201 || res?.data?.statusCode === 200
     if (ok) {

@@ -68,4 +68,17 @@ export default {
       console.error('위험도 분석 과정에서 에러가 발생했습니다.', error)
     }
   },
+  // 매물 등록 요청
+  async postNewProperty(body) {
+    try {
+      const { data } = await apiClient.post('/api/properties', body, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      return data
+    } catch (error) {
+      console.error('매물 등록 요청 중 에러가 발생했습니다.', error)
+    }
+  },
 }
