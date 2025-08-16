@@ -5,6 +5,7 @@ import checklistAPI from '@/api/checklist'
 export const useChecklistStore = defineStore('checklist', {
   state: () => ({
     checklists: [],
+    checklistFilters: [], // 관심매물 페이지
     currentChecklist: null,
     currentChecklistItems: [],
     selectedChecklistId: null,
@@ -13,6 +14,21 @@ export const useChecklistStore = defineStore('checklist', {
   }),
 
   actions: {
+    //  관심매물용 체크리스트 필터 조회 (/api/checklist-filters)
+    async loadChecklistFilters() {
+      this.loading = true
+      this.error = null
+      try {
+        const list = await checklistAPI.fetchPropertiesFavChecklist()
+        this.checklistFilters = Array.isArray(list) ? list : []
+      } catch (err) {
+        this.error = err
+        this.checklistFilters = []
+      } finally {
+        this.loading = false
+      }
+    },
+
     // 전체 체크리스트 조회
     async loadChecklists() {
       this.loading = true
