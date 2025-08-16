@@ -39,6 +39,7 @@ export const usePropertyStore = defineStore('property', {
       pet: '', // 반려동물 여부
       parking: '', // 주차 가능 여부
       description: '', // 매물 설명
+      confirmPropertyNum: false, // 부동산 고유번호 조회 완료 여부
     },
   }),
   actions: {
@@ -136,6 +137,7 @@ export const usePropertyStore = defineStore('property', {
         pet: '', // 반려동물 여부
         parking: '', // 주차 가능 여부
         description: '', // 매물 설명
+        confirmPropertyNum: false, // 부동산 고유번호 조회 완료 여부
       }
     },
     async fetchPropertyDetails(params) {
