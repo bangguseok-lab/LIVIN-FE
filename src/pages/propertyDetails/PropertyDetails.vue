@@ -194,6 +194,7 @@ const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
 // 관리비 관련
 const calculate = computed(() => {
   const propertyDetails = property.getPropertyDetails
+  const managementList = propertyDetails?.management || []
   const total = propertyDetails.management?.reduce((acc, crr) => {
     if (crr && crr.managementFee !== null && crr.managementFee !== undefined) {
       const fee = crr.managementFee
@@ -496,13 +497,13 @@ const sortedImgUrls = computed(() => {
       <div class="content-details-row">
         <div class="content-details-row-title">이름</div>
         <div class="content-details-row-content">
-          {{ property.getPropertyDetails.land?.name }}
+          {{ property.getPropertyDetails.landlord?.name }}
         </div>
       </div>
       <div class="content-details-row">
         <div class="content-details-row-title">전화번호</div>
         <div class="content-details-row-content">
-          {{ property.getPropertyDetails.land?.phone }}
+          {{ property.getPropertyDetails.landlord?.phone }}
         </div>
       </div>
     </div>
