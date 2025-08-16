@@ -2,10 +2,11 @@
 import { FilterSecureOption, FilterChecklistSlider } from './FilterBar.js'
 
 const props = defineProps({
-  checklistItems: Array,
-  selected: String,
+  checklistItems: { type: Array, default: () => [] },
+  selected: { type: Array, default: () => [] },
   onlySecure: Boolean,
   region: Object,
+  regionApplied: Object,
   regionData: Object,
 })
 
@@ -13,7 +14,13 @@ const emit = defineEmits([
   'update:selected',
   'update:onlySecure',
   'update:region',
+  'filterCompleted',
 ])
+
+function onToggleSelected(newSelected) {
+  // ✅ 배열 그대로 올려보내기
+  emit('update:selected', newSelected)
+}
 </script>
 
 <template>
@@ -24,7 +31,9 @@ const emit = defineEmits([
       :model-value="props.selected"
       :region-data="props.regionData"
       :region="props.region"
+      :region-applied="props.regionApplied"
       @update:region="val => emit('update:region', val)"
+      @filterCompleted="() => emit('filterCompleted')"
       @update:modelValue="val => emit('update:selected', val)"
     />
 
