@@ -76,6 +76,11 @@ const checklistAPI = {
     const { data } = await apiClient.get(`/checklists/{checklistId}/properties`)
     return data
   },
+
+  async fetchPropertiesFavChecklist() {
+    const { data } = await apiClient.get('/checklist-filters')
+    return data
+  },
 }
 
 export default checklistAPI

@@ -1,11 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import PropertyCard from '@/components/cards/PropertyCard.vue'
 import FilterBarFavorite from '@/components/filters/FilterBarFavorite.vue'
-import Navbar from '@/components/layouts/Navbar.vue'
 import { usePropertyStore } from '@/stores/property'
 import { useChecklistStore } from '@/stores/checklist'
 import api from '@/api/property'
+import userAPI from '@/api/user'
 import districtData from '@/assets/data/order-district.json'
 
 const propertyStore = usePropertyStore()
@@ -18,34 +18,113 @@ const userName = ref('')
 const favOnlySecure = ref(false)
 // ✅ 기본값을 null: “전체” 제거. 초기엔 첫 체크리스트로 자동 선택.
 const favSelectedChecklist = ref(null)
-const favRegion = ref({ city: null, district: null, parish: null })
+const favRegionDraft = ref({ city: null, district: null, parish: null })
+const favRegionApplied = ref({ city: null, district: null, parish: null })
 
 // 매물 리스트
 const propertyList = ref([])
 
-/* ---------- 체크리스트 탭: 스토어 → 라벨/ID ---------- */
-const myChecklists = computed(() => checklistStore.myChecklists ?? [])
-const checklistTabs = computed(() =>
-  myChecklists.value.map(c => ({
-    id: c.checklistId ?? c.id,
-    label: c.title ?? c.name,
-  })),
-)
-// ✅ 슬라이더에 보여줄 라벨들(“전체” 없음)
-const checklistLabels = computed(() => checklistTabs.value.map(c => c.label))
+// 페이징 상태
+const PAGE_SIZE = 20
+const isLoading = ref(false)
+const hasMore = ref(true)
+const lastId = ref(null) // 서버로 넘길 커서
 
-// 라벨 → ID 역매핑
+// 세션 저장/복원
+const STORAGE = {
+  onlySecure: 'fav.onlySecure',
+  selectedLabel: 'fav.selectedLabel',
+  regionDraft: 'fav.regionDraft',
+  regionApplied: 'fav.regionApplied',
+}
+
+function saveFilters() {
+  try {
+    sessionStorage.setItem(STORAGE.onlySecure, String(!!favOnlySecure.value))
+    sessionStorage.setItem(
+      STORAGE.selectedLabel,
+      favSelectedChecklist.value ?? '',
+    )
+    sessionStorage.setItem(
+      STORAGE.regionDraft,
+      JSON.stringify(
+        favRegionDraft.value ?? { city: null, district: null, parish: null },
+      ),
+    )
+    sessionStorage.setItem(
+      STORAGE.regionApplied,
+      JSON.stringify(
+        favRegionApplied.value ?? { city: null, district: null, parish: null },
+      ),
+    )
+  } catch (e) {
+    console.warn('fav filters save failed:', e)
+  }
+}
+
+function restoreFilters() {
+  try {
+    const onlySecure = sessionStorage.getItem(STORAGE.onlySecure)
+    if (onlySecure !== null)
+      favOnlySecure.value = onlySecure === 'true' || onlySecure === '1'
+
+    const savedLabel = sessionStorage.getItem(STORAGE.selectedLabel)
+    favSelectedChecklist.value = savedLabel ? savedLabel : null
+
+    const rd = sessionStorage.getItem(STORAGE.regionDraft)
+    if (rd) {
+      const parsed = JSON.parse(rd)
+      favRegionDraft.value = {
+        city: parsed?.city ?? null,
+        district: parsed?.district ?? null,
+        parish: parsed?.parish ?? null,
+      }
+    }
+    const ra = sessionStorage.getItem(STORAGE.regionApplied)
+    if (ra) {
+      const parsed = JSON.parse(ra)
+      favRegionApplied.value = {
+        city: parsed?.city ?? null,
+        district: parsed?.district ?? null,
+        parish: parsed?.parish ?? null,
+      }
+    }
+  } catch (e) {
+    console.warn('fav filters restore failed:', e)
+  }
+}
+
+// 체크리스트 탭
+const myChecklists = computed(() => checklistStore.checklistFilters ?? [])
+// 슬라이더용
+const checklistItemsForSlider = computed(() => {
+  const seen = new Set()
+  return [...myChecklists.value]
+    .reverse()
+    .filter(c => {
+      const id = c.checklistId
+      if (seen.has(id)) return false
+      seen.add(id)
+      return true
+    })
+    .map(c => ({ id: c.checklistId, label: (c.title || '').trim() }))
+})
+const checklistLabels = computed(() =>
+  checklistItemsForSlider.value.map(x => x.label),
+)
 const selectedChecklistId = computed(() => {
-  if (!favSelectedChecklist.value) return null
-  const hit = checklistTabs.value.find(c => c.label === favSelectedChecklist.value)
-  return hit?.id ?? null
+  const label = favSelectedChecklist.value
+  return checklistItemsForSlider.value.find(x => x.label === label)?.id ?? null
 })
 
-/* ---------- 지역 옵션 계산 (검색 페이지 로직 동일) ---------- */
+// 지역 옵션 계산
 const regionData = computed(() => {
-  const cities = [...new Set(districtData.map(d => d.sido))].map(name => ({ code: name, name }))
-  const currentCity = favRegion.value.city
-  const currentDistrict = favRegion.value.district
+  const cities = [...new Set(districtData.map(d => d.sido))].map(name => ({
+    code: name,
+    name,
+  }))
+  const currentCity = favRegionDraft.value.city
+  const currentDistrict = favRegionDraft.value.district
 
   const districtNamesRaw = [
     ...new Set(
@@ -56,12 +135,16 @@ const regionData = computed(() => {
   ]
   const hasRealDistricts = districtNamesRaw.some(Boolean)
 
+  // 시군구가 하나도 없으면 "해당없음" 더미 항목 노출
   const districts = hasRealDistricts
     ? districtNamesRaw.filter(Boolean).map(name => ({ code: name, name }))
     : [{ code: '__NONE__', name: '해당없음' }]
 
+  // 읍/면/동: 시군구가 있으면 (시도+시군구)로, 없으면 (시도만)으로 필터
   const parishRows = hasRealDistricts
-    ? districtData.filter(d => d.sido === currentCity && d.sigungu === currentDistrict)
+    ? districtData.filter(
+        d => d.sido === currentCity && d.sigungu === currentDistrict,
+      )
     : districtData.filter(d => d.sido === currentCity)
 
   const parishes = [
@@ -71,24 +154,27 @@ const regionData = computed(() => {
   return { cities, districts, parishes }
 })
 
-/* ---------- (선택) 로컬 태깅 규칙 — 서버 필터면 미사용 ---------- */
+// 로컬 태깅 규칙
 const checklistRules = {
   체크리스트A: src => src.ownerMatch === true,
   체크리스트B: src => src.mortgage === true,
   체크리스트C: src => src.illegalBuilding === true,
-  체크리스트D: src => typeof src.jeonseRate === 'number' && src.jeonseRate >= 80,
+  체크리스트D: src =>
+    typeof src.jeonseRate === 'number' && src.jeonseRate >= 80,
 }
 function deriveChecklistTags(src) {
   const tags = []
   for (const [tag, rule] of Object.entries(checklistRules)) {
     try {
       if (rule(src)) tags.push(tag)
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
   return tags
 }
 
-/* ---------- 서버 응답 → 카드 ---------- */
+// 서버 응답 → 카드
 function toCard(item) {
   const src = item.property ?? item
   const txn = src.transactionType ?? src.dealType ?? 'JEONSE'
@@ -101,9 +187,10 @@ function toCard(item) {
   return {
     propertyId: src.propertyId ?? src.id,
     transactionType: txn,
-    price: txn === 'JEONSE'
-      ? (src.jeonseDeposit ?? src.deposit ?? src.price ?? 0)
-      : (src.monthlyDeposit ?? src.deposit ?? 0),
+    price:
+      txn === 'JEONSE'
+        ? (src.jeonseDeposit ?? src.deposit ?? src.price ?? 0)
+        : (src.monthlyDeposit ?? src.deposit ?? 0),
     monthlyRent: txn === 'JEONSE' ? null : (src.monthlyRent ?? src.rent ?? 0),
     title: src.name ?? src.title ?? src.detailAddress ?? '',
     imageUrls: src.imageUrls ?? src.images ?? [],
@@ -128,79 +215,170 @@ function toCard(item) {
   }
 }
 
-/* ---------- API 호출 ---------- */
-async function loadFavorites() {
+// API 호출
+async function loadFavorites(append = false) {
+  if (isLoading.value) return
+  if (append && !hasMore.value) return
+
+  isLoading.value = true
   try {
+    // 새로고침 모드면 초기화
+    if (!append) {
+      propertyList.value = []
+      lastId.value = null
+      hasMore.value = true
+    }
+
     const params = {}
     const cid = selectedChecklistId.value
-    if (cid) params.checklistId = cid        // ✅ 체크리스트 기준 서버 필터
+    if (cid) params.checklistId = cid
     if (favOnlySecure.value) params.onlySecure = true
-    if (favRegion.value.city) params.sido = favRegion.value.city
-    if (favRegion.value.district) params.sigungu = favRegion.value.district
-    if (favRegion.value.parish) params.eupmyeondong = favRegion.value.parish
+    if (favRegionApplied.value.city) params.sido = favRegionApplied.value.city
+    if (favRegionApplied.value.district)
+      params.sigungu = favRegionApplied.value.district
+    if (favRegionApplied.value.parish)
+      params.eupmyeondong = favRegionApplied.value.parish
 
+    // ✨ 커서 파라미터
+    params.limit = PAGE_SIZE
+    if (append && lastId.value != null) params.lastId = lastId.value
+
+    // GET /api/favorite-properties?limit=4&lastId=41
     const res = await api.getFavProperties(params)
-    const arr = Array.isArray(res) ? res : (Array.isArray(res?.content) ? res.content : [])
-    propertyList.value = arr.map(toCard)
+    const arr = Array.isArray(res)
+      ? res
+      : Array.isArray(res?.content)
+        ? res.content
+        : []
+    const newCards = arr.map(toCard)
+
+    // 병합 (중복 방지)
+    if (append) {
+      const seen = new Set(propertyList.value.map(v => v.propertyId))
+      for (const c of newCards)
+        if (!seen.has(c.propertyId)) propertyList.value.push(c)
+    } else {
+      propertyList.value = newCards
+    }
+
+    // 다음 커서 갱신
+    if (newCards.length) {
+      lastId.value = newCards[newCards.length - 1].propertyId
+    }
+    // 더 가져올게 없으면 hasMore 종료
+    if (newCards.length < PAGE_SIZE) hasMore.value = false
   } catch (err) {
     console.error('관심 매물 조회 실패:', err)
-    propertyList.value = []
+    if (!append) propertyList.value = []
+    hasMore.value = false
+  } finally {
+    isLoading.value = false
   }
 }
 
-/* ---------- 최초 로드 ---------- */
+// 스크롤 핸들러
+function handleScroll() {
+  const scrollTop = window.scrollY
+  const windowHeight = window.innerHeight
+  const documentHeight = document.documentElement.scrollHeight
+  if (scrollTop + windowHeight >= documentHeight - 200) {
+    loadFavorites(true) // append 모드
+  }
+}
+let scrollAttached = false
+function attachScroll() {
+  if (!scrollAttached) {
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    scrollAttached = true
+  }
+}
+function detachScroll() {
+  if (scrollAttached) {
+    window.removeEventListener('scroll', handleScroll)
+    scrollAttached = false
+  }
+}
+
+// 최초 로드
 onMounted(async () => {
+  userAPI
+    .fetchNickname()
+    .then(nick => (userName.value = nick || ''))
+    .catch(e => console.warn('닉네임 로드 실패:', e))
+
+  restoreFilters()
   try {
-    if (typeof checklistStore.loadMyChecklists === 'function') {
-      await checklistStore.loadMyChecklists()
+    if (typeof checklistStore.loadChecklistFilters === 'function') {
+      await checklistStore.loadChecklistFilters()
     }
   } catch (e) {
     console.warn('체크리스트 로드 실패:', e)
   }
-  // ✅ 체크리스트가 있으면 첫 항목을 자동 선택 ( “전체” 없음 )
-  if (!favSelectedChecklist.value && checklistLabels.value.length > 0) {
-    favSelectedChecklist.value = checklistLabels.value[0]
-  }
-  await loadFavorites()
+
+  await loadFavorites(false)
+  attachScroll()
 })
 
-// 즐겨찾기 변경시 재조회
-watch(() => propertyStore.favoriteVersion, loadFavorites)
+onUnmounted(detachScroll)
 
-// 변경시 즉시 재조회
-watch([favOnlySecure, favRegion, selectedChecklistId], loadFavorites)
+watch(
+  () => propertyStore.favoriteVersion,
+  () => loadFavorites(false),
+)
+watch([favOnlySecure, favRegionApplied, selectedChecklistId], () =>
+  loadFavorites(false),
+)
 
-/* ---------- 화면표시용(지역/안심만) ---------- */
+// 화면표시용(지역/안심만)
 const filteredList = computed(() =>
   propertyList.value.filter(item => {
     if (favOnlySecure.value && !item.isSafe) return false
-    const sel = favRegion.value
+    const sel = favRegionApplied.value
     if (sel.city && item.region?.city !== sel.city) return false
     if (sel.district && item.region?.district !== sel.district) return false
     if (sel.parish && item.region?.parish !== sel.parish) return false
     return true
-  })
+  }),
 )
 
 // 이벤트 핸들러 (슬라이더에서 올라온 값 즉시 재조회)
 function onChangeSelected(label) {
-  favSelectedChecklist.value = label
-  loadFavorites()
+  favSelectedChecklist.value =
+    favSelectedChecklist.value === label ? null : label
+  saveFilters()
+  loadFavorites(false)
 }
 function onChangeOnlySecure(v) {
   favOnlySecure.value = v
-  loadFavorites()
+  saveFilters()
+  loadFavorites(false)
 }
+
 function onChangeRegion(v) {
-  favRegion.value = v
-  loadFavorites()
+  if (!v) return
+  const city = v.city ?? v.sido ?? null
+  const district = v.district ?? v.sigungu ?? null
+  const parish = v.parish ?? v.eupmyeondong ?? null
+
+  favRegionDraft.value = { city, district, parish }
+  saveFilters()
+}
+
+// “완료” 버튼에서만 호출되어야 함
+function onFilterCompleted() {
+  favRegionApplied.value = { ...favRegionDraft.value }
+  saveFilters()
+  loadFavorites(false)
 }
 </script>
 
 <template>
   <div class="PropertyFav">
     <div class="guide-text">
-      <p class="nickname" v-if="userName">{{ userName }}님이</p>
+      <p class="nickname" v-if="userName">
+        <span class="nickname__name">{{ userName }}</span
+        >님이
+      </p>
       <h1 class="title">찜하신 관심매물이에요</h1>
     </div>
 
@@ -209,19 +387,23 @@ function onChangeRegion(v) {
       :checklist-items="checklistLabels"
       :selected="favSelectedChecklist"
       :onlySecure="favOnlySecure"
-      :region="favRegion"
+      :region="favRegionDraft"
       :region-data="regionData"
       @update:selected="onChangeSelected"
       @update:onlySecure="onChangeOnlySecure"
       @update:region="onChangeRegion"
+      @filterCompleted="onFilterCompleted"
     />
 
     <div class="card-list" v-if="filteredList.length">
-      <PropertyCard v-for="property in filteredList" :key="property.propertyId" v-bind="property" />
+      <PropertyCard
+        v-for="property in filteredList"
+        :key="property.propertyId"
+        v-bind="property"
+      />
+      <div v-if="isLoading" class="loading">불러오는 중…</div>
     </div>
     <div v-else class="no-data">관심 매물이 없습니다.</div>
-
-    <Navbar />
   </div>
 </template>
 
@@ -242,8 +424,29 @@ function onChangeRegion(v) {
   text-align: left;
   margin-bottom: 30px;
 }
-.nickname { font-size: 0.9rem; color: var(--black); margin-bottom: 0.4rem; }
-.title { font-size: 1.5rem; font-weight: 700; }
-.card-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
-.no-data { text-align: center; color: #aaa; margin-top: 2rem; }
+.nickname {
+  color: var(--black);
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+.nickname__name {
+  color: var(--primary-color);
+  font-weight: 700;
+  margin-right: 2px;
+}
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.no-data {
+  text-align: center;
+  color: #aaa;
+  margin-top: 2rem;
+}
 </style>

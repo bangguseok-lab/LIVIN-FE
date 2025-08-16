@@ -30,6 +30,7 @@ const visableNav = [
   'propertiesSearch',
   'propertiesManagement',
   'propertyfav',
+  'favoritepage',
   'checklist',
   'checklistDetail',
   'checklistCreate',

@@ -13,6 +13,7 @@ const emit = defineEmits([
   'update:selected',
   'update:onlySecure',
   'update:region',
+  'filterCompleted',
 ])
 </script>
 
@@ -25,6 +26,7 @@ const emit = defineEmits([
       :region-data="props.regionData"
       :region="props.region"
       @update:region="val => emit('update:region', val)"
+      @filterCompleted="() => emit('filterCompleted')"
       @update:modelValue="val => emit('update:selected', val)"
     />
 
