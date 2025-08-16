@@ -4,6 +4,8 @@ import PropertyCard from '@/components/cards/PropertyCard.vue'
 import FilterBarFavorite from '@/components/filters/FilterBarFavorite.vue'
 import { usePropertyStore } from '@/stores/property'
 import { useChecklistStore } from '@/stores/checklist'
+import { useFavFiltersStore } from '@/stores/favFilters'
+import { storeToRefs } from 'pinia'
 import api from '@/api/property'
 import userAPI from '@/api/user'
 import districtData from '@/assets/data/order-district.json'
@@ -17,7 +19,10 @@ const userName = ref('')
 // 필터 상태
 const favOnlySecure = ref(false)
 // ✅ 기본값을 null: “전체” 제거. 초기엔 첫 체크리스트로 자동 선택.
-const favSelectedChecklist = ref(null)
+const favFilters = useFavFiltersStore()
+const { selectedLabels } = storeToRefs(favFilters) // ['체크1','체크2',...]
+
+const favSelectedChecklist = selectedLabels
 const favRegionDraft = ref({ city: null, district: null, parish: null })
 const favRegionApplied = ref({ city: null, district: null, parish: null })
 
@@ -33,26 +38,21 @@ const lastId = ref(null) // 서버로 넘길 커서
 // 세션 저장/복원
 const STORAGE = {
   onlySecure: 'fav.onlySecure',
-  selectedLabel: 'fav.selectedLabel',
   regionDraft: 'fav.regionDraft',
   regionApplied: 'fav.regionApplied',
 }
 
 function saveFilters() {
   try {
-    sessionStorage.setItem(STORAGE.onlySecure, String(!!favOnlySecure.value))
+    sessionStorage.setItem('fav.onlySecure', String(!!favOnlySecure.value))
     sessionStorage.setItem(
-      STORAGE.selectedLabel,
-      favSelectedChecklist.value ?? '',
-    )
-    sessionStorage.setItem(
-      STORAGE.regionDraft,
+      'fav.regionDraft',
       JSON.stringify(
         favRegionDraft.value ?? { city: null, district: null, parish: null },
       ),
     )
     sessionStorage.setItem(
-      STORAGE.regionApplied,
+      'fav.regionApplied',
       JSON.stringify(
         favRegionApplied.value ?? { city: null, district: null, parish: null },
       ),
@@ -64,31 +64,27 @@ function saveFilters() {
 
 function restoreFilters() {
   try {
-    const onlySecure = sessionStorage.getItem(STORAGE.onlySecure)
+    const onlySecure = sessionStorage.getItem('fav.onlySecure')
     if (onlySecure !== null)
       favOnlySecure.value = onlySecure === 'true' || onlySecure === '1'
 
-    const savedLabel = sessionStorage.getItem(STORAGE.selectedLabel)
-    favSelectedChecklist.value = savedLabel ? savedLabel : null
-
-    const rd = sessionStorage.getItem(STORAGE.regionDraft)
-    if (rd) {
-      const parsed = JSON.parse(rd)
+    const rd = sessionStorage.getItem('fav.regionDraft')
+    if (rd)
       favRegionDraft.value = {
-        city: parsed?.city ?? null,
-        district: parsed?.district ?? null,
-        parish: parsed?.parish ?? null,
+        city: null,
+        district: null,
+        parish: null,
+        ...JSON.parse(rd),
       }
-    }
-    const ra = sessionStorage.getItem(STORAGE.regionApplied)
-    if (ra) {
-      const parsed = JSON.parse(ra)
+
+    const ra = sessionStorage.getItem('fav.regionApplied')
+    if (ra)
       favRegionApplied.value = {
-        city: parsed?.city ?? null,
-        district: parsed?.district ?? null,
-        parish: parsed?.parish ?? null,
+        city: null,
+        district: null,
+        parish: null,
+        ...JSON.parse(ra),
       }
-    }
   } catch (e) {
     console.warn('fav filters restore failed:', e)
   }
@@ -112,10 +108,6 @@ const checklistItemsForSlider = computed(() => {
 const checklistLabels = computed(() =>
   checklistItemsForSlider.value.map(x => x.label),
 )
-const selectedChecklistId = computed(() => {
-  const label = favSelectedChecklist.value
-  return checklistItemsForSlider.value.find(x => x.label === label)?.id ?? null
-})
 
 // 지역 옵션 계산
 const regionData = computed(() => {
@@ -222,29 +214,35 @@ async function loadFavorites(append = false) {
 
   isLoading.value = true
   try {
-    // 새로고침 모드면 초기화
     if (!append) {
       propertyList.value = []
       lastId.value = null
       hasMore.value = true
     }
 
-    const params = {}
-    const cid = selectedChecklistId.value
-    if (cid) params.checklistId = cid
-    if (favOnlySecure.value) params.onlySecure = true
-    if (favRegionApplied.value.city) params.sido = favRegionApplied.value.city
+    // ✅ 여기부터: URLSearchParams로 직접 구성
+    const params = new URLSearchParams()
+
+    // 체크리스트 다중 전송 (?checklistId=73&checklistId=74)
+    selectedChecklistIds.value.forEach(id =>
+      params.append('checklistId', String(id)),
+    )
+
+    if (favOnlySecure.value) params.append('onlySecure', 'true')
+    if (favRegionApplied.value.city)
+      params.append('sido', favRegionApplied.value.city)
     if (favRegionApplied.value.district)
-      params.sigungu = favRegionApplied.value.district
+      params.append('sigungu', favRegionApplied.value.district)
     if (favRegionApplied.value.parish)
-      params.eupmyeondong = favRegionApplied.value.parish
+      params.append('eupmyeondong', favRegionApplied.value.parish)
 
-    // ✨ 커서 파라미터
-    params.limit = PAGE_SIZE
-    if (append && lastId.value != null) params.lastId = lastId.value
+    params.append('limit', String(PAGE_SIZE))
+    if (append && lastId.value != null)
+      params.append('lastId', String(lastId.value))
 
-    // GET /api/favorite-properties?limit=4&lastId=41
+    // axios/fetch 어느 쪽이든 URLSearchParams는 그대로 직렬화됩니다.
     const res = await api.getFavProperties(params)
+
     const arr = Array.isArray(res)
       ? res
       : Array.isArray(res?.content)
@@ -252,7 +250,6 @@ async function loadFavorites(append = false) {
         : []
     const newCards = arr.map(toCard)
 
-    // 병합 (중복 방지)
     if (append) {
       const seen = new Set(propertyList.value.map(v => v.propertyId))
       for (const c of newCards)
@@ -261,11 +258,7 @@ async function loadFavorites(append = false) {
       propertyList.value = newCards
     }
 
-    // 다음 커서 갱신
-    if (newCards.length) {
-      lastId.value = newCards[newCards.length - 1].propertyId
-    }
-    // 더 가져올게 없으면 hasMore 종료
+    if (newCards.length) lastId.value = newCards[newCards.length - 1].propertyId
     if (newCards.length < PAGE_SIZE) hasMore.value = false
   } catch (err) {
     console.error('관심 매물 조회 실패:', err)
@@ -275,6 +268,17 @@ async function loadFavorites(append = false) {
     isLoading.value = false
   }
 }
+
+const selectedChecklistIds = computed(() => {
+  const labels = selectedLabels.value
+
+  return labels
+    .map(l => {
+      const found = checklistItemsForSlider.value.find(x => x.label === l)
+      return found ? found.id : null
+    })
+    .filter(v => typeof v === 'number') // ✅ 타입 주석 제거
+})
 
 // 스크롤 핸들러
 function handleScroll() {
@@ -325,8 +329,9 @@ watch(
   () => propertyStore.favoriteVersion,
   () => loadFavorites(false),
 )
-watch([favOnlySecure, favRegionApplied, selectedChecklistId], () =>
-  loadFavorites(false),
+watch(
+  [favOnlySecure, favRegionApplied, () => selectedLabels.value.slice()],
+  () => loadFavorites(false),
 )
 
 // 화면표시용(지역/안심만)
@@ -342,9 +347,12 @@ const filteredList = computed(() =>
 )
 
 // 이벤트 핸들러 (슬라이더에서 올라온 값 즉시 재조회)
-function onChangeSelected(label) {
-  favSelectedChecklist.value =
-    favSelectedChecklist.value === label ? null : label
+function onChangeSelected(labelOrArray) {
+  if (Array.isArray(labelOrArray)) {
+    favFilters.setSelected([...labelOrArray])
+  } else {
+    favFilters.toggle(labelOrArray)
+  }
   saveFilters()
   loadFavorites(false)
 }
@@ -385,9 +393,10 @@ function onFilterCompleted() {
     <!-- 체크리스트: “전체” 없음 -->
     <FilterBarFavorite
       :checklist-items="checklistLabels"
-      :selected="favSelectedChecklist"
+      :selected="selectedLabels"
       :onlySecure="favOnlySecure"
       :region="favRegionDraft"
+      :region-applied="favRegionApplied"
       :region-data="regionData"
       @update:selected="onChangeSelected"
       @update:onlySecure="onChangeOnlySecure"

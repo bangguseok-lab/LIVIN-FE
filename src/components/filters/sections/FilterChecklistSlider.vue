@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue'
 import RegionPanel from '@/components/panels/RegionPanel.vue'
 
 import { Swiper, SwiperSlide } from 'swiper/vue'
@@ -13,15 +13,20 @@ const modules = [FreeMode, A11y, Scrollbar]
 
 const props = defineProps({
   checklistItems: Array, // ['라벨1','라벨2', ...]
-  modelValue: String, // 현재 선택 라벨
+  modelValue: { type: [Array, String], default: () => [] }, // 현재 선택 라벨
   regionData: Object, // { cities, districts, parishes }
   region: Object, // { city, district, parish }
+  regionApplied: { type: Object, default: null },
 })
 const emit = defineEmits([
   'update:modelValue',
   'update:region',
   'filterCompleted',
 ])
+const isRegionActive = computed(() => {
+  const r = props.regionApplied ?? props.region
+  return !!(r?.city || r?.district || r?.parish)
+})
 
 const showPanel = ref(null) // 'region' | null
 const panelRef = ref(null)
@@ -44,9 +49,19 @@ function setPanelPositionByElement(el) {
   }
 }
 
+const selectedArray = computed(() =>
+  Array.isArray(props.modelValue)
+    ? props.modelValue
+    : props.modelValue
+      ? [props.modelValue]
+      : [],
+)
+
 // ✅ 체크리스트 버튼 클릭 → 선택만 emit (모달/상세 없음)
 function handleSelect(label) {
-  emit('update:modelValue', label)
+  const set = new Set(selectedArray.value)
+  set.has(label) ? set.delete(label) : set.add(label)
+  emit('update:modelValue', [...set])
 }
 
 function togglePanel(event, panelKey) {
@@ -95,6 +110,7 @@ function handleFilterCompleted() {
       <button
         ref="buttonRef"
         class="dropdown-button"
+        :class="{ active: isRegionActive }"
         panelKey="region"
         @click="e => togglePanel(e, 'region')"
       >
@@ -132,7 +148,7 @@ function handleFilterCompleted() {
           class="slide-auto"
         >
           <button
-            :class="{ active: modelValue === (item.label ?? item) }"
+            :class="{ active: selectedArray.includes(item.label ?? item) }"
             @click="() => handleSelect(item.label ?? item)"
           >
             {{ item.label ?? item }}
