@@ -6,6 +6,11 @@ import { usePropertyStore } from '@/stores/property'
 import { onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 
+onMounted(() => {
+  // 렌더 직후 클래스 추가해서 애니메이션 시작
+  requestAnimationFrame(() => mainText.value?.classList.add('is-visible'))
+})
+const mainText = ref(null)
 const property = usePropertyStore()
 const user = useUserStore()
 const addressErrorMessage = ref('')
@@ -166,7 +171,7 @@ onMounted(async () => {
         />
       </div>
       <div class="name-text">{{ user.getNickname }}님,</div>
-      <div class="main-text">
+      <div ref="mainText" class="main-text">
         오늘도 함께 <br />
         좋은 집을 찾아봐요!
       </div>
@@ -231,9 +236,22 @@ onMounted(async () => {
 }
 
 .main-text {
+  opacity: 0;
+  transform: translateY(12px);
+  will-change: transform, opacity;
   font-size: 1.6rem;
   font-weight: var(--font-weight-bold);
   line-height: 1.3;
+}
+.main-text.is-visible {
+  animation: fadeUp 700ms ease-out forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .intro-box .character {

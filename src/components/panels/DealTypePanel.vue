@@ -60,15 +60,20 @@ function resetSelection() {
       v-for="(type, index) in dealTypes"
       :key="type.label"
     >
-      <!-- 거래유형 라벨 -->
-      <span class="deal-type-label">{{ type.label }}</span>
-      <!-- 체크박스 -->
+      <!-- 라벨 -->
+      <label class="deal-type-label" :for="`deal-type-${index}`">
+        {{ type.label }}
+      </label>
+
+      <!-- 체크박스-->
       <input
+        :id="`deal-type-${index}`"
         type="checkbox"
         class="deal-type-checkbox"
         v-model="type.checked"
         @change="updateSelected"
       />
+
       <!-- 구분선 (마지막 항목 제외) -->
       <div
         v-if="index !== dealTypes.length - 1"
