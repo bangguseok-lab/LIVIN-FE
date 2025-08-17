@@ -1,21 +1,32 @@
 <script setup>
-import { useRouter } from 'vue-router';
-import Buttons from '@/components/common/buttons/Buttons.vue';
+import { useRouter } from 'vue-router'
+import Buttons from '@/components/common/buttons/Buttons.vue'
+import { usePropertyStore } from '@/stores/property'
 
 const router = useRouter()
-
+const propertyStore = usePropertyStore()
 const handleNextClick = () => {
-  router.push({ name: "propertiesSearch" })
+  propertyStore.resetNewProperty()
+  router.push({ name: 'propertiesSearch' })
 }
 </script>
 
 <template>
   <div class="PropertyAddDonePage">
     <div class="done-container">
-      <p class="done-title animate-up" style="animation-delay: 0s">LIVIN이 매력적인 매물을</p>
-      <p class="done-title animate-up" style="animation-delay: 0s">게시했어요!</p>
+      <p class="done-title animate-up" style="animation-delay: 0s">
+        LIVIN이 매력적인 매물을
+      </p>
+      <p class="done-title animate-up" style="animation-delay: 0s">
+        게시했어요!
+      </p>
     </div>
-    <Buttons type="default" label="등록한 매물 보러가기" @click="handleNextClick" class="nextBtn" />
+    <Buttons
+      type="default"
+      label="등록한 매물 보러가기"
+      @click="handleNextClick"
+      class="nextBtn"
+    />
   </div>
 </template>
 

@@ -1,10 +1,10 @@
 <script setup>
-import Buttons from '@/components/common/buttons/Buttons.vue';
+import Buttons from '@/components/common/buttons/Buttons.vue'
 import { useRouter } from 'vue-router'
-import { usePropertyStore } from '@/stores/property';
+import { usePropertyStore } from '@/stores/property'
 import { ref } from 'vue'
 
-const router = useRouter();
+const router = useRouter()
 
 // 거래 유형 저장에 사용하려고 둔 스토어
 const propertyStore = usePropertyStore()
@@ -25,26 +25,35 @@ const onMonthlyRentClick = () => {
   monthlyRentOptIsActive.value = true
 }
 
-
 // 다음 페이지로 이동
 const handleClick = () => {
   // 부동산 고유번호가 비어있지 않을 때
   if (jeonseOptIsActive.value) {
-    propertyStore.updateNewProperty('propertyType', 'jeonse')
+    propertyStore.updateNewProperty('transactionType', 'JEONSE')
     router.push({ name: 'jeonsePage' })
   } else {
-    propertyStore.updateNewProperty('propertyType', 'wolse')
+    propertyStore.updateNewProperty('transactionType', 'MONTHLY_RENT')
     router.push({ name: 'wolsePage' })
   }
 }
-
 </script>
 
 <template>
   <div class="PropertyTypePage">
-    <Buttons type="option" label="전세" v-model:isActive="jeonseOptIsActive" class="type-button" @click="onJeonseClick" />
-    <Buttons type="option" label="월세" v-model:isActive="monthlyRentOptIsActive" class="type-button"
-      @click="onMonthlyRentClick" />
+    <Buttons
+      type="option"
+      label="전세"
+      v-model:isActive="jeonseOptIsActive"
+      class="type-button"
+      @click="onJeonseClick"
+    />
+    <Buttons
+      type="option"
+      label="월세"
+      v-model:isActive="monthlyRentOptIsActive"
+      class="type-button"
+      @click="onMonthlyRentClick"
+    />
   </div>
   <Buttons type="default" label="다음" @click="handleClick" class="nextBtn" />
 </template>
