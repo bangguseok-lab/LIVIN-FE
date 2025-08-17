@@ -144,18 +144,21 @@ const currentPanelComponent = computed(() => {
         panelKey="deal"
         :is-active="isButtonActive('deal')"
         @click="e => togglePanel(e, 'deal')"
+        class="each-btn"
       />
       <FilterButton
         label="지역"
         panelKey="region"
         :is-active="isButtonActive('region')"
         @click="e => togglePanel(e, 'region')"
+        class="each-btn"
       />
       <FilterButton
         label="가격"
         panelKey="price"
         :is-active="isButtonActive('price')"
         @click="e => togglePanel(e, 'price')"
+        class="each-btn"
       />
     </div>
 
@@ -188,7 +191,7 @@ const currentPanelComponent = computed(() => {
 <style scoped lang="scss">
 .dropdown-section {
   background-color: var(--white);
-  padding: rem(12px) rem(30px);
+  padding: rem(12px) rem(0px);
   border-bottom: rem(1px) solid var(--whitish);
   border-top: rem(1px) solid var(--whitish);
   position: relative;
@@ -210,6 +213,10 @@ const currentPanelComponent = computed(() => {
     position: absolute;
     z-index: 1000;
     margin-top: rem(8px);
+  }
+
+  :deep(.each-btn) {
+    width: rem(130px);
   }
 }
 </style>
