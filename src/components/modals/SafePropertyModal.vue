@@ -121,7 +121,7 @@ const ownerView = computed(() => {
 //TODO!!!!!!!!!!!!!!!!!!!
 // 근저당/보증금 비율(문자열 그대로 사용) -> 이 부분 백엔드 수정 후 변경 필요
 const mortgageView = computed(() => {
-  const s = risk.value.floatingCharge // "안전" | "위험" | "계산 불가" | null
+  const s = risk.value.floatingCharge
   if (s === '안전')
     return {
       value: '안전',
@@ -138,10 +138,10 @@ const mortgageView = computed(() => {
     return {
       value: '위험',
       tone: 'warn',
-      caption: '근저당/보증금 비율이 높아요',
+      caption: '보증금을 돌려받지 못 할 확률이 높아요',
     }
   return {
-    value: '계산 불가',
+    value: s,
     tone: 'ok',
     caption: '안전한 수준',
   }
