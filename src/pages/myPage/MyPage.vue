@@ -352,27 +352,15 @@ onMounted(async () => {
             <div class="top-text">내가 찾는 집을 위한</div>
             <div class="bottom-text">나만의 체크리스트 관리하기</div>
           </span>
-          <img src=@/assets/icons/home/go-to-check-icon.svg" class="btn-icon" />
+          <img
+            src="@/assets/icons/home/go-to-check-icon.svg"
+            class="btn-icon"
+          />
         </span>
       </Buttons>
 
       <!-- 임대인 화면 버튼 -->
       <template v-else>
-        <Buttons
-          type="xl"
-          class="post-btn"
-          :key="'landlord-create'"
-          @click="goLandlordCreate"
-        >
-          <span class="btn-inner">
-            <span class="btn-text">
-              <div class="top-text">나의 매물을 등록하고 싶어요</div>
-              <div class="bottom-text">내 매물 등록하기</div>
-            </span>
-            <!-- 등록 버튼은 아이콘이 없다면 img 제거 가능 -->
-          </span>
-        </Buttons>
-        <br />
         <Buttons
           type="xl"
           class="manage-btn"
@@ -384,7 +372,10 @@ onMounted(async () => {
               <div class="top-text">내가 올린 매물을 확인하고 관리해요</div>
               <div class="bottom-text">내 매물 관리하기</div>
             </span>
-            <img class="btn-icon" />
+            <img
+              src="@/assets/icons/mypage/manage-property-icon.svg"
+              class="btn-icon"
+            />
           </span>
         </Buttons>
       </template>
@@ -394,14 +385,41 @@ onMounted(async () => {
 
     <!-- 보증금 설정 -->
     <section class="deposit-section">
+      <h2 class="manage-title">
+        {{ role === 'LANDLORD' ? '새로운 매물 등록' : '내 보증금 설정하기' }}
+      </h2>
       <Buttons
         v-if="role === 'TENANT'"
         type="xl"
         @click="goToDepositInput"
         class="set-deposit-btn"
       >
-        <div class="top-text">더 안전한 매물을 원한다면?</div>
-        <div class="bottom-text">내 보증금 설정하기</div>
+        <span class="btn-inner">
+          <span class="btn-text">
+            <div class="top-text">더 안전한 매물을 원한다면?</div>
+            <div class="bottom-text">내 보증금 설정하기</div>
+          </span>
+          <img
+            src="@/assets/icons/mypage/set-deposit-icon.svg"
+            class="btn-icon"
+          />
+        </span>
+      </Buttons>
+
+      <Buttons
+        v-if="role === 'LANDLORD'"
+        type="xl"
+        class="post-btn"
+        :key="'landlord-create'"
+        @click="goLandlordCreate"
+      >
+        <span class="btn-inner">
+          <span class="btn-text">
+            <div class="top-text">나의 매물을 등록하고 싶어요</div>
+            <div class="bottom-text">내 매물 등록하기</div>
+          </span>
+          <img src="@/assets/icons/mypage/post-icon.svg" class="btn-icon" />
+        </span>
       </Buttons>
     </section>
 
@@ -618,7 +636,7 @@ onMounted(async () => {
 
 .manage-section {
   padding: 0 rem(30px);
-  margin: rem(25px) 0 rem(20px);
+  margin: rem(25px) 0 rem(40px);
 }
 
 .manage-title {
@@ -667,10 +685,54 @@ onMounted(async () => {
   flex: 0 0 auto;
 }
 
+// 보증금 설정 버튼
+.deposit-section {
+  padding: 0 rem(30px);
+  margin: rem(25px) 0 rem(20px);
+}
+
+:deep(.set-deposit-btn) {
+  height: rem(100px);
+  --primary-color: #ebeb83;
+
+  .top-text {
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-light);
+    color: var(--white);
+  }
+
+  .bottom-text {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--white);
+  }
+}
+
+.set-deposit-btn .btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽: 텍스트, 오른쪽: 아이콘 */
+  width: 100%;
+  gap: 12px;
+}
+
+.set-deposit-btn .btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1 1 auto; /* 남는 영역을 텍스트가 차지 */
+  line-height: 1.25;
+}
+
+.set-deposit-btn .btn-icon {
+  width: rem(65px);
+  flex: 0 0 auto;
+}
+
 // 매물 관리 버튼
 :deep(.manage-btn) {
   height: rem(100px);
-  --primary-color: var(--green);
+  --primary-color: #b3c1d7;
 
   .top-text {
     font-size: 0.9rem;
@@ -709,7 +771,7 @@ onMounted(async () => {
 // 매물 등록 버튼
 :deep(.post-btn) {
   height: rem(100px);
-  --primary-color: var(--green);
+  --primary-color: var(--blue);
 
   .top-text {
     font-size: 0.9rem;
@@ -746,17 +808,6 @@ onMounted(async () => {
 }
 
 .create-property-btn {
-  height: rem(100px);
-  margin-bottom: 1rem;
-}
-
-.deposit-section {
-  padding: 0 rem(50px);
-  margin-top: rem(20px);
-  margin-bottom: rem(20px);
-}
-
-.set-deposit-btn {
   height: rem(100px);
   margin-bottom: 1rem;
 }
