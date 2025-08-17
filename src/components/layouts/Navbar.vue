@@ -24,15 +24,12 @@ import ManageIcon from '@/assets/icons/navbar/manage-property-icon.svg'
 import ManageIconActive from '@/assets/icons/navbar/manage-property-icon-active.svg'
 
 const route = useRoute()
-const userStore = useUserStore()
-
-// 역할 확인
-const role = computed(
-  () =>
-    userStore.userInfo?.data?.role ?? // {success, message, data: {...}} 구조 대응
-    userStore.userInfo?.role ?? // 혹시 다른 곳에서 평평하게 넣은 경우도 커버
-    sessionStorage.getItem('role'),
-)
+const props = defineProps({
+  role: {
+    type: String,
+    required: true,
+  },
+})
 
 // TENANT 메뉴
 const tenantMenus = [
@@ -97,9 +94,12 @@ const landlordMenus = [
 ]
 
 // 보여줄 메뉴
-const navMenus = computed(() =>
-  role.value === 'LANDLORD' ? landlordMenus : tenantMenus,
-)
+// const navMenus = computed(() =>
+//   role.value === 'LANDLORD' ? landlordMenus : tenantMenus,
+// )
+const getNavMenus = () => {
+  return props.role === 'LANDLORD' ? landlordMenus : tenantMenus
+}
 
 // 활성 메뉴 체크
 const isActive = computed(
@@ -113,7 +113,7 @@ const isActive = computed(
     <div class="Navbar">
       <div class="nav-box">
         <router-link
-          v-for="menu in navMenus"
+          v-for="menu in getNavMenus()"
           :key="menu.path"
           :to="menu.path"
           class="icon-box"
