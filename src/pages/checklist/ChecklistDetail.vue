@@ -266,6 +266,13 @@ async function resetChecklist() {
     alert('초기화 중 오류가 발생했습니다.')
   }
 }
+const getRandomImage = () => {
+  const images = [
+    new URL('@/assets/images/checklist-1.jpg', import.meta.url).href,
+    new URL('@/assets/images/checklist-2.jpg', import.meta.url).href,
+  ]
+  return images[Math.floor(Math.random() * images.length)]
+}
 </script>
 
 <template>
@@ -288,7 +295,11 @@ async function resetChecklist() {
     <!-- 상단 카드 -->
     <section class="card-2">
       <div class="card-content">
-        <div class="image-box"></div>
+        <img
+          class="rounded me-3"
+          :src="getRandomImage()"
+          style="width: 8.75rem; height: 6.25rem; object-fit: cover"
+        />
         <div class="text-box">
           <h2 class="title">{{ checklist?.title }}</h2>
           <p class="desc">{{ checklist?.description }}</p>
@@ -462,7 +473,7 @@ async function resetChecklist() {
   background-color: var(--primary-color);
   color: white;
   position: relative;
-  height: 40vh;
+  height: 28vh;
 }
 
 .image-box {
