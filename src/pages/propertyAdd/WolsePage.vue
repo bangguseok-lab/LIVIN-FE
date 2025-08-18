@@ -86,6 +86,7 @@ const handleClick = () => {
     const numDeposit = Number(jeonseStr.value.replace(/,/g, '') + '0000')
     const monthlyRent = Number(getAmountInMan(wolseRentStr.value))
     // console.log("월세 전환금액:", numDeposit)
+    propertyStore.updateNewProperty('jeonseDeposit', numDeposit)
     propertyStore.updateNewProperty('monthlyDeposit', wolseAmount + '0000')
     propertyStore.updateNewProperty('monthlyRent', monthlyRent)
     router.push({ name: 'riskAnalysisDone' })

@@ -76,7 +76,7 @@ const handleSubmit = async () => {
       propertyNum: (np.propertyNum ?? '').replace(/-/g, ''), // 부동산 고유번호(- 없이)
 
       // 옵션/정책
-      propertyType: 'BUILDING',
+      propertyType: '아파트',
       optionIdList: np.optionIdList ?? [], // 옵션 아이디들 (예: [1,3,4,6])
       pet: np.pet ?? 'NEEDS_CHECK', // 'ABLE' | 'UNABLE' | 'NEEDS_CHECK'
       loan: np.loan ?? 'NEEDS_CHECK', // 대출 가능 여부

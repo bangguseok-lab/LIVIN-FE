@@ -15,7 +15,7 @@ export const useUserStore = defineStore('user', {
 
   getters: {
     getNickname: state => state.userInfo?.nickname || '',
-
+    getUserRole: state => state.userInfo?.data.role,
     // 보증금 포맷팅
     formattedDeposit: state => {
       const n = state.depositAmount // 원
@@ -50,6 +50,7 @@ export const useUserStore = defineStore('user', {
       this.error = null
       try {
         const data = await userAPI.fetchMyPageInfo()
+        console.log(data)
         this.userInfo = data
       } catch (err) {
         this.error = err

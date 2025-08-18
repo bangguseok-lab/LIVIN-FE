@@ -1,10 +1,11 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from './Header.vue'
 import Navbar from './Navbar.vue'
+import { useUserStore } from '@/stores/user'
 const route = useRoute()
-
+const userStore = useUserStore()
 //경로 관련한 것들은 추후에 변경 예정
 //아직 확실히 모든경로에 대한 설정이 정해지지 않아 임의로 설정
 
@@ -62,6 +63,11 @@ const checkHeaderType = computed(() => {
     type: headerType,
   }
 })
+
+onMounted(async () => {
+  await userStore.fetchUserInfo()
+  console.log(userStore.getUserRole)
+})
 </script>
 
 <template>
@@ -75,7 +81,7 @@ const checkHeaderType = computed(() => {
     </div>
 
     <!-- 공통 푸터 -->
-    <Navbar v-if="showNav" />
+    <Navbar v-if="showNav" :role="userStore.getUserRole" />
   </div>
 </template>
 
