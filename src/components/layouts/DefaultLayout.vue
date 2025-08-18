@@ -70,7 +70,6 @@ onMounted(async () => {
     route.name !== 'login' &&
     route.path !== '/'
   ) {
-    console.log('안녕')
     await userStore.fetchUserInfo()
   }
 })
