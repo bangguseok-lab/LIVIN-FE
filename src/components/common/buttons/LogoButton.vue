@@ -34,7 +34,8 @@ const home = () => {
   width: 30%;
   height: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  padding-left: 1.2rem;
 }
 </style>

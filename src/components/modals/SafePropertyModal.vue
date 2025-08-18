@@ -165,12 +165,8 @@ function onClickCta() {
           <img :src="badge" alt="안심 뱃지" class="spm__badge" />
           <h2 class="spm__title">리빈 레포트</h2>
           <p class="spm__subtitle">
-            <span class="spm__subtitle-line1"
-              >해당 매물에 대한 리빈의 분석이에요</span
-            >
-            <span class="spm__subtitle-line2"
-              >실시간 데이터가 아니므로 이후 재확인이 필요해요</span
-            >
+            <span class="spm__subtitle-line1">해당 매물에 대한 리빈의 분석이에요</span>
+            <span class="spm__subtitle-line2">실시간 데이터가 아니므로 이후 재확인이 필요해요</span>
           </p>
         </div>
 
@@ -216,12 +212,7 @@ function onClickCta() {
 
         <div class="spm__caption" v-else>표시할 데이터가 없습니다.</div>
 
-        <button
-          class="spm__cta"
-          type="button"
-          v-if="showDepositCta"
-          @click="onClickCta"
-        >
+        <button class="spm__cta" type="button" v-if="showDepositCta" @click="onClickCta">
           <img :src="icon" alt="" class="spm__cta-img" />
           보증금 입력하고 더 안전한 매물 확인하러 가기
         </button>
@@ -240,11 +231,13 @@ function onClickCta() {
   align-items: center;
   z-index: 999;
 }
+
 .spm-modal__overlay {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
 }
+
 .spm-modal__content {
   position: relative;
   background: #fff;
@@ -265,6 +258,7 @@ function onClickCta() {
     display: block;
     margin: 4px auto 6px;
   }
+
   &__title {
     margin: 0;
     font-size: 18px;
@@ -272,32 +266,37 @@ function onClickCta() {
     letter-spacing: 0.02em;
     color: var(--title-text);
   }
+
   &__subtitle {
     margin: 8px 0 16px;
     line-height: 1.5;
     color: var(--title-text);
   }
+
   &__subtitle-line1 {
     display: block;
     font-size: rem(15px);
   }
+
   &__subtitle-line2 {
     display: block;
     font-size: 11px;
     margin-top: 2px;
-    opacity: 0.5;
-    color: var(--sub-title-text);
+    color: var(--primary-color);
   }
+
   &__stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 18px 8px;
     margin: 8px 0 12px;
   }
+
   &__stat {
     border-radius: 12px;
     padding: 4px 4px 10px;
   }
+
   &__stat-label {
     font-size: 12px;
     color: var(--title-text);
@@ -311,33 +310,42 @@ function onClickCta() {
     line-height: 1.05;
     letter-spacing: -0.02em;
     margin-bottom: 4px;
+
     &--ok {
       color: var(--primary-color);
     }
+
     &--warn {
       color: #f59e0b;
     }
+
     &--info {
       color: var(--grey);
     }
   }
+
   &__caption {
-    font-size: 10px;
+    font-size: 12px;
     color: var(--grey);
+    text-wrap: nowrap;
   }
 
   &__cta {
     appearance: none;
-    background: transparent; /* 배경 없음 */
-    border: 0; /* 테두리 없음 */
+    background: transparent;
+    /* 배경 없음 */
+    border: 0;
+    /* 테두리 없음 */
     color: var(--primary-color);
     font-weight: 700;
     font-size: rem(11px);
     line-height: 1.6;
-    display: inline-flex; /* 아이콘 + 텍스트 가로 정렬 */
+    display: inline-flex;
+    /* 아이콘 + 텍스트 가로 정렬 */
     align-items: center;
     gap: 6px;
-    padding: 0 0 2px; /* 밑줄과 텍스트 사이 여백 */
+    padding: 0 0 2px;
+    /* 밑줄과 텍스트 사이 여백 */
     margin: 8px 0 4px;
     cursor: pointer;
 
