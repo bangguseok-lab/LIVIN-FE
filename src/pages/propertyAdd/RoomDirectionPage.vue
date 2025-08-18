@@ -33,7 +33,7 @@ const resetButtons = () => {
 // 버튼 클릭 시 선택값 저장
 const selectDirection = (choiceDirection) => {
   choiceBtn.value = choiceDirection
-  console.log('선택된 방향:', choiceBtn.value)
+  // console.log('선택된 방향:', choiceBtn.value)
   propertyStore.updateNewProperty('direction', choiceBtn.value)
 
   resetButtons()
@@ -71,7 +71,11 @@ const handlePrevClick = () => {
 }
 
 const handleNextClick = () => {
-  router.push({ name: "roomDetailPage" })
+  if (propertyStore.getNewProperty.direction !== '') {
+    router.push({ name: "roomDetailPage" })
+  } else {
+    alert('주실 방향을 선택해주세요')
+  }
 }
 
 </script>

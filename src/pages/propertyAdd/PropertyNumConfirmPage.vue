@@ -71,8 +71,6 @@ onMounted(async () => {
     const result = await api.getPropertyNum(body)
     if (result.success) {
       loading.value = false
-      console.log('가져온 부동산 고유번호: ', result.data.commUniqueNo)
-      console.log('가져온 소유주 이름: ', result.data.ownerName)
 
       const propertyNumStr = inputPropertyNum.value.replace(/-/g, '')
 
@@ -81,10 +79,6 @@ onMounted(async () => {
         // ownerName.value = result.data?.ownerName || '서동주';
         ownerName.value = result.data.ownerName
 
-        console.log(
-          '조회한 부동산 고유번호와 일치하는 경우에 렌더링 될 부동산 고유번호: ',
-          inputPropertyNum.value,
-        )
         propertyStore.updateNewProperty('propertyNum', result.data.commUniqueNo)
       } else {
         if (confirm('서버와 부동산 고유번호가 일치하지 않습니다.')) {
@@ -95,6 +89,8 @@ onMounted(async () => {
     } else {
       // 실패 시 처리 (에러 페이지 이동 등)
       console.error('부동산 고유번호 조회 실패', result)
+      // 에러일 때, 다시 입력 페이지로 이동
+      router.push({ name: 'propertyNum' })
     }
   }
 })
@@ -114,12 +110,7 @@ const handleClick = () => {
   <div class="PropertyNumConfirmPage">
     <!-- 전체 화면 블랙 오버레이 + 스피너 -->
     <Teleport to="body">
-      <div
-        v-if="loading"
-        class="loading-overlay"
-        role="status"
-        aria-live="polite"
-      >
+      <div v-if="loading" class="loading-overlay" role="status" aria-live="polite">
         <VueSpinnerIos size="48" color="#fff" />
       </div>
     </Teleport>
@@ -127,16 +118,13 @@ const handleClick = () => {
       <p class="inputAddress-text">입력 받은 주소: {{ inputAddress }}</p>
       <div class="propertyNumberConfirm-info-wrapper">
         <div class="propertyNum-title-wrapper">
-          {{ inputPropertyNum
-          }}<span id="no-propertyNum-text" @click="handleClickNoPropertyNum"
-            >이 고유번호가 아니에요</span
-          >
+          {{ loading ? '부동산 고유번호 조회 중' : inputPropertyNum
+          }}<span id="no-propertyNum-text" @click="handleClickNoPropertyNum">이 고유번호가 아니에요</span>
         </div>
         <div class="propertyNum-content-wrapper">
           <div>
             <div class="propertyNum-content-text">
-              <span class="content-text">부동산 등기부등본상 이름</span
-              >{{ ownerName }}
+              <span class="content-text">부동산 등기부등본상 이름</span>{{ loading ? '소유주명 조회 중' : ownerName }}
             </div>
           </div>
         </div>
@@ -153,14 +141,12 @@ const handleClick = () => {
           </div>
           <div>
             <div class="propertyNum-content-text">
-              <span class="content-text">생년월일</span
-              ><span id="birth-text">{{ serverUserBirth }}</span>
+              <span class="content-text">생년월일</span><span id="birth-text">{{ serverUserBirth }}</span>
             </div>
           </div>
           <div>
             <div class="propertyNum-content-text">
-              <span class="content-text">연락처</span
-              ><span id="phone-text">{{ serverUserPhoneNum }}</span>
+              <span class="content-text">연락처</span><span id="phone-text">{{ serverUserPhoneNum }}</span>
             </div>
           </div>
         </div>
@@ -240,6 +226,18 @@ const handleClick = () => {
 #phone-text {
   position: absolute;
   left: 8.5rem;
+}
+
+/* 전체 페이지 오버레이 */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0.4; // 투명도
 }
 
 @media (max-width: 375px) {
