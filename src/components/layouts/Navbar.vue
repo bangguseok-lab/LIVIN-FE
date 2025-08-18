@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
@@ -24,13 +24,12 @@ import ManageIcon from '@/assets/icons/navbar/manage-property-icon.svg'
 import ManageIconActive from '@/assets/icons/navbar/manage-property-icon-active.svg'
 
 const route = useRoute()
-const props = defineProps({
-  role: {
-    type: String,
-    required: true,
-  },
+const userStore = useUserStore()
+onMounted(async () => {
+  if (route.name === 'home') {
+    await userStore.fetchUserInfo()
+  }
 })
-
 // TENANT 메뉴
 const tenantMenus = [
   {
@@ -98,7 +97,7 @@ const landlordMenus = [
 //   role.value === 'LANDLORD' ? landlordMenus : tenantMenus,
 // )
 const getNavMenus = () => {
-  return props.role === 'LANDLORD' ? landlordMenus : tenantMenus
+  return userStore.getUserRole === 'LANDLORD' ? landlordMenus : tenantMenus
 }
 
 // 활성 메뉴 체크
