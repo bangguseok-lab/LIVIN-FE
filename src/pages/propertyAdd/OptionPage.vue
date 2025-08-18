@@ -1,8 +1,8 @@
 <script setup>
-import { useRouter } from 'vue-router';
-import Buttons from '@/components/common/buttons/Buttons.vue';
-import { computed, onMounted, ref } from 'vue';
-import { usePropertyStore } from '@/stores/property';
+import { useRouter } from 'vue-router'
+import Buttons from '@/components/common/buttons/Buttons.vue'
+import { computed, onMounted, ref } from 'vue'
+import { usePropertyStore } from '@/stores/property'
 import api from '@/api/property'
 
 const router = useRouter()
@@ -19,22 +19,22 @@ const KO_LABEL = {
   Microwave: '전자렌지',
   GasStove: '가스렌지',
   Induction: '인덕션',
-  Bed: '침대'
+  Bed: '침대',
 }
 
 // 선택된 옵션 아이템 중에서 아이템의 아이디만 가져오도록 계산
 const selectOption = computed(() =>
-  selectOptionItem.value.filter(i => i.isActive).map(i => i.id)
+  selectOptionItem.value.filter(i => i.isActive).map(i => i.id),
 )
 
 const handlePrevClick = () => {
-  router.push({ name: "otherInfoPage" })
+  router.push({ name: 'otherInfoPage' })
 }
 
 const handleNextClick = () => {
   if (selectOption.value.length > 0) {
-    propertyStore.updateNewProperty('selectOptions', selectOption.value)
-    router.push({ name: "moveDatePage" })
+    propertyStore.updateNewProperty('optionIdList', selectOption.value)
+    router.push({ name: 'moveDatePage' })
   } else {
     alert('옵션을 선택해주세요')
   }
@@ -54,7 +54,7 @@ onMounted(async () => {
   selectOptionItem.value = resOptionList.map(({ optionId, optionType }) => ({
     id: optionId,
     label: KO_LABEL[optionType] ?? optionType, // 매핑 없으면 영어로 표기
-    isActive: savedSet.has(optionId)
+    isActive: savedSet.has(optionId),
   }))
 })
 </script>
@@ -62,12 +62,28 @@ onMounted(async () => {
 <template>
   <div class="OptionPage">
     <div class="option-container">
-      <Buttons v-for="(item) in selectOptionItem" :key="item.id" class="option" v-model:is-active="item.isActive"
-        type="option" :label="item.label" />
+      <Buttons
+        v-for="item in selectOptionItem"
+        :key="item.id"
+        class="option"
+        v-model:is-active="item.isActive"
+        type="option"
+        :label="item.label"
+      />
     </div>
     <div class="button-wrapper">
-      <Buttons type="default" label="이전" @click="handlePrevClick" class="prevBtn" />
-      <Buttons type="default" label="다음" @click="handleNextClick" class="nextBtn" />
+      <Buttons
+        type="default"
+        label="이전"
+        @click="handlePrevClick"
+        class="prevBtn"
+      />
+      <Buttons
+        type="default"
+        label="다음"
+        @click="handleNextClick"
+        class="nextBtn"
+      />
     </div>
   </div>
 </template>
@@ -93,7 +109,7 @@ onMounted(async () => {
 
 .option:deep(.button):hover {
   cursor: pointer;
-  border: .1rem solid var(--primary-color);
+  border: 0.1rem solid var(--primary-color);
   color: var(--primary-color);
 }
 

@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted, onBeforeUnmount } from 'vue'
-import Buttons from '@/components/common/buttons/Buttons.vue';
-import { useRouter } from 'vue-router';
-import { usePropertyStore } from '@/stores/property';
-import { computed, ref } from 'vue';
+import Buttons from '@/components/common/buttons/Buttons.vue'
+import { useRouter } from 'vue-router'
+import { usePropertyStore } from '@/stores/property'
+import { computed, ref } from 'vue'
 
 const router = useRouter()
 
@@ -14,8 +14,8 @@ const propertyStore = usePropertyStore()
 const moneyStr = ref('')
 
 // 출력되는 금액 포맷팅
-const onlyDigits = (s) => s.replace(/[^\d]/g, '')
-const withCommas = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+const onlyDigits = s => s.replace(/[^\d]/g, '')
+const withCommas = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 
 // 단위별 , 찍기
 const onNumberInput = () => {
@@ -34,10 +34,10 @@ const prettyAmount = computed(() => {
   const n = amountMan.value
   if (!n) return ''
 
-  const eok = Math.floor(n / 10000)        // 억
+  const eok = Math.floor(n / 10000) // 억
   const rem = n % 10000
-  const cheon = Math.floor(rem / 1000)     // 천만
-  const man = rem % 1000                   // 만원
+  const cheon = Math.floor(rem / 1000) // 천만
+  const man = rem % 1000 // 만원
 
   const parts = []
   if (eok) parts.push(`${eok}억`)
@@ -47,13 +47,12 @@ const prettyAmount = computed(() => {
   return parts.join(' ')
 })
 
-
 // 다음 페이지로 이동
 const handleClick = () => {
   // 부동산 고유번호가 비어있지 않을 때
   if (moneyStr.value) {
     const numDeposit = Number(moneyStr.value.replace(/,/g, '') + '0000')
-    propertyStore.updateNewProperty('propertyDeposit', numDeposit)
+    propertyStore.updateNewProperty('jeonseDeposit', numDeposit)
     router.push({ name: 'riskAnalysisDone' })
   } else {
     router.push({ name: 'wolsePage' })
@@ -64,13 +63,15 @@ const handleClick = () => {
 const FLAG = 'redirect_to_address'
 
 // 사용자가 F5나 Ctrl+R / Cmd+R로 새로고침하려 할 때 막고, 확인창을 띄움.
-const handleKeyRefresh = (e) => {
+const handleKeyRefresh = e => {
   const isF5 = e.key === 'F5'
   const isR = (e.key === 'r' || e.key === 'R') && (e.ctrlKey || e.metaKey) // Ctrl+R / Cmd+R
   if (!isF5 && !isR) return
 
   e.preventDefault()
-  const ok = confirm('새로고침하면 모든 입력 데이터가 사라집니다. 주소 입력 페이지로 이동할까요?')
+  const ok = confirm(
+    '새로고침하면 모든 입력 데이터가 사라집니다. 주소 입력 페이지로 이동할까요?',
+  )
   if (ok) {
     // 키로 새로고침하려던 경우는 실제 리로드 없이 바로 이동
     router.replace({ name: 'addressSearch' })
@@ -78,7 +79,7 @@ const handleKeyRefresh = (e) => {
   // 취소면 현재 페이지 유지
 }
 
-const handleBeforeUnload = (e) => {
+const handleBeforeUnload = e => {
   // 브라우저 새로고침 버튼/창 닫기 등: 브라우저 기본 다이얼로그 표시
   e.preventDefault()
   e.returnValue = ''
@@ -113,15 +114,28 @@ onBeforeUnmount(() => {
         <div class="rent-label">보증금</div>
         <div class="rent-field">
           <div class="input-group">
-            <input type="text" v-model="moneyStr" inputmode="numeric" placeholder="금액(만원)을 입력하세요" id="deposit"
-              @input="onNumberInput" />
+            <input
+              type="text"
+              v-model="moneyStr"
+              inputmode="numeric"
+              placeholder="금액(만원)을 입력하세요"
+              id="deposit"
+              @input="onNumberInput"
+            />
             <span class="unit">만원</span>
           </div>
         </div>
       </div>
-      <p v-if="prettyAmount" class="formatt-deposit">계산된 금액: &nbsp;{{ prettyAmount }}</p>
+      <p v-if="prettyAmount" class="formatt-deposit">
+        계산된 금액: &nbsp;{{ prettyAmount }}
+      </p>
     </div>
-    <Buttons type="default" label="위험도 분석하기" @click="handleClick" class="nextBtn" />
+    <Buttons
+      type="default"
+      label="위험도 분석하기"
+      @click="handleClick"
+      class="nextBtn"
+    />
   </div>
 </template>
 
@@ -165,12 +179,14 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 2.4rem;
   padding-right: 3.25rem;
-  padding-left: .875rem;
+  padding-left: 0.875rem;
   border: 0; // 만원 글씨랑 겹쳐서 무테로 적용
   background: transparent;
   font-size: 0.875rem;
   outline: none;
-  transition: border-color .15s, box-shadow .15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 
 .input-group input::placeholder {
@@ -184,7 +200,7 @@ onBeforeUnmount(() => {
 .input-group:has(input:focus) {
   caret-color: var(--primary-color);
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   background: #fff;
 }
 
@@ -202,8 +218,8 @@ onBeforeUnmount(() => {
   display: flex;
   width: 100%;
   padding-left: 5.4rem;
-  margin-top: .8rem;
-  font-size: .9rem;
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
   color: var(--sub-title-text);
 }
 

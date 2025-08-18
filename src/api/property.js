@@ -71,7 +71,7 @@ export default {
   // 매물 등록 요청
   async postNewProperty(body) {
     try {
-      const { data } = await apiClient.post('/api/properties', body, {
+      const { data } = await apiClient.post('/properties', body, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

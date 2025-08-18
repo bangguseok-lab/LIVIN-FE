@@ -1,10 +1,10 @@
 <script setup>
-import { useRouter } from 'vue-router';
-import { usePropertyStore } from '@/stores/property';
-import { onMounted, ref, watch } from 'vue';
-import Buttons from '@/components/common/buttons/Buttons.vue';
-import VCalendar from 'v-calendar';
-import 'v-calendar/style.css';
+import { useRouter } from 'vue-router'
+import { usePropertyStore } from '@/stores/property'
+import { onMounted, ref, watch } from 'vue'
+import Buttons from '@/components/common/buttons/Buttons.vue'
+import VCalendar from 'v-calendar'
+import 'v-calendar/style.css'
 
 const router = useRouter()
 const propertyStore = usePropertyStore()
@@ -12,22 +12,21 @@ const page = ref(null) // { month: 1~12, year: 4자리 }
 
 // 스토어에 저장해둔 값이 있으면 그걸 기본값으로 사용
 const moveDate = ref(propertyStore.newProperty?.moveDate ?? null)
-const dateBtn = ref(moveDate.value?.false)  // 즉시 입주 가능 활성 상태 버튼
-
+const dateBtn = ref(moveDate.value?.false) // 즉시 입주 가능 활성 상태 버튼
 
 // 즉시 입주 선택 시, 날짜 선택 해제
-watch(dateBtn, (isNowOn) => {
+watch(dateBtn, isNowOn => {
   if (isNowOn) {
     // 이미 선택된 날짜가 있으면 지움
     if (moveDate.value) {
-      moveDate.value = null   // false 말고 null 로 비우기
+      moveDate.value = null // false 말고 null 로 비우기
       console.log('즉시 입주 ON → 날짜 해제')
     }
   }
 })
 
 // 날짜가 선택되면, 즉시 입주 버튼 끄기
-watch(moveDate, (val) => {
+watch(moveDate, val => {
   if (val) {
     if (dateBtn.value) {
       dateBtn.value = false
@@ -37,16 +36,18 @@ watch(moveDate, (val) => {
 })
 
 // 선택 값에 맞춰 캘린더에 표시할 달(page) 설정
-const setPageFromDate = (selectDate) => {
+const setPageFromDate = selectDate => {
   if (selectDate instanceof Date && !isNaN(selectDate)) {
-    page.value = { month: selectDate.getMonth() + 1, year: selectDate.getFullYear() }
+    page.value = {
+      month: selectDate.getMonth() + 1,
+      year: selectDate.getFullYear(),
+    }
     // console.log('page: ', page.value.month)
   }
 }
 
 // 선택된 날짜를 'YYYY-MM-DD' 형식으로 변환
-const selectDateFormatt = (val) => {
-
+const selectDateFormatt = val => {
   if (!(val instanceof Date) || Number.isNaN(val.getTime())) return null
 
   const year = val.getFullYear()
@@ -55,7 +56,7 @@ const selectDateFormatt = (val) => {
   return `${year}-${month}-${date}`
 }
 
-const formattedRightNowDate = (date) => {
+const formattedRightNowDate = date => {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
@@ -63,17 +64,21 @@ const formattedRightNowDate = (date) => {
 }
 
 const handlePrevClick = () => {
-  router.push({ name: "optionPage" })
+  router.push({ name: 'optionPage' })
 }
 
 const handleNextClick = () => {
   const today = new Date()
+  console.log(dateBtn.value)
   if (dateBtn.value) {
     propertyStore.updateNewProperty('moveDate', formattedRightNowDate(today))
   } else {
-    propertyStore.updateNewProperty('moveDate', selectDateFormatt(moveDate.value))
+    propertyStore.updateNewProperty(
+      'moveDate',
+      selectDateFormatt(moveDate.value),
+    )
   }
-  router.push({ name: "lastPage" })
+  router.push({ name: 'lastPage' })
 }
 
 onMounted(() => {
@@ -93,14 +98,35 @@ onMounted(() => {
     <div class="moveDate-container">
       <VCalendar class="my-calendar" transparent borderless expanded />
       <!-- 캘린더 -->
-      <VDatePicker v-model="moveDate" is-inline mode="date" :min-date="new Date()" title-position="left"
-        locale="ko-KR" />
+      <VDatePicker
+        v-model="moveDate"
+        is-inline
+        mode="date"
+        :min-date="new Date()"
+        title-position="left"
+        locale="ko-KR"
+      />
 
-      <Buttons class="rightNow-btn" v-model:is-active="dateBtn" type="date" label="즉시 입주 가능합니다" />
+      <Buttons
+        class="rightNow-btn"
+        v-model:is-active="dateBtn"
+        type="date"
+        label="즉시 입주 가능합니다"
+      />
     </div>
     <div class="button-wrapper">
-      <Buttons type="default" label="이전" @click="handlePrevClick" class="prevBtn" />
-      <Buttons type="default" label="다음" @click="handleNextClick" class="nextBtn" />
+      <Buttons
+        type="default"
+        label="이전"
+        @click="handlePrevClick"
+        class="prevBtn"
+      />
+      <Buttons
+        type="default"
+        label="다음"
+        @click="handleNextClick"
+        class="nextBtn"
+      />
     </div>
   </div>
 </template>
@@ -127,7 +153,7 @@ onMounted(() => {
 
 .rightNow-btn:deep(.button):hover {
   cursor: pointer;
-  border: .1rem solid var(--primary-color);
+  border: 0.1rem solid var(--primary-color);
   color: var(--primary-color);
 }
 
@@ -144,7 +170,6 @@ onMounted(() => {
   height: rem(50px);
   margin-bottom: 5rem;
 }
-
 
 // VCalendar 스타일
 .moveDate-container:deep(.vc-container) {
@@ -179,7 +204,7 @@ onMounted(() => {
 }
 
 .moveDate-container:deep(.vc-week) {
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
 }
 
 // DatePicker 스타일
@@ -192,7 +217,7 @@ onMounted(() => {
   grid-row-gap: 10px;
   grid-column-gap: 10px;
   justify-items: center;
-  margin-top: .2rem;
+  margin-top: 0.2rem;
 }
 
 .moveDate-container:deep(.vc-arrow) {

@@ -1,8 +1,8 @@
 <script setup>
-import { useRouter } from 'vue-router';
-import Buttons from '@/components/common/buttons/Buttons.vue';
-import { usePropertyStore } from '@/stores/property';
-import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router'
+import Buttons from '@/components/common/buttons/Buttons.vue'
+import { usePropertyStore } from '@/stores/property'
+import { onMounted, ref, watch } from 'vue'
 
 const router = useRouter()
 const propertyStore = usePropertyStore()
@@ -44,26 +44,28 @@ const onFeeInput = (item, e) => {
 }
 
 // "쓴 만큼" 클릭 시 관리비 금액을 '쓴 만큼'으로 저장
-const onToggleUsed = (item) => {
+const onToggleUsed = item => {
   if (item.used) item.managementFee = '쓴 만큼'
 }
 
 // 각 버튼 상태 변화를 감지해서 selectedItems에 반영
 itemsMap.forEach(({ label, state }) => {
-  watch(state, (newVal) => {
+  watch(state, newVal => {
     if (newVal) {
       // 선택 시 추가 (중복 방지)
       if (!selectedItems.value.find(item => item.managementType === label)) {
-        isNoManagement.value = false  // 관리비 없음 해제
+        isNoManagement.value = false // 관리비 없음 해제
         selectedItems.value.push({
           managementType: label,
           managementFee: '',
-          used: false
+          used: false,
         })
       }
     } else {
       // 해제 시 제거
-      selectedItems.value = selectedItems.value.filter(item => item.managementType !== label)
+      selectedItems.value = selectedItems.value.filter(
+        item => item.managementType !== label,
+      )
       // 선택된 항목이 하나도 없으면, 관리비 없음 활성화
       if (selectedItems.value.length === 0) {
         isNoManagement.value = true
@@ -73,7 +75,7 @@ itemsMap.forEach(({ label, state }) => {
 })
 
 // "관리비 없음" 체크 → 전체 초기화
-watch(isNoManagement, (noMgmt) => {
+watch(isNoManagement, noMgmt => {
   if (noMgmt) {
     // 모두 해제
     itemsMap.forEach(m => (m.state.value = false))
@@ -88,7 +90,9 @@ const buildManagementList = () => {
   }
   return selectedItems.value.map(({ managementType, managementFee, used }) => ({
     managementType,
-    managementFee: used ? '쓴 만큼' : String(managementFee ?? '').trim(),
+    managementFee: used
+      ? '쓴 만큼'
+      : String(managementFee * 10000 ?? '').trim(),
   }))
 }
 
@@ -100,13 +104,18 @@ onMounted(() => {
   if (saved.length > 0) {
     // 저장되었던 값이 관리비 없음이었던 경우 처리
     if (saved[0].managementType === '관리비 없음') {
-      selectedItems.value = [{ managementType: '관리비 없음', managementFee: '0' }]
+      selectedItems.value = [
+        { managementType: '관리비 없음', managementFee: '0' },
+      ]
       isNoManagement.value = true
     } else {
       // 그 외 관리비 항목이 저장되었던 경우 처리
       selectedItems.value = saved.map(({ managementType, managementFee }) => ({
         managementType,
-        managementFee: managementFee === '쓴 만큼' ? '' : String(managementFee ?? ''),
+        managementFee:
+          managementFee === '쓴 만큼'
+            ? ''
+            : String(managementFee / 10000 ?? ''),
         used: managementFee === '쓴 만큼',
       }))
       itemsMap.forEach(({ label, state }) => {
@@ -119,9 +128,13 @@ onMounted(() => {
   }
 })
 
-const handlePrevClick = () => {  // 관리비 없음이 아닌 경우 필수 검증
+const handlePrevClick = () => {
+  // 관리비 없음이 아닌 경우 필수 검증
   if (!isNoManagement.value) {
-    const invalidItem = selectedItems.value.find(item => !item.used && (!item.managementFee || item.managementFee.trim() === ''))
+    const invalidItem = selectedItems.value.find(
+      item =>
+        !item.used && (!item.managementFee || item.managementFee.trim() === ''),
+    )
     if (invalidItem) {
       alert(`${invalidItem.managementType} 금액을 입력해주세요`)
       return
@@ -131,13 +144,16 @@ const handlePrevClick = () => {  // 관리비 없음이 아닌 경우 필수 검
   // 스토어에 저장
   propertyStore.updateNewProperty('managementList', buildManagementList())
 
-  router.push({ name: "roomDetailPage" })
+  router.push({ name: 'roomDetailPage' })
 }
 
 const handleNextClick = () => {
   // 관리비 없음이 아닌 경우 필수 검증
   if (!isNoManagement.value) {
-    const invalidItem = selectedItems.value.find(item => !item.used && (!item.managementFee || item.managementFee.trim() === ''))
+    const invalidItem = selectedItems.value.find(
+      item =>
+        !item.used && (!item.managementFee || item.managementFee.trim() === ''),
+    )
     if (invalidItem) {
       alert(`${invalidItem.managementType} 금액을 입력해주세요`)
       return
@@ -147,7 +163,7 @@ const handleNextClick = () => {
   // 스토어에 저장
   propertyStore.updateNewProperty('managementList', buildManagementList())
 
-  router.push({ name: "otherInfoPage" })
+  router.push({ name: 'otherInfoPage' })
 }
 </script>
 
@@ -155,22 +171,72 @@ const handleNextClick = () => {
   <div class="ManagementPage">
     <div class="management-container">
       <section class="no-managemet">
-        <input type="checkbox" name="noManagement" id="noManagement" v-model="isNoManagement"> <label for="noManagement"
-          class="used-label">관리비 없음</label>
+        <input
+          type="checkbox"
+          name="noManagement"
+          id="noManagement"
+          v-model="isNoManagement"
+        />
+        <label for="noManagement" class="used-label">관리비 없음</label>
       </section>
       <section class="include-items">
         <div class="management-item-wrapper">
           <p class="management-title">관리비에 포함된 항목</p>
           <div class="management-item-btn-wrapper">
-            <Buttons type=xs label="수도료" v-model:is-active="waterBtn" class="management-item-btn" />
-            <Buttons type=xs label="전기료" v-model:is-active="powerBtn" class="management-item-btn" />
-            <Buttons type=xs label="인터넷비" v-model:is-active="internetBtn" class="management-item-btn" />
-            <Buttons type=xs label="가스비" v-model:is-active="gasBtn" class="management-item-btn" />
-            <Buttons type=xs label="청소비" v-model:is-active="cleanBtn" class="management-item-btn" />
-            <Buttons type=xs label="TV" v-model:is-active="tvBtn" class="management-item-btn" />
-            <Buttons type=xs label="주차비" v-model:is-active="parkingBtn" class="management-item-btn" />
-            <Buttons type=xs label="난방비" v-model:is-active="heatingBtn" class="management-item-btn" />
-            <Buttons type=xs label="승강기 유지비" v-model:is-active="elevatorBtn" class="management-item-btn" />
+            <Buttons
+              type="xs"
+              label="수도료"
+              v-model:is-active="waterBtn"
+              class="management-item-btn"
+            />
+            <Buttons
+              type="xs"
+              label="전기료"
+              v-model:is-active="powerBtn"
+              class="management-item-btn"
+            />
+            <Buttons
+              type="xs"
+              label="인터넷비"
+              v-model:is-active="internetBtn"
+              class="management-item-btn"
+            />
+            <Buttons
+              type="xs"
+              label="가스비"
+              v-model:is-active="gasBtn"
+              class="management-item-btn"
+            />
+            <Buttons
+              type="xs"
+              label="청소비"
+              v-model:is-active="cleanBtn"
+              class="management-item-btn"
+            />
+            <Buttons
+              type="xs"
+              label="TV"
+              v-model:is-active="tvBtn"
+              class="management-item-btn"
+            />
+            <Buttons
+              type="xs"
+              label="주차비"
+              v-model:is-active="parkingBtn"
+              class="management-item-btn"
+            />
+            <Buttons
+              type="xs"
+              label="난방비"
+              v-model:is-active="heatingBtn"
+              class="management-item-btn"
+            />
+            <Buttons
+              type="xs"
+              label="승강기 유지비"
+              v-model:is-active="elevatorBtn"
+              class="management-item-btn"
+            />
           </div>
         </div>
         <div class="management-detail-wrapper">
@@ -179,20 +245,39 @@ const handleNextClick = () => {
             관리비에 포함된 항목을 선택해주세요!
           </div>
           <div class="management-input-container">
-            <div class="management-input-wrapper" v-for="(item, idx) in selectedItems" :key="item.managementType">
+            <div
+              class="management-input-wrapper"
+              v-for="(item, idx) in selectedItems"
+              :key="item.managementType"
+            >
               <div class="input-label">
                 {{ item.managementType }}
                 <div class="used-checkbox-wrapper">
-                  <input type="checkbox" :id="`used-${idx}`" v-model="item.used" class="used-checkbox"
-                    @change="onToggleUsed(item)" />
+                  <input
+                    type="checkbox"
+                    :id="`used-${idx}`"
+                    v-model="item.used"
+                    class="used-checkbox"
+                    @change="onToggleUsed(item)"
+                  />
                   <label :for="`used-${idx}`" class="used-label">쓴 만큼</label>
                 </div>
               </div>
               <div class="input-field">
                 <div class="input-group">
-                  <input type="text" v-model="item.managementFee" inputmode="numeric"
-                    :placeholder="item.used ? '사용량에 따라 계산' : '금액(만원)을 입력하세요'" id="wolseDeposit"
-                    @input="onFeeInput(item, $event)" :disabled="item.used" />
+                  <input
+                    type="text"
+                    v-model="item.managementFee"
+                    inputmode="numeric"
+                    :placeholder="
+                      item.used
+                        ? '사용량에 따라 계산'
+                        : '금액(만원)을 입력하세요'
+                    "
+                    id="wolseDeposit"
+                    @input="onFeeInput(item, $event)"
+                    :disabled="item.used"
+                  />
                   <span class="unit" v-if="!item.used">만원</span>
                 </div>
               </div>
@@ -202,8 +287,18 @@ const handleNextClick = () => {
       </section>
     </div>
     <div class="button-wrapper">
-      <Buttons type="default" label="이전" @click="handlePrevClick" class="prevBtn" />
-      <Buttons type="default" label="다음" @click="handleNextClick" class="nextBtn" />
+      <Buttons
+        type="default"
+        label="이전"
+        @click="handlePrevClick"
+        class="prevBtn"
+      />
+      <Buttons
+        type="default"
+        label="다음"
+        @click="handleNextClick"
+        class="nextBtn"
+      />
     </div>
   </div>
 </template>
@@ -227,7 +322,6 @@ const handleNextClick = () => {
   margin-bottom: 1.5rem;
 }
 
-
 // 포함된 관리비 항목 부분
 .include-items {
   display: flex;
@@ -250,7 +344,6 @@ const handleNextClick = () => {
 }
 
 .management-item-btn-wrapper {
-
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   row-gap: 1rem;
@@ -270,9 +363,7 @@ const handleNextClick = () => {
   align-items: center;
 
   font-weight: var(--font-weight-medium);
-
 }
-
 
 // 관리비 사용료 상세 부분
 .management-detail-wrapper {
@@ -287,7 +378,6 @@ const handleNextClick = () => {
   font-weight: var(--font-weight-semibold);
   color: var(--title-text);
 }
-
 
 // 입력란
 .management-input-container {
@@ -312,10 +402,9 @@ const handleNextClick = () => {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: .2rem;
-  margin-bottom: .9rem;
+  gap: 0.2rem;
+  margin-bottom: 0.9rem;
 }
-
 
 .input-label {
   display: flex;
@@ -330,7 +419,7 @@ const handleNextClick = () => {
 }
 
 .used-label {
-  margin-left: .4rem;
+  margin-left: 0.4rem;
 }
 
 .used-label:hover {
@@ -352,12 +441,14 @@ const handleNextClick = () => {
   width: 100%;
   height: 2.4rem;
   padding-right: 3.25rem;
-  padding-left: .875rem;
+  padding-left: 0.875rem;
   border: 0; // 만원 글씨랑 겹쳐서 무테로 적용
   background: transparent;
   font-size: 0.875rem;
   outline: none;
-  transition: border-color .15s, box-shadow .15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 
 .input-group input::placeholder {
@@ -371,7 +462,7 @@ const handleNextClick = () => {
 .input-group:has(input:focus) {
   caret-color: var(--primary-color);
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   background: #fff;
 }
 
@@ -384,7 +475,6 @@ const handleNextClick = () => {
   color: #9ca3af;
   pointer-events: none; // 클릭 비활성화
 }
-
 
 // 이전, 다음 버튼 부분
 .button-wrapper {

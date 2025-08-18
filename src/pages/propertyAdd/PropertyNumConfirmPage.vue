@@ -69,7 +69,7 @@ onMounted(async () => {
     }
     // 부동산 고유번호가 일치하는 지 요청 보내기
     const result = await api.getPropertyNum(body)
-    if (result && result.statusCode === 200) {
+    if (result.success) {
       loading.value = false
       console.log('가져온 부동산 고유번호: ', result.data.commUniqueNo)
       console.log('가져온 소유주 이름: ', result.data.ownerName)
@@ -85,6 +85,7 @@ onMounted(async () => {
           '조회한 부동산 고유번호와 일치하는 경우에 렌더링 될 부동산 고유번호: ',
           inputPropertyNum.value,
         )
+        propertyStore.updateNewProperty('propertyNum', result.data.commUniqueNo)
       } else {
         if (confirm('서버와 부동산 고유번호가 일치하지 않습니다.')) {
           // 부동산 고유번호가 일치하지 않으면, 다시 부동산 고유번호 입력 페이지로 이동
