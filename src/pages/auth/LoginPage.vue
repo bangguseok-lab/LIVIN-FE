@@ -1,30 +1,51 @@
 <script setup>
-
-
 const handleKakaoLogin = () => {
-  sessionStorage.setItem('provider', 'kakao');
+  sessionStorage.setItem('provider', 'kakao')
   // window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=5d9abb9b194736dcef213fc877a7a3c6&redirect_uri=http://localhost:5173/kakao/callback`
   window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=5d9abb9b194736dcef213fc877a7a3c6&redirect_uri=https://livin-fe.vercel.app/kakao/callback`
 }
 
 const handleNaverLogin = () => {
-  sessionStorage.setItem('provider', 'naver');
-  window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=V2i2T0pvAb9NtEW2yzbS&redirect_uri=http://localhost:5173/naver/callback&state=random_state`
+  sessionStorage.setItem('provider', 'naver')
+  window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=V2i2T0pvAb9NtEW2yzbS&redirect_uri=https://livin-fe.vercel.app/naver/callback&state=random_state`
+  // window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=V2i2T0pvAb9NtEW2yzbS&redirect_uri=http://localhost:5173/naver/callback&state=random_state`
 }
 </script>
 
 <template>
   <div class="LoginPage">
     <div class="main-text-container">
-      <p><span class="main-text-bold">나만의 공간</span>을 위한 모든 <span class="main-text-bold">준비</span>,</p>
-      <p><img src='@/assets/images/login/login-logo.svg' alt="로고" id="logo"><span id="logo-text">에서</span></p>
+      <p>
+        <span class="main-text-bold">나만의 공간</span>을 위한 모든
+        <span class="main-text-bold">준비</span>,
+      </p>
+      <p>
+        <img
+          src="@/assets/images/login/login-logo.svg"
+          alt="로고"
+          id="logo"
+        /><span id="logo-text">에서</span>
+      </p>
       <p>지금 시작해보세요!</p>
     </div>
-    <div class="character-container"><img src='@/assets/images/login/livin-character.svg' alt="메인캐릭터" id="character">
+    <div class="character-container">
+      <img
+        src="@/assets/images/login/livin-character.svg"
+        alt="메인캐릭터"
+        id="character"
+      />
     </div>
     <div class="social-login-container">
-      <img src='@/assets/images/login/kakao-login.svg' alt="카카오 로그인" @click="handleKakaoLogin">
-      <img src='@/assets/images/login/naver-login.svg' alt="네이버 로그인" @click="handleNaverLogin">
+      <img
+        src="@/assets/images/login/kakao-login.svg"
+        alt="카카오 로그인"
+        @click="handleKakaoLogin"
+      />
+      <img
+        src="@/assets/images/login/naver-login.svg"
+        alt="네이버 로그인"
+        @click="handleNaverLogin"
+      />
     </div>
   </div>
 </template>
@@ -60,7 +81,7 @@ const handleNaverLogin = () => {
   height: rem(192px);
 }
 
-.main-text-container>p {
+.main-text-container > p {
   margin-bottom: 0;
   font-size: rem(24px);
   font-weight: var(--font-weight-light);
@@ -130,7 +151,7 @@ const handleNaverLogin = () => {
   align-items: center;
 }
 
-.social-login-container>img {
+.social-login-container > img {
   width: 80%;
   cursor: pointer;
 }
@@ -147,7 +168,7 @@ const handleNaverLogin = () => {
     height: rem(172px);
   }
 
-  .main-text-container>p {
+  .main-text-container > p {
     margin-bottom: 0;
     font-size: rem(20px);
     font-weight: var(--font-weight-light);
@@ -170,7 +191,5 @@ const handleNaverLogin = () => {
     top: rem(2px);
     right: rem(-85px);
   }
-
-
 }
 </style>
