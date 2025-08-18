@@ -65,7 +65,11 @@ const checkHeaderType = computed(() => {
 })
 
 onMounted(async () => {
-  if (route.name !== 'landing' && route.name !== 'login') {
+  if (
+    route.name !== 'landing' &&
+    route.name !== 'login' &&
+    route.path !== '/'
+  ) {
     await userStore.fetchUserInfo()
   }
 })

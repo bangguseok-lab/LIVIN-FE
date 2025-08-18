@@ -15,7 +15,13 @@ const props = defineProps({
     default: () => [],
   },
 })
-
+// 대체 이미지를 위한 함수 추가
+const getImageUrl = fp => {
+  if (fp.imageUrls.length === 0) {
+    return SampleImg2
+  }
+  return fp.imageUrls[0].imageUrl
+}
 const modules = [Parallax, Pagination]
 </script>
 <template>
@@ -75,7 +81,7 @@ const modules = [Parallax, Pagination]
           >
             <div class="card fp-box">
               <img
-                :src="SampleImg2"
+                :src="getImageUrl(fp)"
                 class="card-img-top fp-img"
                 alt="건물 이미지"
               />
