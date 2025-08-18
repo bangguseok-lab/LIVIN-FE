@@ -239,14 +239,31 @@ const formattedPrice = computed(() => {
 
 const calculate = computed(() => {
   const propertyDetails = property.getPropertyDetails
-  const total = propertyDetails.management?.reduce((acc, crr) => {
-    const fee = parseInt(crr.managementFee, 10)
-    return acc + (isNaN(fee) ? 0 : fee)
+  const managementList = propertyDetails?.management || []
+
+  const total = managementList.reduce((acc, crr) => {
+    if (crr && crr.managementFee && crr.managementFee !== '쓴 만큼') {
+      const parsedFee = parseInt(crr.managementFee, 10)
+      if (!isNaN(parsedFee)) {
+        return acc + parsedFee
+      }
+    }
+    return acc
   }, 0)
+
   if (total === 0) {
+    const hasOnlyVariableFees = managementList.every(
+      m => m && m.managementFee === '쓴 만큼',
+    )
+
+    if (hasOnlyVariableFees) {
+      return '별도 부과'
+    }
+
     return '관련 정보 없음'
   }
-  return '매월' + formatMonthlyDetail(total)
+
+  return '매월 ' + formatMonthlyDetail(total)
 })
 
 const handleEditSection = async section => {
@@ -449,11 +466,9 @@ const handleEditSection = async section => {
                 <span class="management-type">{{ m.managementType }}:</span>
                 <span>
                   {{
-                    m.managementFee !== '0' &&
-                    m.managementFee !== null &&
-                    m.managementFee !== undefined
-                      ? formatMonthlyDetail(m.managementFee)
-                      : '쓴 만큼'
+                    m.managementFee === '쓴 만큼'
+                      ? '쓴 만큼'
+                      : formatMonthlyDetail(m.managementFee)
                   }}
                 </span>
               </div>
