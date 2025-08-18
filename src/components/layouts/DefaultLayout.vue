@@ -63,16 +63,6 @@ const checkHeaderType = computed(() => {
     type: headerType,
   }
 })
-
-onMounted(async () => {
-  if (
-    route.name !== 'landing' &&
-    route.name !== 'login' &&
-    route.path !== '/'
-  ) {
-    await userStore.fetchUserInfo()
-  }
-})
 </script>
 
 <template>
@@ -86,7 +76,7 @@ onMounted(async () => {
     </div>
 
     <!-- 공통 푸터 -->
-    <Navbar v-if="showNav" :role="userStore.getUserRole" />
+    <Navbar v-if="showNav" />
   </div>
 </template>
 
