@@ -36,7 +36,10 @@ const handleNextClick = () => {
     propertyStore.updateNewProperty('optionIdList', selectOption.value)
     router.push({ name: 'moveDatePage' })
   } else {
-    alert('옵션을 선택해주세요')
+    if (confirm('옵션을 선택하지 않으시겠습니까?')) {
+      propertyStore.updateNewProperty('optionIdList', [])
+      router.push({ name: 'moveDatePage' })
+    }
   }
 }
 
@@ -46,10 +49,9 @@ onMounted(async () => {
   const resOptionList = res?.data?.data ?? res?.data ?? []
 
   // 페이지로 돌아왔을 때, 선택된 값 그대로 보일 수 있도록 함
-  const saved = propertyStore.getNewProperty?.selectOptions || []
+  const saved = propertyStore.getNewProperty?.optionIdList || []
   // 저장된 옵션이 있을 때, 중복 제거하고 새로 생성되는 저장된 값에 대한 배열
   const savedSet = new Set(Array.isArray(saved) ? saved : [])
-
   // 서버 응답을 렌더용 구조로 변환 + isActive 값
   selectOptionItem.value = resOptionList.map(({ optionId, optionType }) => ({
     id: optionId,
@@ -62,28 +64,12 @@ onMounted(async () => {
 <template>
   <div class="OptionPage">
     <div class="option-container">
-      <Buttons
-        v-for="item in selectOptionItem"
-        :key="item.id"
-        class="option"
-        v-model:is-active="item.isActive"
-        type="option"
-        :label="item.label"
-      />
+      <Buttons v-for="item in selectOptionItem" :key="item.id" class="option" v-model:is-active="item.isActive"
+        type="option" :label="item.label" />
     </div>
     <div class="button-wrapper">
-      <Buttons
-        type="default"
-        label="이전"
-        @click="handlePrevClick"
-        class="prevBtn"
-      />
-      <Buttons
-        type="default"
-        label="다음"
-        @click="handleNextClick"
-        class="nextBtn"
-      />
+      <Buttons type="default" label="이전" @click="handlePrevClick" class="prevBtn" />
+      <Buttons type="default" label="다음" @click="handleNextClick" class="nextBtn" />
     </div>
   </div>
 </template>
