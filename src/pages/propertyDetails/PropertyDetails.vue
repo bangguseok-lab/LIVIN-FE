@@ -8,11 +8,9 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/free-mode'
-import sample1 from '../../assets/images/home/sample-img1.png'
-import sample2 from '../../assets/images/home/sample-img2.png'
-import sample3 from '../../assets/images/home/sample-img3.png'
 import badge from '../../assets/images/landing/SecureBadge.png'
 import FavoriteButton from '@/components/common/buttons/FavoriteButton.vue'
+import SafePropertyModal from '@/components/modals/SafePropertyModal.vue'
 
 import WasherIcon from '@/assets/icons/property/washing-machine.svg'
 import RefrigeratorIcon from '@/assets/icons/property/refrigerator.svg'
@@ -34,6 +32,14 @@ const optionMap = {
   GasStove: { name: '가스렌지', iconUrl: GasStoveIcon },
   Induction: { name: '인덕션', iconUrl: InductionIcon },
   Bed: { name: '침대', iconUrl: BedIcon },
+}
+
+const safeModalOpen = ref(false)
+function openSafeModal() {
+  safeModalOpen.value = true
+}
+function onSafeCta() {
+  router.push({ name: 'DepositInput' })
 }
 
 const isModalOpen = ref(false)
@@ -68,8 +74,6 @@ const chunkedOptions = computed(() => {
   }
   return chunks
 })
-
-const imgUrls = [sample1, sample2, sample3]
 const property = usePropertyStore()
 const modules = [Navigation, Pagination]
 
@@ -144,6 +148,26 @@ const formatPrice = (price, isRent) => {
   return result.trim() || `${numberPrice}원`
 }
 
+// 관리비 포맷팅
+const formatMonthlyDetail = price => {
+  if (price === null || price === undefined || price === '')
+    return '가격 정보 없음'
+  if (price === '쓴 만큼') return price
+  const n = Number(price)
+  if (!Number.isFinite(n)) return '가격 정보 없음'
+
+  const man = Math.floor(n / 10000) // 만
+  const cheon = Math.floor((n % 10000) / 1000) // 천
+  const won = n % 1000 // 천원 미만
+
+  let s = ''
+  if (man) s += `${man}만`
+  if (cheon) s += `${s ? ' ' : ''}${cheon}천`
+  if (won) s += `${s ? ' ' : ''}${won}원`
+  if (!s) s = `${n}원` // 1000 미만 등
+  return s
+}
+
 const formattedPrice = computed(() => {
   const propertyDetails = property.getPropertyDetails
   if (!propertyDetails || !propertyDetails.transactionType) {
@@ -167,18 +191,48 @@ const handleFavoriteToggle = async (propertyId, newFavoriteStatus) => {
   await property.fetchPropertyDetails(propertyId)
 }
 
+// 관리비 관련
 const calculate = computed(() => {
   const propertyDetails = property.getPropertyDetails
+  const managementList = propertyDetails?.management || []
   const total = propertyDetails.management?.reduce((acc, crr) => {
-    if (crr.managementFee !== null && crr.managementFee !== undefined) {
-      return acc + parseInt(crr.managementFee, 10)
+    if (crr && crr.managementFee !== null && crr.managementFee !== undefined) {
+      const fee = crr.managementFee
+
+      if (fee !== '쓴 만큼') {
+        const parsedFee = parseInt(fee, 10)
+        if (!isNaN(parsedFee)) {
+          return acc + parsedFee
+        }
+      }
     }
     return acc
   }, 0)
+
   if (total === 0) {
+    const hasOnlyVariableFees = managementList.every(
+      m => m && m.managementFee === '쓴 만큼',
+    )
+    if (hasOnlyVariableFees) {
+      return '별도 부과'
+    }
     return '관련 정보 없음'
   }
-  return '매월' + formatPrice(total)
+
+  return '매월 ' + formatMonthlyDetail(total)
+})
+
+const sortedImgUrls = computed(() => {
+  const imgUrls = property.getPropertyDetails?.imgUrls || []
+  return [...imgUrls].sort((a, b) => {
+    if (a.represent && !b.represent) {
+      return -1
+    }
+    if (!a.represent && b.represent) {
+      return 1
+    }
+    return 0
+  })
 })
 </script>
 
@@ -193,8 +247,8 @@ const calculate = computed(() => {
         :modules="modules"
         class="mySwiper"
       >
-        <swiper-slide v-for="(img, index) in imgUrls" :key="index">
-          <img :src="img" class="property-img" alt="매물 이미지" />
+        <swiper-slide v-for="(img, index) in sortedImgUrls" :key="index">
+          <img :src="img.imageUrl" class="property-img" alt="매물 이미지" />
         </swiper-slide>
       </swiper>
     </div>
@@ -203,12 +257,15 @@ const calculate = computed(() => {
         <div class="property-title">
           <div class="property-title-inner">
             {{ property.getPropertyDetails.name }}
-            <img
+            <button
               v-if="property.getPropertyDetails.safe"
-              :src="badge"
-              alt="안심매물 뱃지"
-              class="badge-img"
-            />
+              type="button"
+              class="safe-badge-btn"
+              @click.stop="openSafeModal"
+              aria-label="안심 리포트 열기"
+            >
+              <img :src="badge" alt="안심매물 뱃지" class="badge-img" />
+            </button>
           </div>
           <div class="favorite-btn">
             <FavoriteButton
@@ -248,6 +305,11 @@ const calculate = computed(() => {
         :propertyId="propertyId"
         @close="closeModal"
       />
+      <SafePropertyModal
+        v-model="safeModalOpen"
+        :property-id="Number(propertyId)"
+        @cta="onSafeCta"
+      />
       <div class="content-box">
         <div class="content-title-row">가격 정보</div>
         <div class="content-details">
@@ -267,7 +329,7 @@ const calculate = computed(() => {
                 {{ m.managementType }}:
                 {{
                   m.managementFee !== '0'
-                    ? formatPrice(m.managementFee, false)
+                    ? formatMonthlyDetail(m.managementFee)
                     : '쓴 만큼'
                 }}
               </div>
@@ -282,12 +344,6 @@ const calculate = computed(() => {
             <div class="content-details-row-title">상세 주소</div>
             <div class="content-details-row-content">
               {{ property.getPropertyDetails.detailAddress }}
-            </div>
-          </div>
-          <div class="content-details-row">
-            <div class="content-details-row-title">종류</div>
-            <div class="content-details-row-content">
-              {{ property.getPropertyDetails.propertyType }}
             </div>
           </div>
           <div class="content-details-row">
@@ -437,6 +493,21 @@ const calculate = computed(() => {
       </div>
     </div>
     <div class="content-box">
+      <div class="content-title-row">임대인 정보</div>
+      <div class="content-details-row">
+        <div class="content-details-row-title">이름</div>
+        <div class="content-details-row-content">
+          {{ property.getPropertyDetails.landlord?.name }}
+        </div>
+      </div>
+      <div class="content-details-row">
+        <div class="content-details-row-title">전화번호</div>
+        <div class="content-details-row-content">
+          {{ property.getPropertyDetails.landlord?.phone }}
+        </div>
+      </div>
+    </div>
+    <div class="content-box">
       <div class="content-title-row">기타 정보</div>
       <div class="content-property-description">
         {{ property.getPropertyDetails.description }}
@@ -543,6 +614,13 @@ const calculate = computed(() => {
 .badge-img {
   width: rem(45px);
   height: 100%;
+}
+.safe-badge-btn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
 }
 .property-addr {
   font-size: rem(15px);

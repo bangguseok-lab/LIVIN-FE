@@ -1,13 +1,8 @@
 import apiClient from '@/api/apiClient'
 
 export default {
-  async getFavorite(params) {
-    const { data } = await apiClient.get('/properties/favorite', { params })
-    return data
-  },
-
   async getFavProperties(params) {
-    const { data } = await apiClient.get('/properties/favorite', { params })
+    const { data } = await apiClient.get('/favorite-properties', { params })
     return data
   },
 
@@ -40,6 +35,50 @@ export default {
     } catch (error) {
       console.error(error)
       alert('관심매물 등록해제에 실패했습니다.')
+    }
+  },
+
+  // 매물 등록 시 옵션 정보 조회
+  async getOptions() {
+    try {
+      const { data } = await apiClient.get('/properties/options')
+      return data
+    } catch (error) {
+      console.error('옵션 조회 과정에서 에러가 발생했습니다.', error)
+    }
+  },
+  // 부동산 고유번호 조회
+  async getPropertyNum(body) {
+    try {
+      const { data } = await apiClient.post(
+        '/properties/real-estate-registers',
+        body,
+      )
+      return data
+    } catch (error) {
+      console.error('부동산 고유번호 조회 과정에서 에러가 발생했습니다.', error)
+    }
+  },
+  // 위험도 분석 요청
+  async postRiskAnalysis(body) {
+    try {
+      const { data } = await apiClient.post('/risk/risk-analysis', body)
+      return data
+    } catch (error) {
+      console.error('위험도 분석 과정에서 에러가 발생했습니다.', error)
+    }
+  },
+  // 매물 등록 요청
+  async postNewProperty(body) {
+    try {
+      const { data } = await apiClient.post('/properties', body, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      return data
+    } catch (error) {
+      console.error('매물 등록 요청 중 에러가 발생했습니다.', error)
     }
   },
 }

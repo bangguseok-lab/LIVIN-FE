@@ -1,21 +1,38 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
-import { useRoute } from 'vue-router'
 import { computed } from 'vue'
-import HomeIcon from '@/assets/icons/navbar/home-icon.svg'
-import SearchPropertyIcon from '@/assets/icons/navbar/search-property-icon.svg'
-import ChecklistIcon from '@/assets/icons/navbar/checklist-icon.svg'
-import FavoriteIcon from '@/assets/icons/navbar/favorite-icon.svg'
-import MypageIcon from '@/assets/icons/navbar/mypage-icon.svg'
+import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
+// 공통 아이콘
+import HomeIcon from '@/assets/icons/navbar/home-icon.svg'
 import HomeIconActive from '@/assets/icons/navbar/home-icon-active.svg'
-import SearchPropertyIconActive from '@/assets/icons/navbar/search-property-icon-active.svg'
-import ChecklistIconActive from '@/assets/icons/navbar/checklist-icon-active.svg'
-import FavoriteIconActive from '@/assets/icons/navbar/favorite-icon-active.svg'
+import MypageIcon from '@/assets/icons/navbar/mypage-icon.svg'
 import MypageIconActive from '@/assets/icons/navbar/mypage-icon-active.svg'
 
+// TENANT 아이콘
+import SearchPropertyIcon from '@/assets/icons/navbar/search-property-icon.svg'
+import SearchPropertyIconActive from '@/assets/icons/navbar/search-property-icon-active.svg'
+import ChecklistIcon from '@/assets/icons/navbar/checklist-icon.svg'
+import ChecklistIconActive from '@/assets/icons/navbar/checklist-icon-active.svg'
+import FavoriteIcon from '@/assets/icons/navbar/favorite-icon.svg'
+import FavoriteIconActive from '@/assets/icons/navbar/favorite-icon-active.svg'
+
+// LANDLORD 아이콘
+import RegisterIcon from '@/assets/icons/navbar/register-property-icon.svg'
+import RegisterIconActive from '@/assets/icons/navbar/register-property-icon-active.svg'
+import ManageIcon from '@/assets/icons/navbar/manage-property-icon.svg'
+import ManageIconActive from '@/assets/icons/navbar/manage-property-icon-active.svg'
+
 const route = useRoute()
-const navMenus = [
+const props = defineProps({
+  role: {
+    type: String,
+    required: true,
+  },
+})
+
+// TENANT 메뉴
+const tenantMenus = [
   {
     path: '/home',
     icon: HomeIcon,
@@ -48,14 +65,47 @@ const navMenus = [
   },
 ]
 
-//현재 출력되는 페이지가 어디인지
-//경로에 따라 활성화된 메뉴 표시
-const isActive = computed(() => menu => {
-  if (menu.path === '/') {
-    return route.path === '/'
-  }
-  return route.path.startsWith(menu.path)
-})
+// LANDLORD 메뉴
+const landlordMenus = [
+  {
+    path: '/home',
+    icon: HomeIcon,
+    activeIcon: HomeIconActive,
+    alt: '홈 아이콘',
+  },
+  {
+    path: '/property/create',
+    icon: RegisterIcon,
+    activeIcon: RegisterIconActive,
+    alt: '매물 등록 아이콘',
+  },
+  {
+    path: '/propertymanage',
+    icon: ManageIcon,
+    activeIcon: ManageIconActive,
+    alt: '매물 관리 아이콘',
+  },
+  {
+    path: '/mypage',
+    icon: MypageIcon,
+    activeIcon: MypageIconActive,
+    alt: '마이페이지 아이콘',
+  },
+]
+
+// 보여줄 메뉴
+// const navMenus = computed(() =>
+//   role.value === 'LANDLORD' ? landlordMenus : tenantMenus,
+// )
+const getNavMenus = () => {
+  return props.role === 'LANDLORD' ? landlordMenus : tenantMenus
+}
+
+// 활성 메뉴 체크
+const isActive = computed(
+  () => menu =>
+    menu.path === '/' ? route.path === '/' : route.path.startsWith(menu.path),
+)
 </script>
 
 <template>
@@ -63,7 +113,7 @@ const isActive = computed(() => menu => {
     <div class="Navbar">
       <div class="nav-box">
         <router-link
-          v-for="menu in navMenus"
+          v-for="menu in getNavMenus()"
           :key="menu.path"
           :to="menu.path"
           class="icon-box"

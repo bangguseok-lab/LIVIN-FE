@@ -14,7 +14,8 @@ const router = useRouter()
 const userStore = useUserStore()
 
 // Store의 상태를 직접 참조 (반응성을 유지하기 위해 storeToRefs 사용)
-const { userInfo } = storeToRefs(userStore)
+const { userInfo, formattedDeposit, depositLoading, depositAmount } =
+  storeToRefs(userStore)
 const nickname = computed(() => userInfo.value?.data?.nickname || '닉네임')
 const name = computed(() => userInfo.value?.data?.name || '이름')
 const birth = computed(() => {
@@ -94,6 +95,7 @@ async function setUserType(type) {
     await userStore.changeRole(newRole)
     if (userInfo.value?.data) {
       userInfo.value.data.role = newRole
+      sessionStorage.setItem('role', newRole)
     }
   } catch (err) {
     console.error('역할 변경 실패', err)
@@ -127,31 +129,44 @@ async function handleWithdraw() {
 }
 
 // 버튼 내용 다르게 보여주기
-const manageButton = computed(() => {
-  if (!userInfo.value?.data) return { title: '', desc: '' }
+// const manageButton = computed(() => {
+//   if (!userInfo.value?.data) return { title: '', desc: '' }
 
-  return role.value === 'LANDLORD'
-    ? {
-        title: '내 매물 관리하기',
-        desc: '내가 올린 매물을 확인하고 관리해요',
-      }
-    : {
-        title: '나만의 체크리스트 관리하기',
-        desc: '내가 찾는 집을 위한',
-      }
-})
+//   return role.value === 'LANDLORD'
+//     ? {
+//         title: '내 매물 관리하기',
+//         desc: '내가 올린 매물을 확인하고 관리해요',
+//       }
+//     : {
+//         title: '나만의 체크리스트 관리하기',
+//         desc: '내가 찾는 집을 위한',
+//       }
+// })
 
-function handleManageClick(buttonTitle) {
-  if (role.value === 'TENANT') {
-    router.push('/checklist')
-  } else {
-    if (buttonTitle === '내 매물 관리하기') {
-      router.push('/propertyManage')
-    } else if (buttonTitle === '내 매물 등록하기') {
-      router.push({ name: 'propertyAdd' })
-    }
-  }
+// function handleManageClick(buttonTitle) {
+//   if (role.value === 'TENANT') {
+//     router.push('/checklist')
+//   } else {
+//     if (buttonTitle === '내 매물 관리하기') {
+//       router.push('/propertyManage')
+//     } else if (buttonTitle === '내 매물 등록하기') {
+//       router.push({ name: 'propertyAdd' })
+//     }
+//   }
+// }
+
+// 라우팅을 버튼별로 분리
+const goTenantChecklist = () => router.push('/checklist')
+const goLandlordCreate = () => router.push({ name: 'propertyAdd' })
+const goLandlordManage = () => router.push('/propertyManage')
+
+const goToDepositInput = () => {
+  router.push({ name: 'DepositInput' }) // 라우터에 등록한 이름 사용
 }
+
+const hasDeposit = computed(
+  () => typeof depositAmount.value === 'number' && depositAmount.value > 0,
+)
 
 function startEdit(field) {
   editingField.value = field
@@ -185,6 +200,11 @@ async function onProfileImageChange(imgNumber) {
 // ✅ 마운트 시 사용자 정보 및 프로필 이미지 불러오기
 onMounted(async () => {
   await userStore.fetchUserInfo()
+  try {
+    await userStore.fetchDeposit()
+  } catch (e) {
+    /* noop */
+  }
 })
 </script>
 
@@ -298,6 +318,17 @@ onMounted(async () => {
             {{ editingField === 'phone' ? '수정완료' : '수정하기' }}
           </button>
         </li>
+        <li>
+          <span class="label">보증금</span>
+          <span class="value">
+            <template v-if="depositLoading">불러오는 중…</template>
+            <template v-else-if="hasDeposit">{{ formattedDeposit }}</template>
+            <template v-else>설정하지 않음</template>
+          </span>
+          <button class="edit-btn" @click="goToDepositInput">
+            {{ hasDeposit ? '수정하기' : '설정하기' }}
+          </button>
+        </li>
       </ul>
     </section>
 
@@ -305,24 +336,90 @@ onMounted(async () => {
 
     <section class="manage-section">
       <h2 class="manage-title">
-        {{ role === 'LANDLORD' ? '나의 매물 관리' : '나의 체크리스트 관리' }}
+        {{ role === 'LANDLORD' ? '나의 매물 관리' : '나의 체크리스트' }}
       </h2>
+
+      <!-- 임차인 화면 버튼 -->
+      <Buttons
+        v-if="role === 'TENANT'"
+        type="xl"
+        class="checklist-btn"
+        :key="'tenant-manage'"
+        @click="goTenantChecklist"
+      >
+        <span class="btn-inner">
+          <span class="btn-text">
+            <div class="top-text">내가 찾는 집을 위한</div>
+            <div class="bottom-text">나만의 체크리스트 관리하기</div>
+          </span>
+          <img
+            src="@/assets/icons/home/go-to-check-icon.svg"
+            class="btn-icon"
+          />
+        </span>
+      </Buttons>
+
+      <!-- 임대인 화면 버튼 -->
+      <template v-else>
+        <Buttons
+          type="xl"
+          class="manage-btn"
+          :key="'landlord-manage'"
+          @click="goLandlordManage"
+        >
+          <span class="btn-inner">
+            <span class="btn-text">
+              <div class="top-text">내가 올린 매물을 확인하고 관리해요</div>
+              <div class="bottom-text">내 매물 관리하기</div>
+            </span>
+            <img
+              src="@/assets/icons/mypage/manage-property-icon.svg"
+              class="btn-icon"
+            />
+          </span>
+        </Buttons>
+      </template>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- 보증금 설정 -->
+    <section class="deposit-section">
+      <h2 class="manage-title">
+        {{ role === 'LANDLORD' ? '새로운 매물 등록' : '내 보증금 설정하기' }}
+      </h2>
+      <Buttons
+        v-if="role === 'TENANT'"
+        type="xl"
+        @click="goToDepositInput"
+        class="set-deposit-btn"
+      >
+        <span class="btn-inner">
+          <span class="btn-text">
+            <div class="top-text">더 안전한 매물을 원한다면?</div>
+            <div class="bottom-text">내 보증금 설정하기</div>
+          </span>
+          <img
+            src="@/assets/icons/mypage/set-deposit-icon.svg"
+            class="btn-icon"
+          />
+        </span>
+      </Buttons>
+
       <Buttons
         v-if="role === 'LANDLORD'"
         type="xl"
-        @click="handleManageClick('내 매물 등록하기')"
-        class="create-property-btn"
+        class="post-btn"
+        :key="'landlord-create'"
+        @click="goLandlordCreate"
       >
-        <div class="top-text">나의 매물을 등록하고 싶어요</div>
-        <div class="bottom-text">내 매물 등록하기</div>
-      </Buttons>
-      <Buttons
-        type="xl"
-        @click="handleManageClick(manageButton.title)"
-        class="manage-btn"
-      >
-        <div class="top-text">{{ manageButton.desc }}</div>
-        <div class="bottom-text">{{ manageButton.title }}</div>
+        <span class="btn-inner">
+          <span class="btn-text">
+            <div class="top-text">나의 매물을 등록하고 싶어요</div>
+            <div class="bottom-text">내 매물 등록하기</div>
+          </span>
+          <img src="@/assets/icons/mypage/post-icon.svg" class="btn-icon" />
+        </span>
       </Buttons>
     </section>
 
@@ -356,7 +453,7 @@ onMounted(async () => {
 .greeting-section {
   background: var(--primary-color);
   color: var(--white);
-  padding: rem(150px) rem(30px) rem(46px);
+  padding: rem(200px) rem(30px) rem(55px);
   position: relative;
   z-index: 1;
 }
@@ -383,29 +480,27 @@ onMounted(async () => {
 }
 
 .text-block .hello {
-  font-size: rem(14px);
+  font-size: rem(16px);
   margin: 0;
-  opacity: 0.6;
+  font-weight: var(--font-weight-light);
 }
 
 .nickname {
-  font-size: rem(18px);
-  font-weight: 800;
+  font-size: rem(20px);
+  font-weight: 700;
   margin: 0;
 }
 
 .nim {
   font-weight: 400;
-  opacity: 0.6;
 }
 
 .info-section {
   background: var(--white);
   border-radius: rem(28px) rem(28px) 0 0;
-  margin: rem(-20px) 0 0 0;
+  margin: rem(-20px) 0 rem(20px) 0;
   padding: rem(30px) rem(50px);
   width: 100%;
-  box-shadow: 0 rem(2px) rem(6px) rgb(0 0 0 / 0.05);
   font-size: rem(13px);
   position: relative;
   z-index: 2;
@@ -415,7 +510,8 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: rem(16px);
+  margin-top: rem(10px);
+  margin-bottom: rem(30px);
 }
 
 .info-header h2 {
@@ -430,7 +526,7 @@ onMounted(async () => {
   padding: 0;
   width: rem(100px);
   font-weight: 700;
-  font-size: rem(10px);
+  font-size: rem(11px);
   overflow: hidden;
 }
 
@@ -466,7 +562,7 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: 1.2fr 9fr rem(40px);
   align-items: center;
-  border-bottom: rem(1px) solid #eee;
+  border-bottom: rem(1px) solid var(--whitish);
   padding: rem(12px) 0;
 }
 
@@ -474,9 +570,10 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: left;
+  margin-left: rem(130px);
   gap: rem(4px);
-  font-size: rem(13px);
+  font-size: rem(14px);
   color: var(--black);
   font-weight: 500;
 }
@@ -487,9 +584,9 @@ onMounted(async () => {
 
 .label {
   flex: 1;
-  color: #777;
+  color: var(--grey);
   font-weight: 500;
-  font-size: rem(13px);
+  font-size: rem(14px);
 }
 
 .value {
@@ -501,7 +598,8 @@ onMounted(async () => {
   gap: rem(6px);
   word-break: break-word;
   font-size: rem(13px);
-  justify-content: center;
+  justify-content: left;
+  margin-left: rem(130px);
 }
 
 .editable-text {
@@ -523,7 +621,7 @@ onMounted(async () => {
 
 .error-message {
   font-size: rem(10px);
-  color: #888;
+  color: var(--grey);
   white-space: nowrap;
 }
 
@@ -532,25 +630,181 @@ onMounted(async () => {
 }
 
 .divider {
-  height: rem(12px);
-  background: #f1f3f5;
-  margin: 0 0 rem(8px);
+  height: rem(10px);
+  background: var(--whitish);
 }
 
 .manage-section {
-  padding: 0 rem(50px);
-  margin-bottom: rem(20px);
+  padding: 0 rem(30px);
+  margin: rem(25px) 0 rem(40px);
 }
 
 .manage-title {
   font-size: rem(16px);
   font-weight: 800;
   margin-bottom: rem(24px);
-  padding-top: rem(16px);
+  padding: rem(16px) rem(20px) 0 rem(20px);
 }
 
-.manage-btn {
+// 체크리스트 버튼
+:deep(.checklist-btn) {
   height: rem(100px);
+  --primary-color: var(--green);
+
+  .top-text {
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-light);
+    color: var(--white);
+  }
+
+  .bottom-text {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--white);
+  }
+}
+
+.checklist-btn .btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽: 텍스트, 오른쪽: 아이콘 */
+  width: 100%;
+  gap: 12px;
+}
+
+.checklist-btn .btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1 1 auto; /* 남는 영역을 텍스트가 차지 */
+  line-height: 1.25;
+}
+
+.checklist-btn .btn-icon {
+  width: rem(65px);
+  flex: 0 0 auto;
+}
+
+// 보증금 설정 버튼
+.deposit-section {
+  padding: 0 rem(30px);
+  margin: rem(25px) 0 rem(20px);
+}
+
+:deep(.set-deposit-btn) {
+  height: rem(100px);
+  --primary-color: #ebeb83;
+
+  .top-text {
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-light);
+    color: var(--white);
+  }
+
+  .bottom-text {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--white);
+  }
+}
+
+.set-deposit-btn .btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽: 텍스트, 오른쪽: 아이콘 */
+  width: 100%;
+  gap: 12px;
+}
+
+.set-deposit-btn .btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1 1 auto; /* 남는 영역을 텍스트가 차지 */
+  line-height: 1.25;
+}
+
+.set-deposit-btn .btn-icon {
+  width: rem(65px);
+  flex: 0 0 auto;
+}
+
+// 매물 관리 버튼
+:deep(.manage-btn) {
+  height: rem(100px);
+  --primary-color: #b3c1d7;
+
+  .top-text {
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-light);
+    color: var(--white);
+  }
+
+  .bottom-text {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--white);
+  }
+}
+
+.manage-btn .btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽: 텍스트, 오른쪽: 아이콘 */
+  width: 100%;
+  gap: 12px;
+}
+
+.manage-btn .btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1 1 auto; /* 남는 영역을 텍스트가 차지 */
+  line-height: 1.25;
+}
+
+.manage-btn .btn-icon {
+  width: rem(65px);
+  flex: 0 0 auto;
+}
+
+// 매물 등록 버튼
+:deep(.post-btn) {
+  height: rem(100px);
+  --primary-color: var(--blue);
+
+  .top-text {
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-light);
+    color: var(--white);
+  }
+
+  .bottom-text {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--white);
+  }
+}
+
+.post-btn .btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽: 텍스트, 오른쪽: 아이콘 */
+  width: 100%;
+  gap: 12px;
+}
+
+.post-btn .btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1 1 auto; /* 남는 영역을 텍스트가 차지 */
+  line-height: 1.25;
+}
+
+.post-btn .btn-icon {
+  width: rem(65px);
+  flex: 0 0 auto;
 }
 
 .create-property-btn {
@@ -561,7 +815,7 @@ onMounted(async () => {
 .account-section {
   display: flex;
   justify-content: space-around;
-  margin-top: rem(24px);
+  margin-top: rem(30px);
   padding: 0 rem(50px);
 }
 

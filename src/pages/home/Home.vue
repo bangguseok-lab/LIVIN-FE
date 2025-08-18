@@ -6,6 +6,11 @@ import { usePropertyStore } from '@/stores/property'
 import { onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 
+onMounted(() => {
+  // 렌더 직후 클래스 추가해서 애니메이션 시작
+  requestAnimationFrame(() => mainText.value?.classList.add('is-visible'))
+})
+const mainText = ref(null)
 const property = usePropertyStore()
 const user = useUserStore()
 const addressErrorMessage = ref('')
@@ -67,7 +72,7 @@ const searchAddressByCoords = async (latitude, longitude) => {
         await property.fetchProperties(properties)
         if (property.getPropertiesList.length === 0) {
           propertyMessage.value = propertyMessage.value =
-            '현재 위치 주변에 매물이 없습니다.\n서울특별시 강남구 대치동의 매물을 보여드릴게요.'
+            '현재 위치 주변에 매물이 없어요.\n 서울특별시 강남구 대치동의 매물을 보여드릴게요.'
           const initialProperties = {
             limit: 4,
             sido: '서울특별시',
@@ -106,15 +111,27 @@ onMounted(async () => {
             const longitude = position.coords.longitude
             searchAddressByCoords(latitude, longitude)
           },
-          error => {
+          async error => {
             console.error('Geolocation 오류:', error)
             addressErrorMessage.value =
               '현재 위치를 가져올 수 없습니다. 브라우저 설정에서 위치 정보 접근을 허용했는지 확인해주세요.'
+            const initialProperties = {
+              limit: 4,
+              sido: '서울특별시',
+              sigungu: '강남구',
+              eupmyendong: '대치동',
+            }
             switch (error.code) {
               case error.PERMISSION_DENIED:
+                propertyMessage.value = propertyMessage.value =
+                  '위치 정보 접근이 거부되었습니다.\n 서울특별시 강남구 대치동의 매물을 보여드릴게요.'
+                await property.fetchProperties(initialProperties)
                 console.error('사용자가 위치 정보 접근을 거부했습니다.')
                 break
               case error.POSITION_UNAVAILABLE:
+                propertyMessage.value = propertyMessage.value =
+                  '위치 정보를 사용할 수 없습니다.\n 서울특별시 강남구 대치동의 매물을 보여드릴게요.'
+                await property.fetchProperties(initialProperties)
                 console.error('위치 정보를 사용할 수 없습니다.')
                 break
               case error.TIMEOUT:
@@ -147,9 +164,14 @@ onMounted(async () => {
 <template>
   <div class="Home">
     <div class="intro-box">
-      {{ user.getNickname }}님,
-      <br />
-      <div class="board-text-box lg-text-box">
+      <div class="character">
+        <img
+          src="@/assets/images/character/character-basic.svg"
+          alt="Character"
+        />
+      </div>
+      <div class="name-text">{{ user.getNickname }}님,</div>
+      <div ref="mainText" class="main-text">
         오늘도 함께 <br />
         좋은 집을 찾아봐요!
       </div>
@@ -160,6 +182,7 @@ onMounted(async () => {
         <property-section
           :properties="property.getPropertiesList"
           :propertyMessage="propertyMessage"
+          class="propertyMessage"
         />
       </div>
       <div class="checklist-router-box">
@@ -167,10 +190,18 @@ onMounted(async () => {
           더 많은 매물이 궁금하시다면, 더보기를 눌러 확인해보세요
         </div>
         <Buttons type="xl" togo="/checklist" class="checklist-router-btn mt-5">
-          <div class="top-text">
-            나만의 공간을 위한 모든 준비, 지금 여기서 시작하세요
-          </div>
-          <div class="bottom-text">나만의 체크리스트 만들기</div>
+          <span class="btn-inner">
+            <span class="btn-text">
+              <div class="top-text">
+                나만의 공간을 위한 모든 준비, 지금 여기서 시작하세요
+              </div>
+              <div class="bottom-text">나만의 체크리스트 만들기</div>
+            </span>
+            <img
+              src="@/assets/icons/home/go-to-check-icon.svg"
+              class="btn-icon"
+            />
+          </span>
         </Buttons>
       </div>
     </div>
@@ -185,7 +216,7 @@ onMounted(async () => {
 
 .Home {
   width: 100%;
-  padding: 4rem 0;
+  padding: 7rem 0;
   background-color: var(--primary-color);
   display: flex;
   flex-direction: column;
@@ -194,7 +225,46 @@ onMounted(async () => {
 .intro-box {
   color: white;
   margin-top: rem(100px);
-  padding: 0 2rem;
+  padding: 2rem 2rem 0 2rem;
+  position: relative;
+  height: 30vh;
+}
+.name-text {
+  font-size: 1rem;
+  font-weight: var(--font-weight-light);
+  margin-bottom: rem(4px);
+}
+
+.main-text {
+  opacity: 0;
+  transform: translateY(12px);
+  will-change: transform, opacity;
+  font-size: 1.6rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.3;
+}
+.main-text.is-visible {
+  animation: fadeUp 700ms ease-out forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.intro-box .character {
+  position: absolute;
+  right: 25px; /* 오른쪽에서 띄움 */
+  bottom: rem(50px);
+  width: 200px;
+  pointer-events: none; /* 클릭 방지 */
+}
+
+.intro-box .character img {
+  display: block;
+  width: 100%;
 }
 
 .board-text-box {
@@ -209,9 +279,8 @@ onMounted(async () => {
   width: 100%;
   height: auto;
   background-color: var(--whitish);
-  border-radius: 50px 50px 0 0;
-  margin-top: rem(100px);
-  margin-bottom: rem(-20px);
+  border-radius: 35px 35px 0 0;
+  margin-bottom: rem(-70px);
 }
 
 .content-box {
@@ -221,14 +290,34 @@ onMounted(async () => {
 }
 
 .checklist-router-box {
-  padding: 0 rem(10px) rem(30px) rem(10px);
+  padding: 0 rem(30px) rem(50px) rem(30px);
   background-color: var(--white);
   width: 100%;
 }
 
-.checklist-router-btn {
+:deep(.checklist-router-btn) {
   height: rem(100px);
+  // 색상 적용이 안 돼서 이 부분의 primary color만 var(--green)으로 재정의
+  --primary-color: var(--green);
+
+  .top-text {
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-light);
+    color: var(--white);
+  }
+
+  .bottom-text {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--white);
+    margin-top: -0.3rem;
+  }
 }
+
+:deep(.checklist-router-btn.btn-xl) {
+  background-color: var(--green) !important;
+}
+
 .description-box {
   color: var(--grey);
   font-size: rem(12px);
@@ -236,5 +325,28 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 슬롯 래퍼: 좌우 끝 정렬 */
+.checklist-router-btn .btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽: 텍스트, 오른쪽: 아이콘 */
+  width: 100%;
+  gap: 12px;
+}
+
+/* 텍스트 묶음: 왼쪽 정렬 및 두 줄 세로 배치 */
+.checklist-router-btn .btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1 1 auto; /* 남는 영역을 텍스트가 차지 */
+  line-height: 1.25;
+}
+
+.checklist-router-btn .btn-icon {
+  width: rem(65px);
+  flex: 0 0 auto;
 }
 </style>

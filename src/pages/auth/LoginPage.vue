@@ -3,7 +3,8 @@
 
 const handleKakaoLogin = () => {
   sessionStorage.setItem('provider', 'kakao');
-  window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=5d9abb9b194736dcef213fc877a7a3c6&redirect_uri=http://localhost:5173/kakao/callback`
+  // window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=5d9abb9b194736dcef213fc877a7a3c6&redirect_uri=http://localhost:5173/kakao/callback`
+  window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=5d9abb9b194736dcef213fc877a7a3c6&redirect_uri=https://livin-fe.vercel.app/kakao/callback`
 }
 
 const handleNaverLogin = () => {

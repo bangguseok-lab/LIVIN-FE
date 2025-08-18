@@ -15,37 +15,76 @@ const props = defineProps({
     default: () => [],
   },
 })
-
+// 대체 이미지를 위한 함수 추가
+const getImageUrl = fp => {
+  if (fp.imageUrls.length === 0) {
+    return SampleImg2
+  }
+  return fp.imageUrls[0].imageUrl
+}
 const modules = [Parallax, Pagination]
 </script>
 <template>
-  <div class="favorite-box" :class="{ 'no-favorite-box': props.favorite.length === 0 }">
+  <div
+    class="favorite-box"
+    :class="{ 'no-favorite-box': props.favorite.length === 0 }"
+  >
     <div class="title-box">
       <div class="board-text-box">찜한 매물</div>
       <small class="sm-text-box">
         <router-link to="/favorite" class="router-text"> 더보기 </router-link>
       </small>
     </div>
-    <div class="favorite-card-box" :class="{ 'no-favorite-card-box': props.favorite.length === 0 }">
+    <div
+      class="favorite-card-box"
+      :class="{ 'no-favorite-card-box': props.favorite.length === 0 }"
+    >
       <div v-if="props.favorite.length === 0" class="favorite-go-btn">
         <Buttons type="xl" togo="/search" class="property-search-router-btn">
-          <div class="top-text">아직 등록한 매물이 없으시다면?</div>
-          <div class="bottom-text">매물 확인하러 가기</div>
+          <span class="btn-inner">
+            <span class="btn-text">
+              <div class="top-text">아직 저장한 매물이 없다면?</div>
+              <div class="bottom-text">매물 보러 가기</div>
+            </span>
+            <img
+              src="@/assets/icons/home/go-to-favorite-icon.svg"
+              class="btn-icon"
+            />
+          </span>
         </Buttons>
       </div>
-      <swiper v-else :slidesPerView="1" :spaceBetween="20" :parallax="true" :modules="modules" :loop="loop"
-        class="mySwiper" :breakpoints="{
+      <swiper
+        v-else
+        :slidesPerView="1"
+        :spaceBetween="20"
+        :parallax="true"
+        :modules="modules"
+        :loop="loop"
+        class="mySwiper"
+        :breakpoints="{
           450: {
             slidesPerView: 2,
             spaceBetween: 20,
             loop: true,
           },
-        }">
-        <div class="parallax-bg" slot="container-start" data-swiper-parallax="-23%"></div>
+        }"
+      >
+        <div
+          class="parallax-bg"
+          slot="container-start"
+          data-swiper-parallax="-23%"
+        ></div>
         <swiper-slide v-for="fp in props.favorite" :key="fp.propertyId">
-          <router-link :to="`/property/${fp.propertyId}`" class="router-text router-card">
+          <router-link
+            :to="`/property/${fp.propertyId}`"
+            class="router-text router-card"
+          >
             <div class="card fp-box">
-              <img :src="SampleImg2" class="card-img-top fp-img" alt="건물 이미지" />
+              <img
+                :src="getImageUrl(fp)"
+                class="card-img-top fp-img"
+                alt="건물 이미지"
+              />
               <div class="card-body">
                 <p class="card-text board-text-box">
                   {{ fp.name }} <br />
@@ -82,42 +121,41 @@ const modules = [Parallax, Pagination]
   padding: 2rem 0;
   display: flex;
   flex-direction: column;
-  border-radius: 50px 50px 0 0;
+  border-radius: 35px 35px 0 0;
   height: rem(550px);
-  margin-bottom: rem(20px);
+  margin-bottom: rem(10px);
   justify-content: space-between;
 }
 
 .no-favorite-box {
   background-color: var(--white);
-  padding: 2rem 0;
+  padding: 2rem 0 10rem;
   display: flex;
   flex-direction: column;
-  border-radius: 50px 50px 0 0;
-  height: rem(200px);
-  margin-bottom: rem(20px);
+  border-radius: 35px 35px 0 0;
+  height: rem(230px);
+  margin-bottom: rem(10px);
   justify-content: space-between;
 }
 
 .favorite-card-box {
   height: rem(400px);
-  padding-bottom: rem(20px);
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 .no-favorite-card-box {
   height: rem(200px);
   padding-bottom: rem(20px);
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: rem(30px);
+  padding-right: rem(30px);
 }
 
 @media (max-width: 399px) {
   .fp-box {
     width: 100%;
     height: 95%;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 1.5px solid var(--whitish);
   }
 }
 
@@ -125,16 +163,15 @@ const modules = [Parallax, Pagination]
   .fp-box {
     width: 100%;
     height: 95%;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 1.5px solid var(--whitish);
   }
 }
 
 @media (min-width: 449px) {
   .fp-box {
     width: 100%;
-    /* 컨테이너 너비의 45%로 설정 */
     height: 95%;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 1.5px solid var(--whitish);
   }
 }
 
@@ -191,18 +228,57 @@ const modules = [Parallax, Pagination]
   justify-content: space-between;
   align-items: center;
   font-size: rem(18px);
-  padding: 0 2rem;
+  padding: 0.2rem 2rem;
 }
 
-.favorite-go-btn {
-  padding: 0 rem(10px) rem(30px) rem(10px);
-  background-color: var(--white);
+:deep(.favorite-go-btn) {
+  padding-top: 1.3rem;
+  --primary-color: var(--purple);
   width: 100%;
   height: 100%;
+
+  .top-text {
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-light);
+    color: var(--white);
+  }
+  .bottom-text {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--white);
+    margin-top: -0.3rem;
+  }
 }
 
 .property-search-router-btn {
   height: rem(100px);
   margin-top: 1rem;
+}
+
+/* 슬롯 래퍼: 좌우 끝 정렬 */
+.property-search-router-btn .btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽: 텍스트, 오른쪽: 아이콘 */
+  width: 100%;
+  gap: 12px;
+  padding-right: rem(10px);
+  padding-left: rem(10px);
+}
+
+/* 텍스트 묶음: 왼쪽 정렬 */
+.property-search-router-btn .btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1 1 auto; /* 남는 너비를 텍스트가 차지 */
+  line-height: 1.25;
+}
+
+/* 아이콘: 고정 크기, 오른쪽 */
+.property-search-router-btn .btn-icon {
+  width: rem(80px);
+  flex: 0 0 auto;
+  padding-top: rem(5px);
 }
 </style>

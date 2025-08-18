@@ -12,7 +12,13 @@ const props = defineProps({
     type: String,
   },
 })
-
+const getImageUrl = p => {
+  if (p.imageUrls.length === 0) {
+    console.log(1)
+    return SampleImg1
+  }
+  return p.imageUrls
+}
 const formattedMessage = computed(() => {
   return props.propertyMessage
     ? props.propertyMessage.replace(/\n/g, '<br>')
@@ -41,15 +47,15 @@ const formattedMessage = computed(() => {
           :price="p.jeonseDeposit ? p.jeonseDeposit : p.monthlyDeposit"
           :monthlyRent="p.monthlyRent"
           :title="p.name"
-          :imageUrls="SampleImg1"
+          :imageUrls="getImageUrl(p)"
           :propertyType="p.propertyType"
           :detailAddress="p.detailAddress"
           :exclusiveArea="p.exclusiveAreaM2"
           :supplyArea="p.supplyAreaM2"
           :floor="p.floor"
           :totalFloors="p.totalFloors"
-          :direction="p.direction"
-          :address="p.address"
+          :direction="p.mainDirection"
+          :address="p.roadAddress"
           :isFavorite="p.isFavorite"
           :isSafe="p.isSafe"
         />
@@ -106,9 +112,10 @@ const formattedMessage = computed(() => {
 }
 .property-message {
   padding: 1rem 1rem;
-  color: var(--primary-color);
-  font-weight: var(--font-weight-bold);
-  font-size: rem(14px);
+  color: var(--grey);
+  font-weight: var(--font-weight-regular);
+  font-size: 0.9rem;
   margin: 0;
+  text-align: center;
 }
 </style>

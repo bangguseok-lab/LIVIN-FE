@@ -4,6 +4,7 @@ import FilterButton from '@/components/filters/FilterButton.vue'
 import DealTypePanel from '@/components/panels/DealTypePanel.vue'
 import RegionPanel from '@/components/panels/RegionPanel.vue'
 import PricePanel from '@/components/panels/PricePanel.vue'
+import { usePriceStore } from '@/stores/priceStore'
 
 const props = defineProps({
   mode: String,
@@ -11,6 +12,38 @@ const props = defineProps({
   regionData: Object,
   region: Object,
 })
+
+const priceStore = usePriceStore()
+
+// 선택 상태 계산
+const isDealSelected = computed(
+  () => Array.isArray(props.dealType) && props.dealType.length > 0,
+)
+
+const isRegionSelected = computed(() => {
+  const r = props.region || {}
+  return !!(r.city || r.district || r.parish)
+})
+
+const isPriceSelected = computed(() => {
+  const { jeonseDeposit, monthlyDeposit, monthlyRent } = priceStore.states
+  const has = r => r && (r.min !== null || r.max !== null)
+  return has(jeonseDeposit) || has(monthlyDeposit) || has(monthlyRent)
+})
+
+function isButtonActive(panelKey) {
+  if (activePanel.value === panelKey) return true
+  switch (panelKey) {
+    case 'deal':
+      return isDealSelected.value
+    case 'region':
+      return isRegionSelected.value
+    case 'price':
+      return isPriceSelected.value
+    default:
+      return false
+  }
+}
 
 // 각 패널에서 선택된 값을 v-model 스타일로 상위에 올려줌
 const emit = defineEmits([
@@ -109,20 +142,23 @@ const currentPanelComponent = computed(() => {
       <FilterButton
         label="거래 유형"
         panelKey="deal"
-        :is-active="activePanel === 'deal'"
+        :is-active="isButtonActive('deal')"
         @click="e => togglePanel(e, 'deal')"
+        class="each-btn"
       />
       <FilterButton
         label="지역"
         panelKey="region"
-        :is-active="activePanel === 'region'"
+        :is-active="isButtonActive('region')"
         @click="e => togglePanel(e, 'region')"
+        class="each-btn"
       />
       <FilterButton
         label="가격"
         panelKey="price"
-        :is-active="activePanel === 'price'"
+        :is-active="isButtonActive('price')"
         @click="e => togglePanel(e, 'price')"
+        class="each-btn"
       />
     </div>
 
@@ -155,7 +191,7 @@ const currentPanelComponent = computed(() => {
 <style scoped lang="scss">
 .dropdown-section {
   background-color: var(--white);
-  padding: rem(12px) rem(30px);
+  padding: rem(12px) rem(0px);
   border-bottom: rem(1px) solid var(--whitish);
   border-top: rem(1px) solid var(--whitish);
   position: relative;
@@ -177,6 +213,10 @@ const currentPanelComponent = computed(() => {
     position: absolute;
     z-index: 1000;
     margin-top: rem(8px);
+  }
+
+  :deep(.each-btn) {
+    width: rem(130px);
   }
 }
 </style>

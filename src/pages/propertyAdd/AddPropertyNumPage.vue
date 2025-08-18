@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { usePropertyStore } from '@/stores/property'
 import Buttons from '@/components/common/buttons/Buttons.vue';
 import guessIcon from '@/assets/icons/property/interrogation-icon.svg'
@@ -10,6 +10,9 @@ const propertyNumValue = ref('')
 // 매물 등록에 사용될 스토어
 const propertyStore = usePropertyStore()
 
+const errorMessage = ref('')
+
+
 // 부동산 고유번호를 모를 때, 새로운 페이지 열리면서 외부 페이지로 이동
 const handleGotoSearch = () => {
   let isOk = confirm('인터넷 등기소 페이지로 이동하시겠습니까?');
@@ -19,27 +22,44 @@ const handleGotoSearch = () => {
   }
 }
 
+const validatePropertyNum = () => {
+  const pattern = /^\d{4}-\d{4}-\d{6}$/
+  if (!pattern.test(propertyNumValue.value)) {
+    errorMessage.value = '부동산 고유번호 형식은 1748-5986-123456 과 같이 4-4-6 자리여야 합니다.'
+  } else {
+    errorMessage.value = ''
+  }
+}
+
 // 다음 페이지로 이동
 const handleClick = () => {
   // 부동산 고유번호가 비어있지 않을 때
   if (propertyNumValue.value !== '') {
+    // todo: 부동산 고유번호가 유효한 지 검색하고, 스토어에 그 정보를 저장해야 함.
     propertyStore.updateNewProperty('propertyNum', propertyNumValue.value);
     router.push({ name: 'propertyNumberConfirm' })
   } else {
     alert('부동산 고유번호를 입력해주세요')
   }
 }
+
+onMounted(() => {
+  // 다음 페이지에 갔다가 다시 돌아오는 경우, 입력해뒀던 부동산 고유 번호 보이도록 설정
+  propertyNumValue.value = propertyStore.getNewProperty.propertyNum;
+})
 </script>
 
 <template>
   <div class="AddPropertyNumPage">
     <div class="addPropertyNumber-container">
       <div class="propertyNum-input-wrapper">
-        <input type="text" placeholder="부동산 고유번호를 입력해주세요" id="propertyNum-input" v-model="propertyNumValue">
+        <input type="text" placeholder="1234-5678-123456 형식으로 입력해주세요" id="propertyNum-input" v-model="propertyNumValue"
+          @blur="validatePropertyNum">
         <button v-if="propertyNumValue" class="clear-btn" @click="propertyNumValue = ''">
           <img src="@/assets/icons/property/clear-icon.svg" class="icon clear" />
         </button>
       </div>
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       <div class="guess-box">
         <span class="search-property-number">
           <img :src=guessIcon alt="고유번호 찾기 아이콘" class="icon"><span @click="handleGotoSearch">부동산
@@ -100,6 +120,13 @@ const handleClick = () => {
 
 .clear {
   opacity: 0.6;
+}
+
+.error {
+  font-size: .8rem;
+  color: red;
+  padding-left: .8rem;
+  margin-top: .2rem;
 }
 
 .guess-box {

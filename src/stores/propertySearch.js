@@ -1,7 +1,6 @@
 // stores/propertySearch.js
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
 import propertyApi from '@/api/property'
 import { usePriceStore } from '@/stores/priceStore'
 
@@ -92,15 +91,16 @@ export const usePropertySearchStore = defineStore('propertySearch', () => {
     try {
       const lastItem = loadMore ? list.value[list.value.length - 1] : null
       const params = buildListParams(lastItem)
-      const { data } = await axios.get('/api/properties', { params })
+      const data = await propertyApi.getProperties(params)
+      const items = Array.isArray(data?.properties) ? data.properties : data
 
       if (myId !== reqListId) return
-      if (loadMore) list.value.push(...data)
-      else list.value = data
+      if (loadMore) list.value.push(...items)
+      else list.value = items
 
       hasMore.value = totalCount.value
         ? list.value.length < totalCount.value
-        : data.length === pageSize
+        : (items?.length ?? 0) === pageSize
     } catch (e) {
       console.error('매물 목록 요청 실패:', e)
     } finally {

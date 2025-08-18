@@ -6,23 +6,68 @@ export const usePropertyStore = defineStore('property', {
     favoriteProperties: [],
     properties: [],
     propertyDetails: {},
+    favLoading: false,
+    lastFavParams: null,
+    favoriteVersion: 0,
+    commUniqueNo: '',
 
     // 매물 등록용 state 추가 (지우면 안 됩니다! 매물 등록 시 사용 됩니다.)
     newProperty: {
+      name: '', // 매물 이름
       postcode: '', // 우편번호
       address: '', // 주소
       detailAddress: '', // 상세주소 (몇 동 몇 호인지)
       extraAddress: '', // 참고 주소 (아파트 이름 등)
       propertyNum: '', // 부동산 고유번호
+      transactionType: '', // 거래유형
+      jeonseDeposit: '', // 보증금 금액
+      monthlyDeposit: '', // 월세보증금 금액
+      monthlyRent: '', // 월세 금액
+      direction: '', // 주실 방향
+      optionIdList: [], // 옵션들 (옵션 id 번호로 가지고 있음)
+      moveDate: Date, // 이사 가능 날짜
+      imageFiles: '', // 업로드 사진들
+      imgRepresentList: '', // 대표이미지 지정을 위한 리스트
+      selectedIndex: '', // 대표이미지로 선택된 이미지 인덱스
+      buildingNo: '', // 본번
+      buildingSubNo: '', // 부번
+      riskAnalyzed: false, // 분석 완료 여부
+      exclusiveArea: '', // 전용면적
+      supplyArea: '', // 공급면적
+      floor: '', // 층
+      isDuplex: false, // 복층 여부
+      roomCnt: '', // 방 개수
+      bathRoomCnt: '', // 욕실 개수
+      managementList: [], // 관리비 항목들[{ managementType: '수도료', managementFee: '20000' }, ...]
+      loan: '', // 대출 유무
+      pet: '', // 반려동물 여부
+      parking: '', // 주차 가능 여부
+      description: '', // 매물 설명
+      confirmPropertyNum: false, // 부동산 고유번호 조회 완료 여부
+      sido: '', // 시/도
+      sigungu: '', // 시/군/구
+      eupmyendong: '', // 읍/면/동
     },
   }),
   actions: {
+    bumpFavoriteVersion() {
+      this.favoriteVersion++
+    },
     async fetchFavoriteProperties(params) {
+      this.favLoading = true
+      this.lastFavParams = params
       try {
-        const data = await api.getFavorite(params)
-        this.favoriteProperties = data
+        const res = await api.getFavProperties(params)
+        this.favoriteProperties = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.content)
+            ? res.content
+            : []
       } catch (error) {
         console.error('찜한 매물 데이터를 불러오는 데 실패했습니다:', error)
+        this.favoriteProperties = []
+      } finally {
+        this.favLoading = false
       }
     },
     async fetchProperties(params) {
@@ -41,6 +86,24 @@ export const usePropertyStore = defineStore('property', {
         console.warn(`${key} 필드는 newProperty에 존재하지 않습니다.`)
       }
     },
+    // 관리비 항목 등록용 액션
+    addManagementItem(item) {
+      if (!this.newProperty.managementList) this.newProperty.managementList = []
+      this.newProperty.managementList.push({
+        managementType: item?.managementType ?? '',
+        managementFee: item?.managementFee ?? '',
+      })
+    },
+    // 관리비 항목 업데이트 액션
+    updateManagementItem(index, patch) {
+      const item = this.newProperty.managementList?.[index]
+      if (!item) return
+      this.newProperty.managementList[index] = { ...item, ...patch }
+    },
+    // 관리비 항목 삭제 액션
+    removeManagementItem(index) {
+      this.newProperty.managementList?.splice(index, 1)
+    },
     // 매물 등록 API 호출 액션
     async createNewProperty() {
       try {
@@ -54,11 +117,40 @@ export const usePropertyStore = defineStore('property', {
     // 등록 상태 초기화
     resetNewProperty() {
       this.newProperty = {
+        name: '', // 매물 이름
         postcode: '', // 우편번호
         address: '', // 주소
         detailAddress: '', // 상세주소 (몇 동 몇 호인지)
         extraAddress: '', // 참고 주소 (아파트 이름 등)
         propertyNum: '', // 부동산 고유번호
+        transactionType: '', // 거래유형
+        jeonseDeposit: '', // 보증금 금액
+        monthlyDeposit: '', // 월세보증금 금액
+        monthlyRent: '', // 월세 금액
+        direction: '', // 주실 방향
+        optionIdList: [], // 옵션들 (옵션 id 번호로 가지고 있음)
+        moveDate: Date, // 이사 가능 날짜
+        imageFiles: '', // 업로드 사진들
+        imgRepresentList: '', // 대표이미지 지정을 위한 리스트
+        selectedIndex: '', // 대표이미지로 선택된 이미지 인덱스
+        buildingNo: '', // 본번
+        buildingSubNo: '', // 부번
+        riskAnalyzed: false, // 분석 완료 여부
+        exclusiveArea: '', // 전용면적
+        supplyArea: '', // 공급면적
+        floor: '', // 층
+        isDuplex: false, // 복층 여부
+        roomCnt: '', // 방 개수
+        bathRoomCnt: '', // 욕실 개수
+        managementList: [], // 관리비 항목들[{ managementType: '수도료', managementFee: '20000' }, ...]
+        loan: '', // 대출 유무
+        pet: '', // 반려동물 여부
+        parking: '', // 주차 가능 여부
+        description: '', // 매물 설명
+        confirmPropertyNum: false, // 부동산 고유번호 조회 완료 여부
+        sido: '', // 시/도
+        sigungu: '', // 시/군/구
+        eupmyendong: '', // 읍/면/동
       }
     },
     async fetchPropertyDetails(params) {
@@ -80,5 +172,6 @@ export const usePropertyStore = defineStore('property', {
     // 등록 중인 매물
     getNewProperty: state => state.newProperty,
     getPropertyDetails: state => state.propertyDetails,
+    getCommUniqueNo: state => state.commUniqueNo,
   },
 })
