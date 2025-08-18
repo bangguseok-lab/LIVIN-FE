@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted, computed, watch } from 'vue'
 import RegionPanel from '@/components/panels/RegionPanel.vue'
 
 import { Swiper, SwiperSlide } from 'swiper/vue'
@@ -14,12 +14,14 @@ const modules = [FreeMode, A11y, Scrollbar]
 const props = defineProps({
   checklistItems: Array, // ['라벨1','라벨2', ...]
   modelValue: String, // 현재 선택 라벨
+  checklistId: { type: [Number, String], default: null },
   regionData: Object, // { cities, districts, parishes }
   region: Object, // { city, district, parish }
   regionApplied: { type: Object, default: null },
 })
 const emit = defineEmits([
   'update:modelValue',
+  'update:checklistId',
   'update:region',
   'filterCompleted',
 ])
@@ -49,12 +51,74 @@ function setPanelPositionByElement(el) {
   }
 }
 
-// ✅ 체크리스트 버튼 클릭 → 선택만 emit (모달/상세 없음)
-function handleSelect(label) {
-  if (props.modelValue === label) {
-    emit('update:modelValue', '') // 같은 항목 다시 누르면 해제
+// // ✅ 체크리스트 버튼 클릭 → 선택만 emit (모달/상세 없음)
+// function handleSelect(label) {
+//   if (props.modelValue === label) {
+//     emit('update:modelValue', '') // 같은 항목 다시 누르면 해제
+//   } else {
+//     emit('update:modelValue', label)
+//   }
+// }
+// 라벨이 중복될 수 있으므로, 내부에서는 고유 id로 활성화 관리
+const chips = computed(() =>
+  (props.checklistItems || []).map((raw, i) => {
+    if (typeof raw === 'object' && raw !== null) {
+      const label = raw.label ?? String(raw)
+      const realId = raw.id ?? null
+      const uiId = realId != null ? `c-${realId}` : `${label}-${i}`
+      return { uiId, realId, label }
+    } else {
+      const label = String(raw)
+      return { uiId: `${label}-${i}`, realId: null, label }
+    }
+  }),
+)
+
+// 현재 활성 버튼의 고유키(id)를 내부에서 보관
+const selectedKey = ref(null)
+
+// 외부에서 modelValue(라벨)가 바뀌면, 같은 라벨의 "첫 번째" 칩을 기본 활성화
+watch(
+  [chips, () => props.modelValue],
+  ([list, val]) => {
+    if (!val) {
+      selectedKey.value = null
+      return
+    }
+    // 현재 선택이 동일 라벨의 항목이면 유지
+    if (
+      selectedKey.value &&
+      list.some(it => it.uiId === selectedKey.value && it.label === val)
+    )
+      return
+    const first = list.find(it => it.label === val)
+    selectedKey.value = first ? first.uiId : null
+  },
+  { immediate: true },
+)
+
+/** 외부에서 checklistId가 바뀌면 해당 칩으로 포커싱 */
+watch(
+  [chips, () => props.checklistId],
+  ([list, cid]) => {
+    if (cid == null) return
+    const found = list.find(it => String(it.realId) === String(cid))
+    if (found) {
+      selectedKey.value = found.uiId
+    }
+  },
+  { immediate: true },
+)
+
+function handleSelect(it) {
+  if (selectedKey.value === it.uiId) {
+    selectedKey.value = null
+    emit('update:modelValue', '') // 외부 계약: 여전히 라벨만 보냄(해제 시 빈 문자열)
+    emit('update:checklistId', null)
   } else {
-    emit('update:modelValue', label)
+    selectedKey.value = it.uiId
+    emit('update:modelValue', it.label)
+    emit('update:checklistId', it.realId)
   }
 }
 
@@ -136,16 +200,12 @@ function handleFilterCompleted() {
         :resize-observer="true"
         :a11y="{ enabled: true }"
       >
-        <SwiperSlide
-          v-for="item in checklistItems"
-          :key="item.id ?? item"
-          class="slide-auto"
-        >
+        <SwiperSlide v-for="it in chips" :key="it.uiId" class="slide-auto">
           <button
-            :class="{ active: modelValue === (item.label ?? item) }"
-            @click="() => handleSelect(item.label ?? item)"
+            :class="{ active: selectedKey === it.uiId }"
+            @click="() => handleSelect(it)"
           >
-            {{ item.label ?? item }}
+            {{ it.label }}
           </button>
         </SwiperSlide>
       </Swiper>
