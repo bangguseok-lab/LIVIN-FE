@@ -113,7 +113,7 @@ const logout = async () => {
   const response = await axios.post(
     `${apiClient.defaults.baseURL}/users/logout`,
   )
-  console.log(response)
+  console.log(response + '')
 }
 
 export default apiClient
