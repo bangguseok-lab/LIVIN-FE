@@ -6,6 +6,7 @@ import { VueSpinnerIos } from 'vue3-spinners'
 import api from '@/api/property'
 import { usePropertyStore } from '@/stores/property'
 import DoneCharacter from '@/assets/images/character/character-basic.svg'
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
 const loading = ref(true) // 로딩 상태
@@ -106,23 +107,13 @@ onMounted(async () => {
 <template>
   <div class="RiskAnalysisDonePage">
     <div class="risk-container">
-      <img
-        v-if="!loading"
-        :src="DoneCharacter"
-        alt="완료 캐릭터"
-        class="character shake-once"
-      />
+      <img v-if="!loading" :src="DoneCharacter" alt="완료 캐릭터" class="character shake-once" />
     </div>
     <Buttons type="default" label="다음" @click="handleClick" class="nextBtn" />
   </div>
   <!-- 전체 화면 블랙 오버레이 + 스피너 -->
   <Teleport to="body">
-    <div
-      v-if="loading"
-      class="loading-overlay"
-      role="status"
-      aria-live="polite"
-    >
+    <div v-if="loading" class="loading-overlay" role="status" aria-live="polite">
       <VueSpinnerIos size="48" color="#fff" />
     </div>
   </Teleport>
@@ -157,6 +148,7 @@ onMounted(async () => {
 
 /* 좌우 흔들기 */
 @keyframes shake-x {
+
   0%,
   100% {
     transform: translateX(0);
@@ -184,6 +176,7 @@ onMounted(async () => {
 
 /* 접근성: 모션 감소 선호 시 애니메이션 끔 */
 @media (prefers-reduced-motion: reduce) {
+
   .shake-x,
   .shake-once,
   .hover-shake-x:hover {
