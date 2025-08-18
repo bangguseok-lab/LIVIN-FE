@@ -19,9 +19,12 @@ watch(dateBtn, isNowOn => {
   if (isNowOn) {
     // 이미 선택된 날짜가 있으면 지움
     if (moveDate.value) {
-      moveDate.value = null // false 말고 null 로 비우기
-      console.log('즉시 입주 ON → 날짜 해제')
+      moveDate.value = new Date()
+      dateBtn.value = true
+      setPageFromDate(moveDate.value)
     }
+  } else {
+    moveDate.value = null
   }
 })
 
@@ -29,8 +32,19 @@ watch(dateBtn, isNowOn => {
 watch(moveDate, val => {
   if (val) {
     if (dateBtn.value) {
-      dateBtn.value = false
-      console.log('날짜 선택 → 즉시 입주 OFF')
+      // 즉시 입주 선택
+      const today = new Date()
+      const todayStr = today.toISOString().split('T')[0]   // '2025-08-18' 형식
+      const moveDateStr = moveDate.value
+        ? new Date(moveDate.value).toISOString().split('T')[0]
+        : null
+
+      // 선택된 날짜가 오늘 날짜와 동일한 경우, 즉시 입주 버튼 켜기
+      if (moveDateStr === todayStr) {
+        dateBtn.value = true
+      } else {
+        dateBtn.value = false
+      }
     }
   }
 })
@@ -64,12 +78,7 @@ const formattedRightNowDate = date => {
 }
 
 const handlePrevClick = () => {
-  router.push({ name: 'optionPage' })
-}
-
-const handleNextClick = () => {
   const today = new Date()
-  console.log(dateBtn.value)
   if (dateBtn.value) {
     propertyStore.updateNewProperty('moveDate', formattedRightNowDate(today))
   } else {
@@ -78,7 +87,32 @@ const handleNextClick = () => {
       selectDateFormatt(moveDate.value),
     )
   }
-  router.push({ name: 'lastPage' })
+  router.push({ name: 'optionPage' })
+}
+
+const handleNextClick = () => {
+  const today = new Date();
+
+  // 즉시 입주 버튼 클릭한 경우, 오늘 날짜로 저장
+  if (dateBtn.value) {
+    propertyStore.updateNewProperty('moveDate', formattedRightNowDate(today));
+    router.push({ name: 'lastPage' });
+    return;
+  }
+
+  // 즉시 입주가 아니면, 사용자 선택 날짜 필수
+  const selected = moveDate.value ? new Date(moveDate.value) : null;
+  const isValid =
+    selected instanceof Date && !Number.isNaN(selected.getTime());
+
+  // 값을 선택하지 않았을 경우, 알림창 띄우기
+  if (!isValid) {
+    alert('이사 가능 날짜를 선택해주세요');
+    return;
+  }
+
+  propertyStore.updateNewProperty('moveDate', selectDateFormatt(selected));
+  router.push({ name: 'lastPage' });
 }
 
 onMounted(() => {
@@ -98,35 +132,14 @@ onMounted(() => {
     <div class="moveDate-container">
       <VCalendar class="my-calendar" transparent borderless expanded />
       <!-- 캘린더 -->
-      <VDatePicker
-        v-model="moveDate"
-        is-inline
-        mode="date"
-        :min-date="new Date()"
-        title-position="left"
-        locale="ko-KR"
-      />
+      <VDatePicker v-model="moveDate" is-inline mode="date" :min-date="new Date()" title-position="left"
+        locale="ko-KR" />
 
-      <Buttons
-        class="rightNow-btn"
-        v-model:is-active="dateBtn"
-        type="date"
-        label="즉시 입주 가능합니다"
-      />
+      <Buttons class="rightNow-btn" v-model:is-active="dateBtn" type="date" label="즉시 입주 가능합니다" />
     </div>
     <div class="button-wrapper">
-      <Buttons
-        type="default"
-        label="이전"
-        @click="handlePrevClick"
-        class="prevBtn"
-      />
-      <Buttons
-        type="default"
-        label="다음"
-        @click="handleNextClick"
-        class="nextBtn"
-      />
+      <Buttons type="default" label="이전" @click="handlePrevClick" class="prevBtn" />
+      <Buttons type="default" label="다음" @click="handleNextClick" class="nextBtn" />
     </div>
   </div>
 </template>
