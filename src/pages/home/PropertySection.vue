@@ -12,7 +12,13 @@ const props = defineProps({
     type: String,
   },
 })
-
+const getImageUrl = p => {
+  if (p.imageUrls.length === 0) {
+    console.log(1)
+    return SampleImg1
+  }
+  return p.imageUrls
+}
 const formattedMessage = computed(() => {
   return props.propertyMessage
     ? props.propertyMessage.replace(/\n/g, '<br>')
@@ -41,7 +47,7 @@ const formattedMessage = computed(() => {
           :price="p.jeonseDeposit ? p.jeonseDeposit : p.monthlyDeposit"
           :monthlyRent="p.monthlyRent"
           :title="p.name"
-          :imageUrls="SampleImg1"
+          :imageUrls="getImageUrl(p)"
           :propertyType="p.propertyType"
           :detailAddress="p.detailAddress"
           :exclusiveArea="p.exclusiveAreaM2"
