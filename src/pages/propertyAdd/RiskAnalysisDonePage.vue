@@ -45,7 +45,7 @@ onMounted(async () => {
     const inputPostcode = propertyStore.getNewProperty.postcode
     const inputAddress = propertyStore.getNewProperty.address
     const inputDetailAddress = propertyStore.getNewProperty.detailAddress
-    const inputPropertyDeposit = propertyStore.getNewProperty.propertyDeposit
+    const inputPropertyDeposit = propertyStore.getNewProperty.jeonseDeposit
     let dong = ''
     let ho = ''
     console.log(inputDetailAddress)
