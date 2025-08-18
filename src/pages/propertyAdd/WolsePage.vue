@@ -87,7 +87,7 @@ const handleClick = () => {
     const monthlyRent = Number(getAmountInMan(wolseRentStr.value))
     // console.log("월세 전환금액:", numDeposit)
     propertyStore.updateNewProperty('jeonseDeposit', numDeposit)
-    propertyStore.updateNewProperty('monthlyDeposit', wolseAmount + '0000')
+    propertyStore.updateNewProperty('monthlyDeposit', wolseAmount.value + '0000')
     propertyStore.updateNewProperty('monthlyRent', monthlyRent)
     router.push({ name: 'riskAnalysisDone' })
   } else {
@@ -152,14 +152,8 @@ onBeforeUnmount(() => {
           <div class="rent-label">보증금</div>
           <div class="rent-field">
             <div class="input-group">
-              <input
-                type="text"
-                v-model="wolseStr"
-                inputmode="numeric"
-                placeholder="금액(만원)을 입력하세요"
-                id="wolseDeposit"
-                @input="onWolseNumberInput"
-              />
+              <input type="text" v-model="wolseStr" inputmode="numeric" placeholder="금액(만원)을 입력하세요" id="wolseDeposit"
+                @input="onWolseNumberInput" />
               <span class="unit">만원</span>
             </div>
           </div>
@@ -171,14 +165,8 @@ onBeforeUnmount(() => {
           <div class="rent-label">월세</div>
           <div class="rent-field">
             <div class="input-group">
-              <input
-                type="text"
-                v-model="wolseRentStr"
-                inputmode="numeric"
-                placeholder="금액(만원)을 입력하세요"
-                id="deposit"
-                @input="onWolseRentNumberInput"
-              />
+              <input type="text" v-model="wolseRentStr" inputmode="numeric" placeholder="금액(만원)을 입력하세요" id="deposit"
+                @input="onWolseRentNumberInput" />
               <span class="unit">만원</span>
             </div>
           </div>
@@ -200,14 +188,8 @@ onBeforeUnmount(() => {
           <div class="rent-label">전환 금액</div>
           <div class="rent-field">
             <div class="input-group">
-              <input
-                type="text"
-                v-model="jeonseStr"
-                inputmode="numeric"
-                placeholder="전환율에 맞추어 계산되어 나옵니다"
-                id="jeonse"
-                :readonly="jeonseStr"
-              />
+              <input type="text" v-model="jeonseStr" inputmode="numeric" placeholder="전환율에 맞추어 계산되어 나옵니다" id="jeonse"
+                :readonly="jeonseStr" />
               <span class="unit">만원</span>
             </div>
           </div>
@@ -217,12 +199,7 @@ onBeforeUnmount(() => {
         </p>
       </div>
     </div>
-    <Buttons
-      type="default"
-      label="위험도 분석하기"
-      @click="handleClick"
-      class="nextBtn"
-    />
+    <Buttons type="default" label="위험도 분석하기" @click="handleClick" class="nextBtn" />
   </div>
 </template>
 
