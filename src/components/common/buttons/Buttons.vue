@@ -19,12 +19,12 @@ const props = defineProps({
     type: String,
     default: 'OK',
   },
-  // 기존 isActive prop을 그대로 유지
+  // isActive prop
   isActive: {
     type: Boolean,
     default: false,
   },
-  // 새롭게 추가된 isChecked prop
+  // isChecked prop
   isChecked: {
     type: Boolean,
     default: undefined, // 기존 isActive와 충돌하지 않도록 기본값을 undefined로 설정
@@ -52,7 +52,7 @@ const props = defineProps({
       ].includes(val),
   },
   togo: {
-    type: [String, Object], // ex: '/home' or { name: 'HomePage' }
+    type: [String, Object],
     default: null,
   },
   iconType: {
@@ -65,7 +65,7 @@ const props = defineProps({
   },
 })
 
-// Emit 정의 (기존 'update:isActive'와 새로운 'update:isChecked'를 모두 포함)
+// Emit 정의
 const emit = defineEmits(['update:isActive', 'update:isChecked'])
 
 // Click 시 상태 반전
@@ -83,20 +83,8 @@ const handleClick = () => {
   }
 }
 
-// Click 시 항목 삭제 API 호출 ==================================================> API 개발 후 수정 필요
+// Click 시 항목 삭제 API 호출
 const handelClose = async () => {
-  // const confirmed = confirm('삭제하시겠습니까?');
-  // if (!confirmed) return;
-
-  // try {
-  //   await deleteMyChecklistItem(id, item_id);  // id: checklist id, item_id: my-checklist-id
-  //   alert('삭제되었습니다.');
-
-  //   // 삭제 후 나만의 항목 다시 조회
-  // } catch (error) {
-  //   console.error('삭제 실패:', error);
-  //   alert('삭제 중 오류가 발생했습니다.');
-  // }
   alert('삭제하시겠습니까?')
 }
 

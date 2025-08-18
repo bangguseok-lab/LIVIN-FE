@@ -1,7 +1,7 @@
 import apiClient from './apiClient'
 
 const checklistAPI = {
-  // 체크리스트 전체 조회
+  // 체크리스트 전체 조회 (템플릿 목록용)
   async fetchChecklists() {
     const { data } = await apiClient.get('/checklists')
     console.log(data.data.checklists)
@@ -34,18 +34,9 @@ const checklistAPI = {
     return data.data
   },
 
-  async createMyChecklistItem(checklistId, items) {
-    const { data } = await apiClient.post(
-      `/checklists/${checklistId}/custom/item`,
-      items,
-    )
-    console.log(data)
-    return data.data
-  },
-
   // 나의 체크리스트 항목 수정(db)
   async editMyChecklistItem(checklistId, items) {
-    console.log('✅ 보내는 payload:', items)
+    console.log('보내는 payload:', items)
     const { data } = await apiClient.put(`/checklists/${checklistId}/items`, {
       items,
     })
@@ -146,6 +137,103 @@ const checklistAPI = {
         console.error('에러 응답 데이터:', error.response.data)
       }
 
+      throw error
+    }
+  },
+
+  // 특정 매물에 연결된 개인화 체크리스트 아이템 조회
+  async getPersonalizedChecklistForProperty(propertyId) {
+    try {
+      console.log(
+        'getPersonalizedChecklistForProperty API 호출 시작, propertyId:',
+        propertyId,
+      )
+      const response = await apiClient.get(
+        `/properties/${propertyId}/checklist`,
+      )
+      console.log('getPersonalizedChecklistForProperty 전체 응답:', response)
+      console.log(
+        'getPersonalizedChecklistForProperty response.data:',
+        response.data,
+      )
+
+      // 응답 구조에 따라 적절한 데이터 반환
+      if (response.data?.data) {
+        return response.data.data
+      } else if (response.data) {
+        return response.data
+      } else {
+        return response
+      }
+    } catch (error) {
+      console.error('getPersonalizedChecklistForProperty API 에러:', error)
+      // 404 에러는 체크리스트가 없다는 의미이므로 빈 배열 반환
+      if (error.response?.status === 404) {
+        console.log('해당 매물에 대한 체크리스트가 없습니다.')
+        return []
+      }
+      throw error
+    }
+  },
+
+  // 특정 매물을 위한 체크리스트 복제 생성
+  async cloneChecklistForProperty(propertyId, sourceChecklistId) {
+    try {
+      console.log('cloneChecklistForProperty API 호출 시작')
+      console.log('propertyId:', propertyId)
+      console.log('sourceChecklistId:', sourceChecklistId)
+
+      const response = await apiClient.post(
+        `/properties/${propertyId}/checklists`,
+        {
+          sourceChecklistId,
+        },
+      )
+      console.log('cloneChecklistForProperty 전체 응답:', response)
+      console.log('cloneChecklistForProperty response.data:', response.data)
+
+      // 응답 구조에 따라 적절한 데이터 반환
+      if (response.data?.data) {
+        return response.data.data
+      } else if (response.data) {
+        return response.data
+      } else {
+        return response
+      }
+    } catch (error) {
+      console.error('cloneChecklistForProperty API 에러:', error)
+      throw error
+    }
+  },
+
+  // 체크리스트 아이템 상태 업데이트 (propertyId 포함)
+  async updateChecklistItemsWithProperty(propertyId, checklistId, payload) {
+    try {
+      console.log('updateChecklistItemsWithProperty API 호출 시작')
+      console.log('propertyId:', propertyId)
+      console.log('checklistId:', checklistId)
+      console.log('payload:', payload)
+
+      const response = await apiClient.put(
+        `/properties/${propertyId}/checklist/${checklistId}/items`,
+        payload,
+      )
+      console.log('updateChecklistItemsWithProperty 전체 응답:', response)
+      console.log(
+        'updateChecklistItemsWithProperty response.data:',
+        response.data,
+      )
+
+      // 응답 구조에 따라 적절한 데이터 반환
+      if (response.data?.data) {
+        return response.data.data
+      } else if (response.data) {
+        return response.data
+      } else {
+        return response
+      }
+    } catch (error) {
+      console.error('updateChecklistItemsWithProperty API 에러:', error)
       throw error
     }
   },
