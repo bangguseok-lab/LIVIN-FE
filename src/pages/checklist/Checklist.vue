@@ -44,6 +44,14 @@ onUnmounted(() => {
 function goToDetail(id) {
   router.push(`/checklist/${id}`)
 }
+
+const getRandomImage = () => {
+  const images = [
+    new URL('@/assets/images/checklist-1.jpg', import.meta.url).href,
+    new URL('@/assets/images/checklist-2.jpg', import.meta.url).href,
+  ]
+  return images[Math.floor(Math.random() * images.length)]
+}
 </script>
 
 <template>
@@ -93,10 +101,11 @@ function goToDetail(id) {
         @click="goToDetail(checklist.checklistId)"
         style="cursor: pointer"
       >
-        <div
-          class="bg-light rounded me-3"
-          style="width: 8.75rem; height: 6.25rem"
-        ></div>
+        <img
+          class="rounded me-3"
+          :src="getRandomImage()"
+          style="width: 8.75rem; height: 6.25rem; object-fit: cover"
+        />
         <div class="flex-grow-1">
           <div class="title-bold">{{ checklist.title }}</div>
           <div class="text-muted small">{{ checklist.description }}</div>

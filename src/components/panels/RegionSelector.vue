@@ -115,7 +115,7 @@ defineExpose({ scrollToSelection })
 
     <!-- 위와 동일한 구조. 각각 props.districts, props.parishes 기반으로 렌더링 -->
     <div class="col">
-      <div class="header">군/구</div>
+      <div class="header">시/군/구</div>
       <ul class="scroll-list" ref="districtListRef">
         <li
           v-for="d in props.districts"
