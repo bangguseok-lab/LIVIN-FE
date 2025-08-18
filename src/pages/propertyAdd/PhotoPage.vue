@@ -76,7 +76,16 @@ const handleNextClick = () => {
   propertyStore.updateNewProperty('imageFiles', files.value);          // File[]
   propertyStore.updateNewProperty('imgRepresentList', imgRepresentList); // [{represent:true|false}, ...]
 
-  router.push({ name: 'roomDirectionPage' });
+  // 이미지 추가 되었는 지랑 대표 이미지 선택 여부 검사
+  if (propertyStore.getNewProperty.imageFiles.length > 0) {
+    if (propertyStore.getNewProperty.selectedIndex !== '') {
+      router.push({ name: 'roomDirectionPage' });
+    } else {
+      alert('대표 이미지를 선택해주세요')
+    }
+  } else {
+    alert('이미지를 추가해주세요')
+  }
 };
 
 
