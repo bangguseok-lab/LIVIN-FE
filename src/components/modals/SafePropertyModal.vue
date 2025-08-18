@@ -87,21 +87,27 @@ const jeonseView = computed(() => {
     typeof risk.value.jeonseRatio === 'number'
       ? Math.round(risk.value.jeonseRatio)
       : null
-  if (v === null)
+  if (v === null) {
     return { value: '?', tone: 'info', caption: '전세가율 정보가 필요해요' }
-  const caption =
-    v < JEONSE_SAFE_THRESHOLD ? '안전한 수준이에요' : '적정 전세가율보다 높아요'
-  return { value: `${v}%`, tone: 'ok', caption }
+  }
+  if (v > JEONSE_SAFE_THRESHOLD) {
+    return {
+      value: `${v}%`,
+      tone: 'danger',
+      caption: '적정 전세가율보다 높아요',
+    }
+  }
+  return { value: `${v}%`, tone: 'ok', caption: '안전한 수준이에요' }
 })
 
 // 불법 건축물 여부
 const illegalView = computed(() => {
   const v = risk.value.injusticeBuilding
-  if (v === false)
+  if (!v)
     return { value: '안전', tone: 'ok', caption: '불법 건축물이 아니에요' }
-  if (v === true)
-    return { value: '주의', tone: 'warn', caption: '불법 건축물일 수 있어요' }
-  return { value: '?', tone: 'info', caption: '행정 정보 확인이 필요해요' }
+  else {
+    return { value: '위험', tone: 'danger', caption: '불법 건축물일 수 있어요' }
+  }
 })
 
 // 임대인 = 소유자 확인
@@ -134,12 +140,13 @@ const mortgageView = computed(() => {
       tone: 'ok',
       caption: '보증금을 입력하면, 더 정확한 정보를 알 수 있어요',
     }
-  if (s === '위험')
+  if (s === '위험') {
     return {
       value: '위험',
-      tone: 'warn',
+      tone: 'danger',
       caption: '보증금을 돌려받지 못 할 확률이 높아요',
     }
+  }
   return {
     value: s,
     tone: 'ok',
@@ -165,8 +172,12 @@ function onClickCta() {
           <img :src="badge" alt="안심 뱃지" class="spm__badge" />
           <h2 class="spm__title">리빈 레포트</h2>
           <p class="spm__subtitle">
-            <span class="spm__subtitle-line1">해당 매물에 대한 리빈의 분석이에요</span>
-            <span class="spm__subtitle-line2">실시간 데이터가 아니므로 이후 재확인이 필요해요</span>
+            <span class="spm__subtitle-line1"
+              >해당 매물에 대한 리빈의 분석이에요</span
+            >
+            <span class="spm__subtitle-line2"
+              >실시간 데이터가 아니므로 이후 재확인이 필요해요</span
+            >
           </p>
         </div>
 
@@ -212,7 +223,12 @@ function onClickCta() {
 
         <div class="spm__caption" v-else>표시할 데이터가 없습니다.</div>
 
-        <button class="spm__cta" type="button" v-if="showDepositCta" @click="onClickCta">
+        <button
+          class="spm__cta"
+          type="button"
+          v-if="showDepositCta"
+          @click="onClickCta"
+        >
           <img :src="icon" alt="" class="spm__cta-img" />
           보증금 입력하고 더 안전한 매물 확인하러 가기
         </button>
@@ -243,7 +259,7 @@ function onClickCta() {
   background: #fff;
   border-radius: 20px;
   padding: 24px;
-  width: 400px;
+  width: 450px;
   z-index: 1000;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
@@ -321,6 +337,9 @@ function onClickCta() {
 
     &--info {
       color: var(--grey);
+    }
+    &--danger {
+      color: #dc3545; /* Bootstrap danger 색상 */
     }
   }
 

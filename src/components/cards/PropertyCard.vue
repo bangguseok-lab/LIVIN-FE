@@ -231,6 +231,7 @@ function goToDetail() {
   padding: 16px 0;
   border-top: 1px solid var(--whitish);
   border-bottom: 1px solid var(--whitish);
+  cursor: pointer;
 }
 .image-wrapper {
   position: relative;
@@ -307,5 +308,6 @@ function goToDetail() {
 
 .card-favorite-btn {
   margin-right: 0.5rem;
+  cursor: pointer;
 }
 </style>

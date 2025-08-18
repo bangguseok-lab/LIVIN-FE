@@ -1,10 +1,14 @@
 <script setup>
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   icon: {
     Type: String,
     required: true,
+  },
+  type: {
+    Type: String,
   },
 })
 const router = useRouter()
@@ -22,11 +26,22 @@ const home = () => {
     router.push('/home')
   }
 }
+const aloneClass = computed(() => {
+  return props.type === 'alone-logo' ? 'alone' : ''
+})
 </script>
 <template>
-  <div class="logo-button-wrap" @click.prevent="home">
-    <img src="../../../assets/icons/header/logo-blue.svg" alt="로고 파란색" v-if="props.icon === 'blue'" />
-    <img src="../../../assets/icons/header/logo-white.svg" alt="로고 하얀색" v-else-if="props.icon === 'white'" />
+  <div class="logo-button-wrap" @click.prevent="home" :class="aloneClass">
+    <img
+      src="../../../assets/icons/header/logo-blue.svg"
+      alt="로고 파란색"
+      v-if="props.icon === 'blue'"
+    />
+    <img
+      src="../../../assets/icons/header/logo-white.svg"
+      alt="로고 하얀색"
+      v-else-if="props.icon === 'white'"
+    />
   </div>
 </template>
 <style scoped>
@@ -34,8 +49,10 @@ const home = () => {
   width: 30%;
   height: 100%;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  padding-left: 1.2rem;
+}
+.alone {
+  justify-content: flex-start;
 }
 </style>
