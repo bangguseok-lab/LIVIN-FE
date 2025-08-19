@@ -61,10 +61,10 @@ const checklistAPI = {
     return data
   },
 
-  async ChecklistProperties(checklistId) {
-    const { data } = await apiClient.get(`/checklists/{checklistId}/properties`)
-    return data
-  },
+  // async ChecklistProperties(checklistId) {
+  //   const { data } = await apiClient.get(`/checklists/{checklistId}/properties`)
+  //   return data
+  // },
 
   async fetchPropertiesFavChecklist() {
     const { data } = await apiClient.get('/checklist-filters')
@@ -287,6 +287,15 @@ const checklistAPI = {
 
       throw error
     }
+  },
+  // 나만의 항목 생성
+  async createMyChecklistItem(checklistId, items) {
+    const { data } = await apiClient.post(
+      `/checklists/${checklistId}/custom/item`,
+      items,
+    )
+    console.log(data)
+    return data.data
   },
 }
 
