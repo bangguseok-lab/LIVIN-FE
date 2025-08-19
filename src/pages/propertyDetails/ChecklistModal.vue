@@ -300,7 +300,7 @@ const saveOptions = async () => {
     console.error('옵션 저장에 실패했습니다.', error)
     alert(
       '옵션 저장에 실패했습니다: ' +
-        (error.response?.data?.message || error.message),
+      (error.response?.data?.message || error.message),
     )
   }
 }
@@ -395,12 +395,8 @@ onMounted(() => {
         </div>
 
         <div class="modal-body">
-          <button
-            v-for="checklist in checklist.checklists"
-            :key="checklist.id"
-            @click="selectChecklist(checklist.title)"
-            class="checklist-button"
-          >
+          <button v-for="checklist in checklist.checklists" :key="checklist.id"
+            @click="selectChecklist(checklist.title)" class="checklist-button">
             {{ formatDisplayTitle(checklist.title) }}
           </button>
         </div>
@@ -469,35 +465,22 @@ onMounted(() => {
         </div>
 
         <div class="modal-options-body">
-          <button
-            v-if="groupedItems.length > 1"
-            @click="prevGroup"
-            :disabled="currentGroupIndex === 0"
-            class="nav-button prev-button"
-          >
+          <button v-if="groupedItems.length > 1" @click="prevGroup" :disabled="currentGroupIndex === 0"
+            class="nav-button prev-button">
             ‹
           </button>
 
           <div class="carousel-content-wrapper">
             <div class="option-group">
               <div class="option-grid">
-                <div
-                  v-for="item in groupedItems[currentGroupIndex]"
-                  :key="item.id || item.itemId || item.checklistItemId"
-                  class="option-button-container"
-                >
-                  <Buttons
-                    class="sm"
-                    type="sm"
-                    :is-checked="
-                      checkedOptions[
-                        item.id || item.itemId || item.checklistItemId
-                      ] || false
-                    "
-                    @update:is-checked="
+                <div v-for="item in groupedItems[currentGroupIndex]"
+                  :key="item.id || item.itemId || item.checklistItemId" class="option-button-container">
+                  <Buttons class="sm" type="sm" :is-checked="checkedOptions[
+                    item.id || item.itemId || item.checklistItemId
+                    ] || false
+                    " @update:is-checked="
                       newValue => updateItemState(item, newValue)
-                    "
-                  >
+                    ">
                     <div class="option-text">
                       {{
                         item.keyword || item.title || item.name || '제목 없음'
@@ -509,21 +492,13 @@ onMounted(() => {
             </div>
 
             <div v-if="groupedItems.length > 1" class="pagination-dots">
-              <span
-                v-for="(dot, index) in groupedItems.length"
-                :key="index"
-                :class="['dot', { active: currentGroupIndex === index }]"
-                @click="goToGroup(index)"
-              ></span>
+              <span v-for="(dot, index) in groupedItems.length" :key="index"
+                :class="['dot', { active: currentGroupIndex === index }]" @click="goToGroup(index)"></span>
             </div>
           </div>
 
-          <button
-            v-if="groupedItems.length > 1"
-            @click="nextGroup"
-            :disabled="currentGroupIndex === groupedItems.length - 1"
-            class="nav-button next-button"
-          >
+          <button v-if="groupedItems.length > 1" @click="nextGroup"
+            :disabled="currentGroupIndex === groupedItems.length - 1" class="nav-button next-button">
             ›
           </button>
         </div>
@@ -569,22 +544,26 @@ onMounted(() => {
   margin-bottom: rem(24px);
   text-align: center;
 }
+
 .modal-title {
   font-size: rem(20px);
   font-weight: bold;
   margin: 0 0 rem(8px) 0;
   color: #333;
 }
+
 .modal-subtitle {
   font-size: rem(14px);
   color: #999;
   margin: 0;
 }
+
 .modal-body {
   display: flex;
   flex-direction: column;
   gap: rem(12px);
 }
+
 .checklist-button {
   width: 100%;
   padding: rem(16px);
@@ -597,6 +576,7 @@ onMounted(() => {
   transition:
     background-color 0.2s,
     border-color 0.2s;
+
   &:hover {
     background-color: #f5f5f5;
     border-color: #ccc;
@@ -608,20 +588,24 @@ onMounted(() => {
   text-align: center;
   margin-bottom: rem(32px);
 }
+
 .modal-confirm-title {
   font-size: rem(20px);
   font-weight: bold;
   margin-bottom: rem(8px);
 }
+
 .modal-confirm-subtitle {
   font-size: rem(14px);
   color: #999;
 }
+
 .modal-confirm-body {
   display: flex;
   justify-content: space-between;
   gap: rem(12px);
 }
+
 .confirm-button {
   flex: 1;
   padding: rem(16px);
@@ -631,14 +615,17 @@ onMounted(() => {
   font-weight: bold;
   cursor: pointer;
   transition: opacity 0.2s;
+
   &:hover {
     opacity: 0.8;
   }
 }
+
 .confirm-button.yes {
   background-color: var(--primary-color, #1e90ff);
   color: #fff;
 }
+
 .confirm-button.no {
   background-color: #e0e0e0;
   color: #555;
@@ -652,21 +639,25 @@ onMounted(() => {
 }
 
 .modal-options-title {
+  margin-top: .3rem;
+  display: flex;
+  width: 100%;
+  justify-content: center;
   font-size: rem(28px);
   font-weight: bold;
   margin-bottom: rem(8px);
   color: #333;
-  text-align: left; // 좌측 정렬
+  text-align: left;
 }
 
 .apply-another-btn {
   position: absolute;
-  top: 0;
+  top: rem(-30px);
   right: 0;
   background: none;
   border: none;
   color: var(--primary-color, #1e90ff);
-  font-size: rem(14px);
+  font-size: 0.7rem;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -871,6 +862,7 @@ onMounted(() => {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
