@@ -20,8 +20,10 @@ import MicrowaveIcon from '@/assets/icons/property/microwave-oven.svg'
 import GasStoveIcon from '@/assets/icons/property/gas-stove.svg'
 import InductionIcon from '@/assets/icons/property/induction-stove.svg'
 import BedIcon from '@/assets/icons/property/bed.svg'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import api from '@/api/property'
+
+const router = useRouter()
 
 const optionMap = {
   Washer: { name: '세탁기', iconUrl: WasherIcon },
