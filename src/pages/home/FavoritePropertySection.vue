@@ -219,6 +219,7 @@ const modules = [Parallax, Pagination]
 
 .router-card {
   width: 45%;
+  cursor: pointer;
 }
 
 .title-box {

@@ -15,7 +15,6 @@ const props = defineProps({
   },
 })
 
-
 const background = computed(() => {
   if (props.icon === 'blue') {
     return 'background-white'
@@ -32,8 +31,12 @@ const background = computed(() => {
       <LogoButton :icon="props.icon" />
       <div class="header-right"></div>
     </div>
-    <div v-else-if="props.type === 'alone-logo'" class="Header-alone" :class="background">
-      <LogoButton :icon="props.icon" />
+    <div
+      v-else-if="props.type === 'alone-logo'"
+      class="Header-alone"
+      :class="background"
+    >
+      <LogoButton :icon="props.icon" type="alone-logo" />
     </div>
   </div>
 </template>
@@ -71,6 +74,7 @@ const background = computed(() => {
 
 .Header-alone {
   justify-content: flex-start;
+  padding-left: 1.6rem;
 }
 
 .header-right {
