@@ -272,7 +272,7 @@ onMounted(() => {
       <div v-if="isShow === 'showProfileImg'" class="profile-img-box grid-container">
         <div v-for="num in profileList" :key="num" class="profile-img-item"
           :class="{ selected: selectedProfile === num }" @click="selectProfile(num)">
-          <img :src="`/src/assets/images/profile/test-${num}.svg`" :alt="`profile-${num}`" />
+          <img :src="`/assets/profile/test-${num}.svg`" :alt="`profile-${num}`" />
         </div>
       </div>
       <!-- 주소가 있으면 버튼 활성화 -->

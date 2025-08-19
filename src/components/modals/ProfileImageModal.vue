@@ -2,17 +2,33 @@
 import { ref, defineEmits, defineProps, watch } from 'vue'
 import ImageBox from '@/components/common/imagebox/ImageBox.vue'
 
-import test1 from '@/assets/images/profile/test-1.svg'
-import test2 from '@/assets/images/profile/test-2.svg'
-import test3 from '@/assets/images/profile/test-3.svg'
-import test4 from '@/assets/images/profile/test-4.svg'
-import test5 from '@/assets/images/profile/test-5.svg'
-import test6 from '@/assets/images/profile/test-6.svg'
+// import test1 from '@/assets/images/profile/test-1.svg'
+// import test2 from '@/assets/images/profile/test-2.svg'
+// import test3 from '@/assets/images/profile/test-3.svg'
+// import test4 from '@/assets/images/profile/test-4.svg'
+// import test5 from '@/assets/images/profile/test-5.svg'
+// import test6 from '@/assets/images/profile/test-6.svg'
+
+
+// import test1 from '../../../public/assets/images/profile/test-1.svg'
+// import test2 from '../../../public/assets/images/profile/test-2.svg'
+// import test3 from '../../../public/assets/images/profile/test-3.svg'
+// import test4 from '../../../public/assets/images/profile/test-4.svg'
+// import test5 from '../../../public/assets/images/profile/test-5.svg'
+// import test6 from '../../../public/assets/images/profile/test-6.svg'
+const images = [
+  '/assets/profile/test-1.svg',
+  '/assets/profile/test-2.svg',
+  '/assets/profile/test-3.svg',
+  '/assets/profile/test-4.svg',
+  '/assets/profile/test-5.svg',
+  '/assets/profile/test-6.svg',
+]
 
 const emit = defineEmits(['change', 'update:modelValue'])
 const props = defineProps({ modelValue: Boolean })
 
-const images = [test1, test2, test3, test4, test5, test6]
+// const images = [test1, test2, test3, test4, test5, test6]
 const selectedIndex = ref(null)
 
 // 선택된 이미지 숫자 반환

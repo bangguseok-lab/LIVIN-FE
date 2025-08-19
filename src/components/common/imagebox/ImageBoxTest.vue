@@ -2,11 +2,17 @@
 import { ref } from 'vue'
 import ImageBox from '@/components/common/imagebox/ImageBox.vue'
 
-import img1 from '@/assets/images/profile/test-1.svg'
-import img2 from '@/assets/images/profile/test-2.svg'
-import img3 from '@/assets/images/profile/test-3.svg'
+// import img1 from '@/assets/images/profile/test-1.svg'
+// import img2 from '@/assets/images/profile/test-2.svg'
+// import img3 from '@/assets/images/profile/test-3.svg'
 
-const images = [img1, img2, img3]
+const images = [
+  '/assets/profile/test-1.svg',
+  '/assets/profile/test-2.svg',
+  '/assets/profile/test-3.svg',
+]
+
+// const images = [img1, img2, img3]
 
 const selectedIndex = ref(null)
 const handleSelect = index => {
@@ -21,14 +27,8 @@ const handleSelect = index => {
         프로필 이미지 테스트 (type="profile") 선택하면 파란 테두리
       </h2>
       <div style="display: flex; gap: 30px">
-        <ImageBox
-          v-for="(img, idx) in images"
-          :key="'profile-' + idx"
-          :image="img"
-          type="profile"
-          :selected="selectedIndex === idx"
-          @select="() => handleSelect(idx)"
-        />
+        <ImageBox v-for="(img, idx) in images" :key="'profile-' + idx" :image="img" type="profile"
+          :selected="selectedIndex === idx" @select="() => handleSelect(idx)" />
       </div>
     </section>
 
